@@ -4,6 +4,39 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Search, Star, ChevronDown, ChevronUp, X, Menu } from "lucide-react";
 import Image from "next/image";
 
+interface Faq {
+  id: number;
+  question: string;
+  answer: string;
+}
+
+interface Review {
+  id: number;
+  name: string;
+  rating: number;
+  comment: string;
+}
+
+interface Service {
+  id: number;
+  name: string;
+  description: string;
+  price: string;
+  icon: string;
+  urgency: string;
+}
+
+interface AcUnit {
+  id: number;
+  name: string;
+  type: string;
+  capacity: string;
+  energyRating: string;
+  price: number;
+  image: string;
+  availability: string;
+}
+
 // Mock data for AC units
 const acUnits = [
   {
@@ -141,7 +174,7 @@ const CatalogPage: React.FC = () => {
   const [sortBy, setSortBy] = useState<string>("popularity");
   const [acTypeFilter, setAcTypeFilter] = useState<string>("");
   const [serviceUrgencyFilter, setServiceUrgencyFilter] = useState<string>("");
-  const [quickViewItem, setQuickViewItem] = useState<any>(null);
+  const [quickViewItem, setQuickViewItem] = useState<AcUnit | null>(null); // Updated type
   const [expandedFaq, setExpandedFaq] = useState<number | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState<boolean>(false);
   const [windowWidth, setWindowWidth] = useState<number>(
