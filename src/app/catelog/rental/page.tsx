@@ -1,13 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import Image from "next/image";
-import {
-  Star,
-  ChevronLeft,
-  ChevronRight,
-  Check,
-  X,
-} from "lucide-react";
+import { Star, ChevronLeft, ChevronRight, Check, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 // Mock data for the AC unit
@@ -63,6 +57,11 @@ const recommendedUnits = [
     image: "/placeholder.svg",
   },
 ];
+
+interface BookingModalProps {
+  onClose: () => void;
+  acUnit: typeof acUnit;
+}
 
 export default function ACDescriptionPage() {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -228,19 +227,19 @@ export default function ACDescriptionPage() {
   );
 }
 
-function BookingModal({ onClose, acUnit }) {
+function BookingModal({ onClose, acUnit }: BookingModalProps) {
   const [formData, setFormData] = useState({
     name: "",
     mobile: "",
     startDate: "",
     endDate: "",
   });
-  const [errors, setErrors] = useState({});
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
 
   const validateForm = () => {
-    const newErrors = {};
+    const newErrors: { [key: string]: string } = {};
     if (!formData.name.trim()) newErrors.name = "Name is required";
     if (!formData.mobile.trim()) newErrors.mobile = "Mobile number is required";
     else if (!/^\d{10}$/.test(formData.mobile))
@@ -253,7 +252,7 @@ function BookingModal({ onClose, acUnit }) {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleInputChange = (e) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
     if (errors[name]) {
@@ -261,7 +260,7 @@ function BookingModal({ onClose, acUnit }) {
     }
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (validateForm()) {
       setIsSubmitting(true);
@@ -275,12 +274,13 @@ function BookingModal({ onClose, acUnit }) {
   const totalDays =
     formData.startDate && formData.endDate
       ? Math.ceil(
-          (new Date(formData.endDate) - new Date(formData.startDate)) /
+          (new Date(formData.endDate).getTime() -
+            new Date(formData.startDate).getTime()) /
             (1000 * 60 * 60 * 24)
         )
       : 0;
 
-  const totalPrice = totalDays * acUnit.price;
+  const totalPrice: number = totalDays * acUnit.price; // Explicitly define totalPrice as a number
 
   return (
     <motion.div
@@ -424,8 +424,8 @@ function BookingModal({ onClose, acUnit }) {
             <Check className="w-16 h-16 text-green-500 mx-auto mb-4" />
             <h3 className="text-xl font-semibold mb-2">Booking Confirmed!</h3>
             <p>
-              Thank you for your booking. We will contact you shortly with further
-              details.
+              Thank you for your booking. We will contact you shortly with
+              further details.
             </p>
             <button
               onClick={onClose}
