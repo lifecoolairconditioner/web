@@ -4,28 +4,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Search, Star, ChevronDown, ChevronUp, X, Menu } from "lucide-react";
 import Image from "next/image";
 
-interface Faq {
-  id: number;
-  question: string;
-  answer: string;
-}
-
-interface Review {
-  id: number;
-  name: string;
-  rating: number;
-  comment: string;
-}
-
-interface Service {
-  id: number;
-  name: string;
-  description: string;
-  price: string;
-  icon: string;
-  urgency: string;
-}
-
 interface AcUnit {
   id: number;
   name: string;
