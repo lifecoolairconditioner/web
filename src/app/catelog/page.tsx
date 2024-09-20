@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Search, Star, ChevronDown, ChevronUp, X, Menu } from "lucide-react";
 import Image from "next/image";
-import Link from "next/link";
+
 // Mock data for AC units
 const acUnits = [
   {
@@ -115,38 +115,36 @@ const faqs = [
     id: 1,
     question: "How long can I rent an AC for?",
     answer:
-      "We offer flexible rental periods ranging from 1 month to 12 months. You can choose the duration that best suits your needs.",
+      "We offer flexible rental periods ranging from 1 month to 12 months.",
   },
   {
     id: 2,
     question: "What does the maintenance service include?",
     answer:
-      "Our maintenance service includes a thorough check-up, cleaning of filters and coils, and minor repairs if needed. We ensure your AC runs at peak efficiency.",
+      "Our maintenance service includes a thorough check-up and cleaning.",
   },
   {
     id: 3,
     question: "How quickly can you respond to urgent repair requests?",
-    answer:
-      "For urgent repairs, we aim to have a technician at your location within 4 hours of your request.",
+    answer: "For urgent repairs, we aim to have a technician within 4 hours.",
   },
   {
     id: 4,
     question: "Do you offer installation services for purchased ACs?",
-    answer:
-      "Yes, we provide professional installation services for all types of air conditioners, whether purchased from us or elsewhere.",
+    answer: "Yes, we provide professional installation services for all ACs.",
   },
 ];
 
-const CatalogPage = () => {
-  const [activeTab, setActiveTab] = useState("rentals");
-  const [searchTerm, setSearchTerm] = useState("");
-  const [sortBy, setSortBy] = useState("popularity");
-  const [acTypeFilter, setAcTypeFilter] = useState("");
-  const [serviceUrgencyFilter, setServiceUrgencyFilter] = useState("");
-  const [quickViewItem, setQuickViewItem] = useState(null);
-  const [expandedFaq, setExpandedFaq] = useState(null);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [windowWidth, setWindowWidth] = useState(
+const CatalogPage: React.FC = () => {
+  const [activeTab, setActiveTab] = useState<string>("rentals");
+  const [searchTerm, setSearchTerm] = useState<string>("");
+  const [sortBy, setSortBy] = useState<string>("popularity");
+  const [acTypeFilter, setAcTypeFilter] = useState<string>("");
+  const [serviceUrgencyFilter, setServiceUrgencyFilter] = useState<string>("");
+  const [quickViewItem, setQuickViewItem] = useState<any>(null);
+  const [expandedFaq, setExpandedFaq] = useState<number | null>(null);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState<boolean>(false);
+  const [windowWidth, setWindowWidth] = useState<number>(
     typeof window !== "undefined" ? window.innerWidth : 0
   );
 
@@ -175,8 +173,16 @@ const CatalogPage = () => {
   });
 
   const sortedServices = [...filteredServices].sort((a, b) => {
-    if (sortBy === "price-low-high") return a.price.localeCompare(b.price);
-    if (sortBy === "price-high-low") return b.price.localeCompare(a.price);
+    if (sortBy === "price-low-high")
+      return (
+        parseFloat(a.price.replace(/[^0-9.-]+/g, "")) -
+        parseFloat(b.price.replace(/[^0-9.-]+/g, ""))
+      );
+    if (sortBy === "price-high-low")
+      return (
+        parseFloat(b.price.replace(/[^0-9.-]+/g, "")) -
+        parseFloat(a.price.replace(/[^0-9.-]+/g, ""))
+      );
     return 0; // Default to original order
   });
 
@@ -248,44 +254,135 @@ const CatalogPage = () => {
             className={`flex-1 py-2 px-4 text-center font-semibold ${
               activeTab === "rentals"
                 ? "bg-[#ffc300] text-[#010101]"
-                : "bg-gray-200 text-gray-700"
-            } rounded-l-full`}
+                : "bg-transparent text-gray-600"
+            }`}
             onClick={() => setActiveTab("rentals")}
           >
-            AC Rentals
+            Rentals
           </button>
           <button
             className={`flex-1 py-2 px-4 text-center font-semibold ${
               activeTab === "services"
                 ? "bg-[#ffc300] text-[#010101]"
-                : "bg-gray-200 text-gray-700"
-            } rounded-r-full`}
+                : "bg-transparent text-gray-600"
+            }`}
             onClick={() => setActiveTab("services")}
           >
-            Repair & Maintenance
+            Services
           </button>
         </div>
 
-        {/* Filters and Sorting */}
-        <div className="flex flex-col md:flex-row justify-between mb-6 space-y-4 md:space-y-0">
-          <div className="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4">
-            {activeTab === "rentals" && (
+        {/* Rentals Tab */}
+        {activeTab === "rentals" && (
+          <div>
+            {/* Sort and Filter Options */}
+            <div className="flex justify-between mb-4">
               <select
-                className="p-2 border rounded-md"
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+                className="border border-gray-300 rounded-lg p-2"
+              >
+                <option value="popularity">Sort by Popularity</option>
+                <option value="price-low-high">Price: Low to High</option>
+                <option value="price-high-low">Price: High to Low</option>
+              </select>
+              <select
                 value={acTypeFilter}
                 onChange={(e) => setAcTypeFilter(e.target.value)}
+                className="border border-gray-300 rounded-lg p-2"
               >
-                <option value="">All AC Types</option>
+                <option value="">All Types</option>
                 <option value="Split">Split</option>
                 <option value="Window">Window</option>
                 <option value="Portable">Portable</option>
               </select>
-            )}
-            {activeTab === "services" && (
+            </div>
+
+            {/* AC Units List */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {sortedAcUnits.map((unit) => (
+                <div
+                  key={unit.id}
+                  className="bg-white rounded-lg shadow-md p-4 relative"
+                >
+                  <Image
+                    src={unit.image}
+                    alt={unit.name}
+                    width={300}
+                    height={200}
+                    className="w-full h-48 object-cover rounded-md"
+                  />
+                  <h2 className="font-semibold text-lg mt-2">{unit.name}</h2>
+                  <p>
+                    {unit.type} | {unit.capacity}
+                  </p>
+                  <p className="text-yellow-500 font-semibold">
+                    {unit.energyRating} <Star size={16} />
+                  </p>
+                  <p className="text-lg font-bold">₹{unit.price}</p>
+                  <p className="text-sm text-gray-500">{unit.availability}</p>
+                  <button
+                    onClick={() => setQuickViewItem(unit)}
+                    className="absolute top-4 right-4 bg-[#ffc300] text-[#010101] rounded-full p-2 hover:bg-[#e6b000] transition-colors"
+                  >
+                    <X size={16} />
+                  </button>
+                </div>
+              ))}
+            </div>
+
+            {/* Quick View Modal */}
+            <AnimatePresence>
+              {quickViewItem && (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center"
+                >
+                  <div className="bg-white rounded-lg p-6 relative max-w-lg w-full">
+                    <button
+                      onClick={() => setQuickViewItem(null)}
+                      className="absolute top-2 right-2 text-gray-500"
+                    >
+                      <X size={20} />
+                    </button>
+                    <h2 className="text-2xl font-semibold">
+                      {quickViewItem.name}
+                    </h2>
+                    <Image
+                      src={quickViewItem.image}
+                      alt={quickViewItem.name}
+                      width={300}
+                      height={200}
+                      className="w-full h-48 object-cover rounded-md mt-4"
+                    />
+                    <p>
+                      {quickViewItem.type} | {quickViewItem.capacity}
+                    </p>
+                    <p className="text-yellow-500 font-semibold">
+                      {quickViewItem.energyRating} <Star size={16} />
+                    </p>
+                    <p className="text-lg font-bold">₹{quickViewItem.price}</p>
+                    <p className="text-sm text-gray-500">
+                      {quickViewItem.availability}
+                    </p>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        )}
+
+        {/* Services Tab */}
+        {activeTab === "services" && (
+          <div>
+            {/* Filter Options */}
+            <div className="mb-4">
               <select
-                className="p-2 border rounded-md"
                 value={serviceUrgencyFilter}
                 onChange={(e) => setServiceUrgencyFilter(e.target.value)}
+                className="border border-gray-300 rounded-lg p-2"
               >
                 <option value="">All Urgencies</option>
                 <option value="Urgent">Urgent</option>
@@ -293,286 +390,84 @@ const CatalogPage = () => {
                 <option value="Non-urgent">Non-urgent</option>
                 <option value="Scheduled">Scheduled</option>
               </select>
-            )}
-          </div>
-          <select
-            className="p-2 border rounded-md"
-            value={sortBy}
-            onChange={(e) => setSortBy(e.target.value)}
-          >
-            <option value="popularity">Sort by Popularity</option>
-            <option value="price-low-high">Price: Low to High</option>
-            <option value="price-high-low">Price: High to Low</option>
-          </select>
-        </div>
+            </div>
 
-        {/* AC Rentals Grid */}
-        {activeTab === "rentals" && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {sortedAcUnits.map((unit) => (
-              <motion.div
-                key={unit.id}
-                className="bg-white rounded-lg shadow-md overflow-hidden"
-                whileHover={{ scale: 1.05 }}
-                transition={{ type: "spring", stiffness: 300 }}
-              >
-                <Image
-                  src={unit.image}
-                  alt={unit.name}
-                  width={300}
-                  height={200}
-                  className="w-full h-48 object-cover"
-                />
-                <div className="p-4">
-                  <h3 className="font-semibold mb-2">{unit.name}</h3>
-                  <p className="text-sm text-gray-600 mb-2">
-                    {unit.type} | {unit.capacity} | {unit.energyRating}
-                  </p>
-                  <p className="text-lg font-bold mb-2">₹{unit.price}/month</p>
-                  <p
-                    className={`text-sm ${
-                      unit.availability === "In Stock"
-                        ? "text-green-500"
-                        : unit.availability === "Low Stock"
-                        ? "text-orange-500"
-                        : "text-red-500"
-                    } mb-2`}
-                  >
-                    {unit.availability}
-                  </p>
-                  <button
-                    onClick={() => setQuickViewItem(unit)}
-                    className="w-full bg-[#ffc300] text-[#010101] py-2 rounded-full font-semibold hover:bg-[#e6b000] transition-colors"
-                  >
-                    Quick View
-                  </button>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        )}
-
-        {/* Repair & Maintenance List */}
-        {activeTab === "services" && (
-          <div className="space-y-4">
-            {sortedServices.map((service) => (
-              <motion.div
-                key={service.id}
-                className="bg-white rounded-lg shadow-md p-4 flex flex-col sm:flex-row items-center"
-                whileHover={{ scale: 1.02 }}
-                transition={{ type: "spring", stiffness: 300 }}
-              >
-                <div className="text-4xl mr-4 mb-4 sm:mb-0">{service.icon}</div>
-                <div className="flex-grow text-center sm:text-left mb-4 sm:mb-0">
-                  <h3 className="font-semibold">{service.name}</h3>
-                  <p className="text-sm text-gray-600">{service.description}</p>
-                </div>
-                <div className="text-center sm:text-right mb-4 sm:mb-0">
-                  <p className="font-bold">{service.price}</p>
-                  <p className="text-sm text-gray-600">{service.urgency}</p>
-                </div>
-                <button
-                  onClick={() => setQuickViewItem(service)}
-                  className="w-full sm:w-auto bg-[#ffc300] text-[#010101] px-4 py-2 rounded-full font-semibold hover:bg-[#e6b000] transition-colors"
+            {/* Services List */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {sortedServices.map((service) => (
+                <div
+                  key={service.id}
+                  className="bg-white rounded-lg shadow-md p-4"
                 >
-                  Book Now
-                </button>
-              </motion.div>
-            ))}
+                  <div className="flex items-center mb-2">
+                    <span className="text-2xl mr-2">{service.icon}</span>
+                    <h2 className="font-semibold text-lg">{service.name}</h2>
+                  </div>
+                  <p>{service.description}</p>
+                  <p className="text-lg font-bold">{service.price}</p>
+                  <p className="text-sm text-gray-500">{service.urgency}</p>
+                </div>
+              ))}
+            </div>
           </div>
         )}
 
         {/* Customer Reviews */}
         <section className="mt-12">
-          <h2 className="text-2xl font-bold mb-4">Customer Reviews</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <h2 className="text-xl font-semibold mb-4">Customer Reviews</h2>
+          <div className="space-y-4">
             {reviews.map((review) => (
               <div
                 key={review.id}
-                className="bg-white rounde d-lg shadow-md p-4"
+                className="bg-white rounded-lg shadow-md p-4"
               >
-                <div className="flex items-center mb-2">
-                  {[...Array(5)].map((_, i) => (
-                    <Star
-                      key={i}
-                      className={
-                        i < review.rating ? "text-[#ffc300]" : "text-gray-300"
-                      }
-                      size={20}
-                    />
-                  ))}
-                </div>
-                <p className="text-gray-600 mb-2">{review.comment}</p>
-                <p className="font-semibold">{review.name}</p>
+                <h3 className="font-semibold">{review.name}</h3>
+                <p className="text-yellow-500 font-semibold">
+                  {review.rating} <Star size={16} />
+                </p>
+                <p>{review.comment}</p>
               </div>
             ))}
           </div>
         </section>
 
-        {/* FAQ Accordion */}
+        {/* FAQs */}
         <section className="mt-12">
-          <h2 className="text-2xl font-bold mb-4">
+          <h2 className="text-xl font-semibold mb-4">
             Frequently Asked Questions
           </h2>
           <div className="space-y-4">
             {faqs.map((faq) => (
-              <div
-                key={faq.id}
-                className="bg-white rounded-lg shadow-md overflow-hidden"
-              >
-                <button
-                  className="w-full p-4 text-left font-semibold flex justify-between items-center"
+              <div key={faq.id} className="bg-white rounded-lg shadow-md p-4">
+                <div
+                  className="flex justify-between cursor-pointer"
                   onClick={() =>
                     setExpandedFaq(expandedFaq === faq.id ? null : faq.id)
                   }
                 >
-                  {faq.question}
+                  <h3 className="font-semibold">{faq.question}</h3>
                   {expandedFaq === faq.id ? (
                     <ChevronUp size={20} />
                   ) : (
                     <ChevronDown size={20} />
                   )}
-                </button>
-                <AnimatePresence>
-                  {expandedFaq === faq.id && (
-                    <motion.div
-                      initial={{ height: 0 }}
-                      animate={{ height: "auto" }}
-                      exit={{ height: 0 }}
-                      transition={{ duration: 0.3 }}
-                      className="overflow-hidden"
-                    >
-                      <p className="p-4 bg-gray-50">{faq.answer}</p>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
+                </div>
+                {expandedFaq === faq.id && <p className="mt-2">{faq.answer}</p>}
               </div>
             ))}
           </div>
         </section>
-
-        {/* Why Choose Us */}
-        <section className="mt-12 bg-white rounded-lg shadow-md p-6">
-          <h2 className="text-2xl font-bold mb-4">Why Choose Us</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="text-center">
-              <div className="w-16 h-16 bg-[#ffc300] rounded-full flex items-center justify-center mx-auto mb-4">
-                <span className="text-2xl">🏆</span>
-              </div>
-              <h3 className="font-semibold mb-2">Expert Technicians</h3>
-              <p className="text-sm text-gray-600">
-                Our team consists of certified professionals with years of
-                experience.
-              </p>
-            </div>
-            <div className="text-center">
-              <div className="w-16 h-16 bg-[#ffc300] rounded-full flex items-center justify-center mx-auto mb-4">
-                <span className="text-2xl">⚡</span>
-              </div>
-              <h3 className="font-semibold mb-2">Quick Service</h3>
-              <p className="text-sm text-gray-600">
-                We prioritize your comfort with prompt and efficient service.
-              </p>
-            </div>
-            <div className="text-center">
-              <div className="w-16 h-16 bg-[#ffc300] rounded-full flex items-center justify-center mx-auto mb-4">
-                <span className="text-2xl">💰</span>
-              </div>
-              <h3 className="font-semibold mb-2">Competitive Pricing</h3>
-              <p className="text-sm text-gray-600">
-                Get top-quality service and rentals at affordable rates.
-              </p>
-            </div>
-          </div>
-        </section>
       </main>
 
-      {/* Quick View Modal */}
-      <AnimatePresence>
-        {quickViewItem && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
-          >
-            <motion.div
-              initial={{ scale: 0.9, y: 20 }}
-              animate={{ scale: 1, y: 0 }}
-              exit={{ scale: 0.9, y: 20 }}
-              className="bg-white rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto"
-            >
-              <div className="flex justify-between items-start mb-4">
-                <h2 className="text-2xl font-semibold">{quickViewItem.name}</h2>
-                <button
-                  onClick={() => setQuickViewItem(null)}
-                  className="text-gray-500 hover:text-gray-700"
-                >
-                  <X size={24} />
-                </button>
-              </div>
-              {"capacity" in quickViewItem ? (
-                // AC Unit Quick View
-                <div className="flex flex-col md:flex-row">
-                  <div className="md:w-1/2 mb-4 md:mb-0 md:mr-4">
-                    <Image
-                      src={quickViewItem.image}
-                      alt={quickViewItem.name}
-                      width={400}
-                      height={300}
-                      className="w-full h-auto object-cover rounded-lg"
-                    />
-                  </div>
-                  <div className="md:w-1/2">
-                    <p className="text-lg mb-2">
-                      <strong>Type:</strong> {quickViewItem.type}
-                    </p>
-                    <p className="text-lg mb-2">
-                      <strong>Capacity:</strong> {quickViewItem.capacity}
-                    </p>
-                    <p className="text-lg mb-2">
-                      <strong>Energy Rating:</strong>{" "}
-                      {quickViewItem.energyRating}
-                    </p>
-                    <p className="text-lg mb-2">
-                      <strong>Price:</strong> ₹{quickViewItem.price}/month
-                    </p>
-                    <p className="text-lg mb-2">
-                      <strong>Availability:</strong>{" "}
-                      {quickViewItem.availability}
-                    </p>
-                    <Link href={"/catelog/rental"}>
-                      {" "}
-                      <button className="mt-4 w-full bg-[#ffc300] text-[#010101] py-2 rounded-full font-semibold hover:bg-[#e6b000] transition-colors">
-                        Rent Now
-                      </button>{" "}
-                    </Link>
-                  </div>
-                </div>
-              ) : (
-                // Service Quick View
-                <div>
-                  <p className="text-lg mb-2">
-                    <strong>Description:</strong> {quickViewItem.description}
-                  </p>
-                  <p className="text-lg mb-2">
-                    <strong>Price:</strong> {quickViewItem.price}
-                  </p>
-                  <p className="text-lg mb-2">
-                    <strong>Urgency:</strong> {quickViewItem.urgency}
-                  </p>
-                  <Link href={"/catelog/repair"}>
-                    {" "}
-                    <button className="mt-4 w-full bg-[#ffc300] text-[#010101] py-2 rounded-full font-semibold hover:bg-[#e6b000] transition-colors">
-                      Book Service
-                    </button>{" "}
-                  </Link>
-                </div>
-              )}
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* Footer */}
+      <footer className="bg-[#010101] text-white py-6">
+        <div className="max-w-7xl mx-auto px-4 text-center">
+          <p>
+            &copy; {new Date().getFullYear()} CoolAir Solutions. All Rights
+            Reserved.
+          </p>
+        </div>
+      </footer>
     </div>
   );
 };

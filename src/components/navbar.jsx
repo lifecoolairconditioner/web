@@ -17,7 +17,6 @@ import {
   Menu,
   Search,
   Snowflake,
-  Tool,
   Users,
   DollarSign,
   FileText,
@@ -119,7 +118,7 @@ export default function Navbar() {
 
               <MobileNavLink
                 href="/dashboard/repair"
-                icon={<Tool className="h-5 w-5" />}
+              
               >
                 Repair/Maintenance
               </MobileNavLink>
