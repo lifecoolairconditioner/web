@@ -22,7 +22,7 @@ export interface Vendor {
 
 interface VendorFormProps {
   vendor: Vendor | null;
-  onSubmit: (vendor: Omit<Vendor, "id">) => Promise<void>; // Ensure onSubmit returns a Promise
+  onSubmit: (vendor: Omit<Vendor, "id">) => Promise<void>;
 }
 
 const VendorForm: React.FC<VendorFormProps> = ({ vendor, onSubmit }) => {
@@ -39,6 +39,10 @@ const VendorForm: React.FC<VendorFormProps> = ({ vendor, onSubmit }) => {
     tdsApplicable: false,
     tdsPercentage: 0,
   });
+
+  const [errors, setErrors] = useState<
+    Partial<Record<keyof Omit<Vendor, "id">, string>>
+  >({});
 
   useEffect(() => {
     if (vendor) {
@@ -68,6 +72,25 @@ const VendorForm: React.FC<VendorFormProps> = ({ vendor, onSubmit }) => {
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setErrors({}); // Clear previous errors
+
+    // Basic validation
+    const newErrors: Partial<Record<keyof Omit<Vendor, "id">, string>> = {};
+    if (!formData.name) newErrors.name = "Name is required";
+    if (
+      !formData.gstin.match(
+        /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/
+      )
+    )
+      newErrors.gstin = "Invalid GSTIN format";
+    if (!formData.contactPerson)
+      newErrors.contactPerson = "Contact Person is required";
+    if (!formData.phone) newErrors.phone = "Phone number is required";
+    if (!formData.email) newErrors.email = "Email is required";
+
+    setErrors(newErrors);
+    if (Object.keys(newErrors).length > 0) return;
+
     try {
       await onSubmit(formData);
       console.log("Form submitted successfully");
@@ -101,7 +124,6 @@ const VendorForm: React.FC<VendorFormProps> = ({ vendor, onSubmit }) => {
             value={formData.gstin}
             onChange={handleChange}
             required
-            pattern="^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$"
           />
           {errors.gstin && <div className="text-red-600">{errors.gstin}</div>}
         </div>
