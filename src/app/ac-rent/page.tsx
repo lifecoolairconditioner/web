@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import { ChevronLeft, Check, X } from "lucide-react";
 import Link from "next/link";
 import { getAllACRentals } from "@/apis/acrent";
+import Image from "next/image";
 
 type RentalRates = {
   "3_months": number;
@@ -30,6 +31,7 @@ export default function ACRentTypesScreen() {
         const data = await getAllACRentals();
         setACTypes(data);
       } catch (error) {
+        console.log(error);
         setError("Failed to fetch AC rental options");
       } finally {
         setLoading(false);
@@ -69,7 +71,7 @@ export default function ACRentTypesScreen() {
             className="bg-white rounded-xl shadow-md overflow-hidden"
           >
             <Link href={`/ac-rent/${ac._id}`}>
-              <img
+              <Image
                 src={ac.imageUrl}
                 alt={ac.name}
                 className="w-full h-48 object-cover"

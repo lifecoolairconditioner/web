@@ -4,6 +4,17 @@ import { ChevronLeft, Check } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { getACRentalById } from "@/apis/acrent";
+import Image from "next/image";
+
+interface ACDetails {
+  id: string;
+  name: string;
+  description: string;
+  imageUrl: string;
+  type: string;
+  availability: boolean;
+  rentalRates: { [key: string]: number }; // Rental rates object with durations as keys and prices as values
+}
 
 interface ACDetailsPageProps {
   params: {
@@ -15,16 +26,16 @@ export default function ACDetailsPage({ params }: ACDetailsPageProps) {
   const router = useRouter();
   const { id } = params;
 
-  const [acDetails, setACDetails] = useState<any>(null);
+  const [acDetails, setACDetails] = useState<ACDetails | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchACDetails = async () => {
       try {
-        const data = await getACRentalById(id);
-        console.log("Fetched AC details:", data);
-        setACDetails(data.data);
+        const response = await getACRentalById(id);
+        console.log("Fetched AC details:", response);
+        setACDetails(response.data);
       } catch (err) {
         console.error("Error fetching AC details:", err);
         setError("Failed to fetch AC details");
@@ -67,9 +78,11 @@ export default function ACDetailsPage({ params }: ACDetailsPageProps) {
 
       <div className="grid gap-8 md:grid-cols-2">
         <div>
-          <img
+          <Image
             src={acDetails.imageUrl}
             alt={acDetails.name}
+            width={500}
+            height={500}
             className="w-full h-auto rounded-xl shadow-md"
           />
         </div>
@@ -91,6 +104,7 @@ export default function ACDetailsPage({ params }: ACDetailsPageProps) {
                 <Check className="w-5 h-5 text-green-500 mr-2 flex-shrink-0" />
                 Portable and compact design
               </li>
+              {/* You can add more key features here */}
             </ul>
           </section>
 

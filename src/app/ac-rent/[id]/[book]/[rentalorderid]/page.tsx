@@ -7,10 +7,10 @@ import {
   ChevronUp,
   Phone,
   MessageCircle,
-  CreditCard,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { getOrderById } from "@/apis/order";
+import Image from "next/image";
 
 interface PaymentDetail {
   params: {
@@ -24,7 +24,7 @@ export default function PaymentPage({ params }: PaymentDetail) {
   const [showBankDetails, setShowBankDetails] = useState(false);
   const [totalPrice, setTotalPrice] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const { id, book, rentalorderid } = params;
+  const { book, rentalorderid } = params;
   const router = useRouter();
 
   useEffect(() => {
@@ -89,7 +89,7 @@ export default function PaymentPage({ params }: PaymentDetail) {
             )}
           </h2>
           <div className="flex flex-col items-center">
-            <img
+            <Image
               src="/placeholder.svg?height=200&width=200"
               alt="Payment QR Code"
               className="w-full max-w-[200px] h-auto mx-auto mb-4"

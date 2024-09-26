@@ -1,13 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -18,10 +12,22 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Download, RefreshCw } from "lucide-react";
+import Link from "next/link";
 import { getAllOrders } from "@/apis/order"; // Import your API function
 
+// Define the Order interface to match the structure of your orders data
+interface Order {
+  _id: string;
+  contact: {
+    name: string;
+  };
+  rental: boolean;
+  status: string;
+  totalPrice: number;
+}
+
 export default function Dashboard() {
-  const [orders, setOrders] = useState([]); // State to hold fetched orders
+  const [orders, setOrders] = useState<Order[]>([]); // Use the defined type for orders
   const [isLoading, setIsLoading] = useState(true); // Loading state
 
   useEffect(() => {
@@ -79,14 +85,13 @@ export default function Dashboard() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {orders.map((order: any) => (
+                {orders.map((order) => (
                   <TableRow key={order._id}>
                     <TableCell>{order._id}</TableCell>
                     <TableCell>{order.contact.name}</TableCell>
                     <TableCell>
                       {order.rental ? "AC rent" : "Other service"}
                     </TableCell>
-                    {/* Adjust if needed */}
                     <TableCell>
                       <span
                         className={`px-2 py-1 rounded-full text-xs font-semibold ${
@@ -112,7 +117,9 @@ export default function Dashboard() {
       </Card>
 
       <div className="flex justify-end space-x-4">
-        <Button variant="outline">View All Orders</Button>
+        <Link href={"/admin-dash/orders"}>
+          <Button variant="outline">View All Orders</Button>
+        </Link>
         <Button>Generate Detailed Report</Button>
       </div>
     </div>

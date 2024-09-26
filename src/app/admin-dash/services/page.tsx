@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Table,
   TableBody,
@@ -27,105 +27,146 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Plus, Edit, Trash } from "lucide-react";
-import {
-  getAllOrders,
-  updateOrderStatus,
-  AssignTechnician,
-} from "@/apis/order";
+import { Plus, Edit, Trash, Search, DollarSign, FileText } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
+import { motion, AnimatePresence } from "framer-motion";
+import axios from "axios";
+
+// Define types for service and form data
+interface Service {
+  _id: string;
+  name: string;
+  category: string;
+  price: number;
+  description: string;
+  imageUrl: string;
+}
+
+interface ServiceFormData {
+  name: string;
+  category: string;
+  price: number;
+  description: string;
+  imageUrl: string;
+}
 
 export default function ServiceManagement() {
-  const [services, setServices] = useState([
-    {
-      id: 1,
-      name: "AC Rental",
-      category: "Rental",
-      price: 50,
-      description: "Rent an AC unit for your home or office",
-    },
-    {
-      id: 2,
-      name: "AC Repair",
-      category: "Repair",
-      price: 80,
-      description: "Professional AC repair services",
-    },
-    {
-      id: 3,
-      name: "AC Maintenance",
-      category: "Maintenance",
-      price: 100,
-      description: "Regular AC maintenance to ensure optimal performance",
-    },
-    {
-      id: 4,
-      name: "AC Installation",
-      category: "Installation",
-      price: 150,
-      description: "Expert AC installation services",
-    },
-  ]);
-  const [selectedService, setSelectedService] = useState(null);
+  const [services, setServices] = useState<Service[]>([]);
+  const [selectedService, setSelectedService] = useState<Service | null>(null);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [categoryFilter, setCategoryFilter] = useState("all");
+  const [searchTerm, setSearchTerm] = useState("");
 
-  const handleAddService = (newService) => {
-    setServices([...services, { id: services.length + 1, ...newService }]);
-    setIsAddDialogOpen(false);
+  // Fetch all services on component mount
+  useEffect(() => {
+    const fetchServices = async () => {
+      try {
+        const response = await axios.get("http://localhost:8000/api/services");
+        setServices(response.data);
+      } catch (error) {
+        console.error("Error fetching services:", error);
+      }
+    };
+    fetchServices();
+  }, []);
+
+  const handleAddService = async (newService: ServiceFormData) => {
+    try {
+      const response = await axios.post(
+        "http://localhost:8000/api/services",
+        newService
+      );
+      setServices([...services, response.data]);
+      setIsAddDialogOpen(false);
+    } catch (error) {
+      console.error("Error adding service:", error);
+    }
   };
 
-  const handleEditService = (updatedService) => {
-    setServices(
-      services.map((service) =>
-        service.id === updatedService.id ? updatedService : service
-      )
-    );
-    setIsEditDialogOpen(false);
+  const handleEditService = async (updatedService: Service) => {
+    try {
+      await axios.put(
+        `http://localhost:8000/api/services/${updatedService._id}`,
+        updatedService
+      );
+      setServices(
+        services.map((service) =>
+          service._id === updatedService._id ? updatedService : service
+        )
+      );
+      setIsEditDialogOpen(false);
+    } catch (error) {
+      console.error("Error updating service:", error);
+    }
   };
 
-  const handleDeleteService = () => {
-    setServices(
-      services.filter((service) => service.id !== selectedService.id)
-    );
-    setIsDeleteDialogOpen(false);
-  };
-
-  const filteredServices =
-    categoryFilter === "all"
-      ? services
-      : services.filter(
-          (service) => service.category.toLowerCase() === categoryFilter
+  const handleDeleteService = async () => {
+    try {
+      if (selectedService) {
+        await axios.delete(
+          `http://localhost:8000/api/services/${selectedService._id}`
         );
+        setServices(
+          services.filter((service) => service._id !== selectedService._id)
+        );
+        setIsDeleteDialogOpen(false);
+      }
+    } catch (error) {
+      console.error("Error deleting service:", error);
+    }
+  };
+
+  const filteredServices = services
+    .filter((service) =>
+      categoryFilter === "all"
+        ? true
+        : service.category.toLowerCase() === categoryFilter
+    )
+    .filter((service) =>
+      service.name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
-      <h1 className="text-3xl font-bold text-[#010101]">Service Management</h1>
+    <div className="container mx-auto p-6 space-y-6 bg-[#fafafa]">
+      <h1 className="text-3xl font-bold text-[#010101]">
+        Service Management 🛠️
+      </h1>
 
       <div className="flex justify-between items-center">
-        <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Filter by category" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Categories</SelectItem>
-            <SelectItem value="rental">Rental</SelectItem>
-            <SelectItem value="repair">Repair</SelectItem>
-            <SelectItem value="maintenance">Maintenance</SelectItem>
-            <SelectItem value="installation">Installation</SelectItem>
-          </SelectContent>
-        </Select>
+        <div className="flex items-center space-x-4">
+          <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Filter by category" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Categories 📋</SelectItem>
+              <SelectItem value="repair">Repair 🔧</SelectItem>
+              <SelectItem value="maintenance">Maintenance 🔨</SelectItem>
+              <SelectItem value="installation">Installation 🔌</SelectItem>
+            </SelectContent>
+          </Select>
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+            <Input
+              placeholder="Search services..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10 pr-4 py-2"
+            />
+          </div>
+        </div>
 
         <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
           <DialogTrigger asChild>
-            <Button>
+            <Button className="bg-[#ffc300] text-[#010101] hover:bg-[#ffc300]/90">
               <Plus className="mr-2 h-4 w-4" /> Add New Service
             </Button>
           </DialogTrigger>
-          <DialogContent>
+          <DialogContent className="bg-white">
             <DialogHeader>
-              <DialogTitle>Add New Service</DialogTitle>
+              <DialogTitle>Add New Service ✨</DialogTitle>
               <DialogDescription>
                 Enter the details for the new service.
               </DialogDescription>
@@ -135,73 +176,84 @@ export default function ServiceManagement() {
         </Dialog>
       </div>
 
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>ID</TableHead>
-            <TableHead>Name</TableHead>
-            <TableHead>Category</TableHead>
-            <TableHead>Price</TableHead>
-            <TableHead>Description</TableHead>
-            <TableHead>Actions</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {filteredServices.map((service) => (
-            <TableRow key={service.id}>
-              <TableCell>{service.id}</TableCell>
-              <TableCell>{service.name}</TableCell>
-              <TableCell>{service.category}</TableCell>
-              <TableCell>${service.price}</TableCell>
-              <TableCell>{service.description}</TableCell>
-              <TableCell>
-                <div className="flex space-x-2">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => {
-                      setSelectedService(service);
-                      setIsEditDialogOpen(true);
-                    }}
-                  >
-                    <Edit className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => {
-                      setSelectedService(service);
-                      setIsDeleteDialogOpen(true);
-                    }}
-                  >
-                    <Trash className="h-4 w-4" />
-                  </Button>
-                </div>
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+      <AnimatePresence>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -20 }}
+          transition={{ duration: 0.3 }}
+        >
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>ID 🆔</TableHead>
+                <TableHead>Name 📛</TableHead>
+                <TableHead>Category 🏷️</TableHead>
+                <TableHead>Price 💰</TableHead>
+                <TableHead>Description 📝</TableHead>
+                <TableHead>Actions 🔧</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {filteredServices.map((service) => (
+                <TableRow key={service._id}>
+                  <TableCell>{service._id}</TableCell>
+                  <TableCell>{service.name}</TableCell>
+                  <TableCell>{service.category}</TableCell>
+                  <TableCell>${service.price}</TableCell>
+                  <TableCell>{service.description}</TableCell>
+                  <TableCell>
+                    <div className="flex space-x-2">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => {
+                          setSelectedService(service);
+                          setIsEditDialogOpen(true);
+                        }}
+                      >
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => {
+                          setSelectedService(service);
+                          setIsDeleteDialogOpen(true);
+                        }}
+                      >
+                        <Trash className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </motion.div>
+      </AnimatePresence>
 
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogContent>
+        <DialogContent className="bg-white">
           <DialogHeader>
-            <DialogTitle>Edit Service</DialogTitle>
+            <DialogTitle>Edit Service ✏️</DialogTitle>
             <DialogDescription>
               Update the details for this service.
             </DialogDescription>
           </DialogHeader>
-          <ServiceForm
-            initialData={selectedService}
-            onSubmit={handleEditService}
-          />
+          {selectedService && (
+            <ServiceForm
+              initialData={selectedService}
+              onSubmit={handleEditService}
+            />
+          )}
         </DialogContent>
       </Dialog>
 
       <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-        <DialogContent>
+        <DialogContent className="bg-white">
           <DialogHeader>
-            <DialogTitle>Delete Service</DialogTitle>
+            <DialogTitle>Delete Service 🗑️</DialogTitle>
             <DialogDescription>
               Are you sure you want to delete this service? This action cannot
               be undone.
@@ -224,25 +276,42 @@ export default function ServiceManagement() {
   );
 }
 
-function ServiceForm({ initialData, onSubmit }) {
-  const [formData, setFormData] = useState(
-    initialData || { name: "", category: "", price: "", description: "" }
-  );
+interface ServiceFormProps {
+  initialData?: Service;
+  onSubmit: (data: ServiceFormData | Service) => void;
+}
 
-  const handleChange = (e) => {
+function ServiceForm({ initialData, onSubmit }: ServiceFormProps) {
+  const [formData, setFormData] = useState<ServiceFormData>({
+    name: initialData?.name || "",
+    category: initialData?.category || "",
+    price: initialData?.price || 0,
+    description: initialData?.description || "",
+    imageUrl: initialData?.imageUrl || "",
+  });
+
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
 
-  const handleSubmit = (e) => {
+  const handleCategoryChange = (value: string) => {
+    setFormData({ ...formData, category: value });
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onSubmit(formData);
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={handleSubmit} className="space-y-4 bg-white">
       <div>
-        <Label htmlFor="name">Service Name</Label>
+        <Label htmlFor="name" className="flex items-center">
+          Service Name
+        </Label>
         <Input
           id="name"
           name="name"
@@ -252,27 +321,24 @@ function ServiceForm({ initialData, onSubmit }) {
         />
       </div>
       <div>
-        <Label htmlFor="category">Category</Label>
-        <Select
-          name="category"
-          value={formData.category}
-          onValueChange={(value) =>
-            setFormData({ ...formData, category: value })
-          }
-        >
+        <Label htmlFor="category" className="flex items-center">
+          <FileText className="mr-2 h-4 w-4" /> Category
+        </Label>
+        <Select value={formData.category} onValueChange={handleCategoryChange}>
           <SelectTrigger>
             <SelectValue placeholder="Select a category" />
           </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="Rental">Rental</SelectItem>
-            <SelectItem value="Repair">Repair</SelectItem>
-            <SelectItem value="Maintenance">Maintenance</SelectItem>
-            <SelectItem value="Installation">Installation</SelectItem>
+          <SelectContent className="bg-white">
+            <SelectItem value="Repair">Repair 🔧</SelectItem>
+            <SelectItem value="Maintenance">Maintenance 🔨</SelectItem>
+            <SelectItem value="Installation">Installation 🔌</SelectItem>
           </SelectContent>
         </Select>
       </div>
       <div>
-        <Label htmlFor="price">Price</Label>
+        <Label htmlFor="price" className="flex items-center">
+          <DollarSign className="mr-2 h-4 w-4" /> Price
+        </Label>
         <Input
           id="price"
           name="price"
@@ -283,8 +349,10 @@ function ServiceForm({ initialData, onSubmit }) {
         />
       </div>
       <div>
-        <Label htmlFor="description">Description</Label>
-        <Input
+        <Label htmlFor="description" className="flex items-center">
+          <FileText className="mr-2 h-4 w-4" /> Description
+        </Label>
+        <Textarea
           id="description"
           name="description"
           value={formData.description}
@@ -292,8 +360,26 @@ function ServiceForm({ initialData, onSubmit }) {
           required
         />
       </div>
+      <div>
+        <Label htmlFor="imageUrl" className="flex items-center">
+          Image URL
+        </Label>
+        <Input
+          id="imageUrl"
+          name="imageUrl"
+          type="url"
+          value={formData.imageUrl}
+          onChange={handleChange}
+          required
+        />
+      </div>
       <DialogFooter>
-        <Button type="submit">Save</Button>
+        <Button
+          type="submit"
+          className="bg-[#ffc300] text-[#010101] hover:bg-[#ffc300]/90"
+        >
+          Save
+        </Button>
       </DialogFooter>
     </form>
   );

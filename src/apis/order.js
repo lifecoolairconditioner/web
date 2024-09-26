@@ -36,9 +36,9 @@ export const getOrderById = async (id) => {
 };
 
 // Update order status (Admin/Technician access)
-export const updateOrderStatus = async (id, status) => {
+export const updateOrderStatus = async (id, newStatus) => {
   try {
-    const response = await axios.put(`${API_URL}/${id}/status`, { status });
+    const response = await axios.put(`${API_URL}/${id}/status`, { newStatus });
     return response.data;
   } catch (error) {
     console.error(`Error updating order status for ID (${id}):`, error);
@@ -47,12 +47,28 @@ export const updateOrderStatus = async (id, status) => {
 };
 
 // Update order status (Admin/Technician access)
-export const AssignTechnician = async (id, status) => {
+export const updatePaymentStatus = async (id, paymentStatus) => {
   try {
-    const response = await axios.put(`${API_URL}/${id}/status`, { status });
+    const response = await axios.put(`${API_URL}/payment/${id}`, {
+      paymentStatus,
+    });
     return response.data;
   } catch (error) {
     console.error(`Error updating order status for ID (${id}):`, error);
+    throw error;
+  }
+};
+
+// Update order status (Admin/Technician access)
+export const AssignTechnician = async (id, technician) => {
+  try {
+    console.log(technician);
+    const response = await axios.put(`${API_URL}/technician/${id}`, {
+      technician,
+    });
+    return response.data;
+  } catch (error) {
+    console.error(`Error updating order technician for ID (${id}):`, error);
     throw error;
   }
 };

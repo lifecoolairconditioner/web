@@ -1,30 +1,31 @@
 import React from "react";
 import { Refrigerator, WashingMachine, Microwave } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 const services = [
   {
     name: "AC Repair",
     icon: Refrigerator,
     color: "bg-blue-500",
-    link: "/services",
+    link: "/Repair",
   },
   {
     name: "Fridge Repair",
     icon: Refrigerator,
     color: "bg-green-500",
-    link: "/services",
+    link: "/Repair",
   },
   {
     name: "Washing Machine Repair",
     icon: WashingMachine,
     color: "bg-purple-500",
-    link: "/services",
+    link: "/Repair",
   },
   {
     name: "Microwave Repair",
     icon: Microwave,
     color: "bg-red-500",
-    link: "/services",
+    link: "/Repair",
   },
 ];
 
@@ -46,17 +47,19 @@ export default function MainScreen() {
                   Cool comfort, delivered to your doorstep
                 </p>
               </div>
-              <img
-                src="/placeholder.svg?height=120&width=120"
+              <Image
+                src="/placeholder.svg"
                 alt="AC Rental"
-                className="w-30 h-30 object-cover rounded-xl"
+                width={"100"}
+                height={"100"}
+                className="w-30 h-28 object-cover rounded-xl"
               />
             </div>
           </Link>
         </div>
 
         {/* Repair Service Cards */}
-        {services.map((service, index) => (
+        {services.map((service) => (
           <div
             key={service.name}
             className={`${service.color} rounded-xl shadow-md overflow-hidden cursor-pointer transform transition duration-300 hover:scale-[1.05]`}

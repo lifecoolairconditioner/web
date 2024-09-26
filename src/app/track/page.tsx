@@ -60,6 +60,8 @@ export default function OrderTrackingPage() {
       console.log(details); // Ensure you're logging the correct array of orders
       setOrderDetails(details);
     } catch (error) {
+      console.log(error);
+
       alert("Failed to fetch order details. Please try again.");
     } finally {
       setIsLoading(false);
@@ -188,4 +190,3 @@ export default function OrderTrackingPage() {
     </div>
   );
 }
-  

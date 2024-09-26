@@ -24,6 +24,17 @@ export const getServiceById = async (id) => {
   }
 };
 
+// Get a single service by category (Public)
+export const getServiceBycategory = async (category) => {
+  try {
+    const response = await axios.get(`${API_URL}/category/${category}`);
+    return response.data;
+  } catch (error) {
+    console.error(`Error fetching service by ID (${category}):`, error);
+    throw error;
+  }
+};
+
 // Create a new service (Admin only)
 export const createService = async (serviceData) => {
   try {

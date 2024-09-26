@@ -6,13 +6,7 @@ import { motion } from "framer-motion";
 import { login } from "@/apis/auth"; // The login API function
 import { useRouter } from "next/navigation"; // Correct router for the app directory
 
-export default function LoginPage({
-  children,
-  href,
-}: {
-  children?: React.ReactNode;
-  href?: string;
-}) {
+export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -20,6 +14,7 @@ export default function LoginPage({
   const [error, setError] = useState<string | null>(null);
 
   const router = useRouter(); // Correctly using router for app directory
+  console.log(error);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -29,7 +24,7 @@ export default function LoginPage({
     try {
       await login(email, password);
       router.push("/admin-dash"); // Redirect to the dashboard after successful login
-    } catch (err: any) {
+    } catch (err: string) {
       setError(err.message || "Login failed");
     } finally {
       setIsLoading(false);
@@ -158,7 +153,7 @@ export default function LoginPage({
           </form>
           <div className="mt-6">
             <p className="text-center text-sm text-gray-600">
-              Don't have an account?{" "}
+              Don t have an account?{" "}
               <a
                 href="#"
                 className="font-medium text-[#ffc300] hover:text-[#e6b000]"

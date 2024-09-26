@@ -1,42 +1,84 @@
 "use client";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { ChevronLeft, Star, Clock, CheckCircle } from "lucide-react";
+import { getServiceById } from "@/apis/service";
+import Link from "next/link";
+import Image from "next/image";
+// Define the service details type based on your service model
+interface ServiceDetails {
+  _id: string;
+  name: string;
+  rating: number;
+  reviews: number;
+  price: string;
+  duration: string;
+  imageUrl: string;
+  description: string;
+  includes: string[];
+  benefits: string[];
+}
 
-const serviceDetails = {
-  id: 1,
-  name: "AC Repair and Service",
-  rating: 4.8,
-  reviews: 1234,
-  price: "₹499",
-  duration: "60 min",
-  image: "/placeholder.svg?height=300&width=500",
-  description:
-    "Professional AC repair and service to keep your air conditioner running efficiently.",
-  includes: [
-    "Comprehensive AC check-up",
-    "Cleaning of filters and coils",
-    "Performance optimization",
-    "Minor repairs (if needed)",
-  ],
-  benefits: [
-    "Improved cooling efficiency",
-    "Reduced energy consumption",
-    "Extended AC lifespan",
-    "Better air quality",
-  ],
-};
+interface ServiceDetailsPageProps {
+  params: {
+    id: string; // The service ID should be a string
+  };
+}
 
-export default function ServiceDetailsPage() {
+export default function ServiceDetailsPage({
+  params,
+}: ServiceDetailsPageProps) {
+  const { id } = params;
+  const [serviceDetails, setServiceDetails] = useState<ServiceDetails | null>(
+    null
+  );
+  const [loading, setLoading] = useState<boolean>(true); // State to manage loading state
+  const [error, setError] = useState<string | null>(null); // State to manage errors
+
+  useEffect(() => {
+    const fetchServiceDetails = async () => {
+      try {
+        if (id) {
+          const fetchedService = await getServiceById(id); // Fetch service details using the provided ID
+          setServiceDetails(fetchedService); // Set the fetched service details to state
+        }
+      } catch (err) {
+        console.log(err);
+
+        setError("Error fetching service details");
+      } finally {
+        setLoading(false); // Stop loading after fetching
+      }
+    };
+
+    fetchServiceDetails();
+  }, [id]);
+
   const handleBookService = () => {
     console.log("Navigating to Service Scheduling Page");
     // Implement actual navigation logic here
   };
 
+  if (loading) {
+    return <div>Loading...</div>; // Display loading state
+  }
+
+  if (error) {
+    return <div>{error}</div>; // Display error message
+  }
+
+  if (!serviceDetails) {
+    return <div>No service details found.</div>; // Display message if no service details are found
+  }
+
   return (
     <div className="min-h-screen bg-[#fafafa]">
       <header className="bg-[#010101] text-white p-4 sm:p-6 flex items-center justify-between sticky top-0 z-10">
         <div className="flex items-center">
-          <button className="mr-4" aria-label="Go back">
+          <button
+            className="mr-4"
+            aria-label="Go back"
+            onClick={() => window.history.back()}
+          >
             <ChevronLeft className="w-6 h-6" />
           </button>
           <h1 className="text-xl font-bold">{serviceDetails.name}</h1>
@@ -51,8 +93,8 @@ export default function ServiceDetailsPage() {
       </header>
 
       <main className="p-4 sm:p-6 max-w-3xl mx-auto">
-        <img
-          src={serviceDetails.image}
+        <Image
+          src={serviceDetails.imageUrl}
           alt={serviceDetails.name}
           className="w-full h-48 sm:h-64 object-cover rounded-xl mb-6"
         />
@@ -74,10 +116,10 @@ export default function ServiceDetailsPage() {
 
         <section className="mb-8">
           <h2 className="text-2xl font-bold text-[#010101] mb-4">
-            What's included
+            Whats included
           </h2>
           <ul className="space-y-2">
-            {serviceDetails.includes.map((item, index) => (
+            {serviceDetails.includes?.map((item, index) => (
               <li key={index} className="flex items-start">
                 <CheckCircle className="w-5 h-5 text-green-500 mr-2 flex-shrink-0 mt-1" />
                 <span>{item}</span>
@@ -89,7 +131,7 @@ export default function ServiceDetailsPage() {
         <section className="mb-8">
           <h2 className="text-2xl font-bold text-[#010101] mb-4">Benefits</h2>
           <ul className="space-y-2">
-            {serviceDetails.benefits.map((benefit, index) => (
+            {serviceDetails.benefits?.map((benefit, index) => (
               <li key={index} className="flex items-start">
                 <CheckCircle className="w-5 h-5 text-[#ffc300] mr-2 flex-shrink-0 mt-1" />
                 <span>{benefit}</span>
@@ -107,12 +149,15 @@ export default function ServiceDetailsPage() {
             </span>
             <span className="text-gray-500 ml-2">onwards</span>
           </div>
-          <button
-            onClick={handleBookService}
-            className="bg-[#ffc300] text-[#010101] px-6 py-3 rounded-lg font-semibold hover:bg-[#e6b000] transition-colors duration-300 focus:outline-none focus:ring-4 focus:ring-[#ffc300] focus:ring-opacity-50"
-          >
-            Book Service
-          </button>
+          <Link href={`./${id}/book`}>
+            {" "}
+            <button
+              onClick={handleBookService}
+              className="bg-[#ffc300] text-[#010101] px-6 py-3 rounded-lg font-semibold hover:bg-[#e6b000] transition-colors duration-300 focus:outline-none focus:ring-4 focus:ring-[#ffc300] focus:ring-opacity-50"
+            >
+              Book Service
+            </button>
+          </Link>
         </div>
       </footer>
     </div>

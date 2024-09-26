@@ -4,11 +4,13 @@ import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ShoppingBag, Briefcase, Users, Menu, X } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 
 const menuItems = [
   { name: "Orders", icon: ShoppingBag, href: "/admin-dash/orders" },
   { name: "Services", icon: Briefcase, href: "/admin-dash/services" },
   { name: "Technician", icon: Users, href: "/admin-dash/technician" },
+  { name: "AC rent", icon: Users, href: "/admin-dash/ac-rent" },
 ];
 
 export default function Navbar() {
@@ -34,7 +36,7 @@ export default function Navbar() {
         <div className="flex justify-between h-16">
           <div className="flex">
             <div className="flex-shrink-0 flex items-center">
-              <img className="h-8 w-auto" src="/placeholder.svg" alt="Logo" />
+              <Image className="h-8 w-auto" src="/placeholder.svg" alt="Logo" />
             </div>
           </div>
           <div className="hidden md:flex items-center space-x-4">

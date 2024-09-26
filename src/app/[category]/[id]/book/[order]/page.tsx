@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   ChevronLeft,
   Copy,
@@ -8,9 +8,42 @@ import {
   Phone,
   MessageCircle,
 } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { getOrderById } from "@/apis/order";
 import Image from "next/image";
-export default function PaymentPage() {
+
+interface PaymentDetail {
+  params: {
+    id: string;
+    book: string;
+    order: string;
+  };
+}
+
+export default function PaymentPage({ params }: PaymentDetail) {
   const [showBankDetails, setShowBankDetails] = useState(false);
+  const [totalPrice, setTotalPrice] = useState<number | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const { book, order } = params;
+  const router = useRouter();
+
+  useEffect(() => {
+    async function fetchRentalOrder() {
+      try {
+        setIsLoading(true);
+        const rentalOrder = await getOrderById(order);
+        console.log(rentalOrder);
+
+        setTotalPrice(rentalOrder.totalPrice);
+      } catch (error) {
+        console.error("Failed to fetch rental order:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    fetchRentalOrder();
+  }, [order]);
 
   const handleCopy = (text: string) => {
     navigator.clipboard
@@ -19,15 +52,26 @@ export default function PaymentPage() {
       .catch((err) => console.error("Failed to copy: ", err));
   };
 
-  const handlePaymentCompleted = () => {
-    console.log("Payment completed. Navigating to Order Tracking Page.");
-    // Implement actual navigation to Order Tracking Page here
+  const handlePaymentConfirmation = () => {
+    const isConfirmed = window.confirm(
+      "Are you sure you want to confirm the payment?"
+    );
+    if (isConfirmed) {
+      console.log("Payment confirmed. Navigating to Order Tracking Page.");
+      router.push(`/track`);
+    } else {
+      console.log("Payment cancelled. Staying on the current page.");
+    }
   };
 
   return (
     <div className="min-h-screen bg-[#fafafa] p-4 sm:p-6 lg:p-8">
       <header className="flex items-center mb-6">
-        <button className="mr-4" aria-label="Go back">
+        <button
+          className="mr-4"
+          aria-label="Go back"
+          onClick={() => router.back()}
+        >
           <ChevronLeft className="w-6 h-6 text-[#010101]" />
         </button>
         <h1 className="text-2xl font-bold text-[#010101]">Payment</h1>
@@ -36,13 +80,21 @@ export default function PaymentPage() {
       <div className="max-w-md mx-auto space-y-8">
         <div className="bg-white p-6 rounded-xl shadow-md">
           <h2 className="text-lg font-semibold text-[#010101] mb-4">
-            Scan QR Code to Pay
+            {isLoading ? (
+              "Loading payment details..."
+            ) : (
+              <>
+                Pay ₹{totalPrice} for your {book}
+              </>
+            )}
           </h2>
-          <Image
-            src="/placeholder.svg?height=200&width=200"
-            alt="Payment QR Code"
-            className="w-full max-w-[200px] h-auto mx-auto mb-4"
-          />
+          <div className="flex flex-col items-center">
+            <Image
+              src="/placeholder.svg?height=200&width=200"
+              alt="Payment QR Code"
+              className="w-full max-w-[200px] h-auto mx-auto mb-4"
+            />
+          </div>
           <p className="text-sm text-gray-600 text-center">
             Scan this QR code with any UPI app to make the payment
           </p>
@@ -135,11 +187,28 @@ export default function PaymentPage() {
         </div>
 
         <button
-          onClick={handlePaymentCompleted}
+          onClick={handlePaymentConfirmation}
           className="w-full py-3 px-4 bg-[#ffc300] text-[#010101] rounded-lg font-semibold hover:bg-[#e6b000] transition-colors focus:outline-none focus:ring-4 focus:ring-[#ffc300] focus:ring-opacity-50"
         >
-          Payment Completed
+          Confirm Payment
         </button>
+
+        <div className="bg-white p-6 rounded-xl shadow-md">
+          <h3 className="text-lg font-semibold text-[#010101] mb-2">
+            Track Your Order
+          </h3>
+          <p className="text-sm text-gray-600">
+            After confirming your payment, you can track your order by following
+            these steps:
+          </p>
+          <ol className="list-decimal list-inside mt-2 text-sm text-gray-600">
+            <li>
+              Go to the <span className="font-semibold">/track</span> URL
+            </li>
+            <li>Enter your mobile number</li>
+            <li>View your order details and track its status</li>
+          </ol>
+        </div>
       </div>
     </div>
   );
