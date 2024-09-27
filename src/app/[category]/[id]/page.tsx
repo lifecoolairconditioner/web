@@ -1,10 +1,12 @@
 "use client";
+
 import React, { useEffect, useState } from "react";
-import { ChevronLeft, Star, Clock, CheckCircle } from "lucide-react";
+import { ChevronLeft, Star, Clock } from "lucide-react";
 import { getServiceById } from "@/apis/service";
 import Link from "next/link";
 import Image from "next/image";
-// Define the service details type based on your service model
+import { motion } from "framer-motion";
+
 interface ServiceDetails {
   _id: string;
   name: string;
@@ -20,7 +22,7 @@ interface ServiceDetails {
 
 interface ServiceDetailsPageProps {
   params: {
-    id: string; // The service ID should be a string
+    id: string;
   };
 }
 
@@ -31,22 +33,21 @@ export default function ServiceDetailsPage({
   const [serviceDetails, setServiceDetails] = useState<ServiceDetails | null>(
     null
   );
-  const [loading, setLoading] = useState<boolean>(true); // State to manage loading state
-  const [error, setError] = useState<string | null>(null); // State to manage errors
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchServiceDetails = async () => {
       try {
         if (id) {
-          const fetchedService = await getServiceById(id); // Fetch service details using the provided ID
-          setServiceDetails(fetchedService); // Set the fetched service details to state
+          const fetchedService = await getServiceById(id);
+          setServiceDetails(fetchedService);
         }
       } catch (err) {
-        console.log(err);
-
-        setError("Error fetching service details");
+        console.error(err);
+        setError("Error fetching service details. Please try again.");
       } finally {
-        setLoading(false); // Stop loading after fetching
+        setLoading(false);
       }
     };
 
@@ -55,51 +56,130 @@ export default function ServiceDetailsPage({
 
   const handleBookService = () => {
     console.log("Navigating to Service Scheduling Page");
-    // Implement actual navigation logic here
+  };
+
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1,
+      },
+    },
+  };
+
+  const itemVariants = {
+    hidden: { y: 20, opacity: 0 },
+    visible: {
+      y: 0,
+      opacity: 1,
+    },
   };
 
   if (loading) {
-    return <div>Loading...</div>; // Display loading state
+    return (
+      <div className="min-h-screen bg-[#fafafa] flex justify-center items-center">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0, scale: 0.8 }}
+          className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-[#ffc300]"
+        ></motion.div>
+      </div>
+    );
   }
 
   if (error) {
-    return <div>{error}</div>; // Display error message
+    return (
+      <div className="min-h-screen bg-[#fafafa] flex justify-center items-center">
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: 20 }}
+          className="text-red-500 text-center"
+        >
+          {error}
+        </motion.div>
+      </div>
+    );
   }
 
   if (!serviceDetails) {
-    return <div>No service details found.</div>; // Display message if no service details are found
+    return (
+      <div className="min-h-screen bg-[#fafafa] flex justify-center items-center">
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: 20 }}
+          className="text-[#010101] text-center"
+        >
+          No service details found.
+        </motion.div>
+      </div>
+    );
   }
 
   return (
-    <div className="min-h-screen bg-[#fafafa]">
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="min-h-screen bg-[#fafafa]"
+    >
       <header className="bg-[#010101] text-white p-4 sm:p-6 flex items-center justify-between sticky top-0 z-10">
         <div className="flex items-center">
-          <button
+          <motion.button
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
             className="mr-4"
             aria-label="Go back"
             onClick={() => window.history.back()}
           >
             <ChevronLeft className="w-6 h-6" />
-          </button>
-          <h1 className="text-xl font-bold">{serviceDetails.name}</h1>
+          </motion.button>
+          <motion.h1
+            initial={{ y: -20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.2 }}
+            className="text-xl font-bold"
+          >
+            {serviceDetails.name}
+          </motion.h1>
         </div>
-        <div className="flex items-center">
+        <motion.div
+          initial={{ x: 20, opacity: 0 }}
+          animate={{ x: 0, opacity: 1 }}
+          transition={{ delay: 0.4 }}
+          className="flex items-center"
+        >
           <Star className="w-5 h-5 text-[#ffc300] mr-1" />
           <span className="font-semibold">{serviceDetails.rating}</span>
           <span className="text-sm ml-1">
             ({serviceDetails.reviews} reviews)
           </span>
-        </div>
+        </motion.div>
       </header>
 
-      <main className="p-4 sm:p-6 max-w-3xl mx-auto">
-        <Image
-          src={serviceDetails.imageUrl}
-          alt={serviceDetails.name}
-          className="w-full h-48 sm:h-64 object-cover rounded-xl mb-6"
-        />
+      <motion.main
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+        className="p-4 sm:p-6 max-w-3xl mx-auto"
+      >
+        <motion.div
+          variants={itemVariants}
+          className="relative h-48 sm:h-64 mb-6 rounded-xl overflow-hidden"
+        >
+          <Image
+            src={serviceDetails.imageUrl}
+            alt={serviceDetails.name}
+            layout="fill"
+            objectFit="cover"
+            className="transition-transform duration-300 hover:scale-105"
+          />
+        </motion.div>
 
-        <section className="mb-8">
+        <motion.section variants={itemVariants} className="mb-8">
           <h2 className="text-2xl font-bold text-[#010101] mb-2">
             About this service
           </h2>
@@ -112,36 +192,15 @@ export default function ServiceDetailsPage({
             <Clock className="w-5 h-5 mr-2" />
             <span>Professional grade equipment</span>
           </div>
-        </section>
+        </motion.section>
+      </motion.main>
 
-        <section className="mb-8">
-          <h2 className="text-2xl font-bold text-[#010101] mb-4">
-            Whats included
-          </h2>
-          <ul className="space-y-2">
-            {serviceDetails.includes?.map((item, index) => (
-              <li key={index} className="flex items-start">
-                <CheckCircle className="w-5 h-5 text-green-500 mr-2 flex-shrink-0 mt-1" />
-                <span>{item}</span>
-              </li>
-            ))}
-          </ul>
-        </section>
-
-        <section className="mb-8">
-          <h2 className="text-2xl font-bold text-[#010101] mb-4">Benefits</h2>
-          <ul className="space-y-2">
-            {serviceDetails.benefits?.map((benefit, index) => (
-              <li key={index} className="flex items-start">
-                <CheckCircle className="w-5 h-5 text-[#ffc300] mr-2 flex-shrink-0 mt-1" />
-                <span>{benefit}</span>
-              </li>
-            ))}
-          </ul>
-        </section>
-      </main>
-
-      <footer className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4">
+      <motion.footer
+        initial={{ y: 100 }}
+        animate={{ y: 0 }}
+        transition={{ type: "spring", stiffness: 260, damping: 20 }}
+        className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4"
+      >
         <div className="flex items-center justify-between max-w-3xl mx-auto">
           <div>
             <span className="text-2xl font-bold text-[#010101]">
@@ -150,16 +209,17 @@ export default function ServiceDetailsPage({
             <span className="text-gray-500 ml-2">onwards</span>
           </div>
           <Link href={`./${id}/book`}>
-            {" "}
-            <button
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
               onClick={handleBookService}
               className="bg-[#ffc300] text-[#010101] px-6 py-3 rounded-lg font-semibold hover:bg-[#e6b000] transition-colors duration-300 focus:outline-none focus:ring-4 focus:ring-[#ffc300] focus:ring-opacity-50"
             >
               Book Service
-            </button>
+            </motion.button>
           </Link>
         </div>
-      </footer>
-    </div>
+      </motion.footer>
+    </motion.div>
   );
 }

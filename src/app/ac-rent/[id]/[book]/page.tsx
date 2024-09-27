@@ -1,7 +1,9 @@
 "use client";
-import React, { useState } from "react";
-import { ChevronLeft } from "lucide-react";
+
+import React, { useState, useEffect } from "react";
+import { ChevronLeft, Calendar, Clock } from "lucide-react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import {
   Dialog,
   DialogContent,
@@ -13,6 +15,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { createOrder } from "@/apis/order";
+import { motion, AnimatePresence } from "framer-motion";
 
 const generateTimeSlots = () => {
   const slots = [];
@@ -54,11 +57,18 @@ export default function SlotBookingScreen({ params }: Booking) {
     longitude: number;
   } | null>(null);
   const [locationError, setLocationError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
   const { id, book } = params;
   const rental = id;
   const rentalPeriod = book;
+
+  useEffect(() => {
+    // Simulating initial loading
+    setIsLoading(true);
+    setTimeout(() => setIsLoading(false), 1000);
+  }, []);
 
   const handleDateClick = (date: Date) => {
     setSelectedDate(date);
@@ -101,6 +111,7 @@ export default function SlotBookingScreen({ params }: Booking) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsLoading(true);
 
     if (
       !selectedDate ||
@@ -111,11 +122,11 @@ export default function SlotBookingScreen({ params }: Booking) {
       !userData.address
     ) {
       alert("Please fill all fields.");
+      setIsLoading(false);
       return;
     }
 
-    // Format selected date for API
-    const formattedDate = selectedDate.toISOString().split("T")[0]; // "YYYY-MM-DD"
+    const formattedDate = selectedDate.toISOString().split("T")[0];
 
     const bookingData = {
       rental,
@@ -127,7 +138,7 @@ export default function SlotBookingScreen({ params }: Booking) {
         email: userData.email,
         address: userData.address,
       },
-      ...(location && { location }), // Include location if available
+      ...(location && { location }),
     };
 
     try {
@@ -137,6 +148,8 @@ export default function SlotBookingScreen({ params }: Booking) {
     } catch (error) {
       console.error("Error creating booking:", error);
       alert("Failed to create booking. Please try again.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -153,23 +166,66 @@ export default function SlotBookingScreen({ params }: Booking) {
 
   const calendar = generateCalendar();
 
+  if (isLoading) {
+    return (
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        className="min-h-screen bg-[#fafafa] flex items-center justify-center"
+      >
+        <div className="w-16 h-16 border-4 border-[#ffc300] border-t-[#010101] rounded-full animate-spin"></div>
+      </motion.div>
+    );
+  }
+
   return (
-    <div className="min-h-screen bg-[#fafafa] p-4 sm:p-6 lg:p-8">
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="min-h-screen bg-[#fafafa] p-4 sm:p-6 lg:p-8"
+    >
       <header className="flex items-center mb-6">
-        <button className="mr-4" aria-label="Go back">
-          <ChevronLeft className="w-6 h-6 text-[#010101]" />
-        </button>
-        <h1 className="text-2xl font-bold text-[#010101]">Book Your Slot</h1>
+        <Link href={`/ac-rent/${rental}`}>
+          <motion.button
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
+            className="mr-4"
+            aria-label="Go back"
+          >
+            <ChevronLeft className="w-6 h-6 text-[#010101]" />
+          </motion.button>
+        </Link>
+        <motion.h1
+          initial={{ y: -20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 0.2 }}
+          className="text-2xl font-bold text-[#010101]"
+        >
+          Book Your Slot
+        </motion.h1>
       </header>
-      <section className="mb-8">
-        <h2 className="text-xl font-semibold text-[#010101] mb-4">
+      <motion.section
+        initial={{ y: 20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ delay: 0.3 }}
+        className="mb-8"
+      >
+        <h2 className="text-xl font-semibold text-[#010101] mb-4 flex items-center">
+          <Calendar className="w-5 h-5 mr-2" />
           Select Date
         </h2>
-        <div className="flex overflow-x-auto pb-4">
+        <motion.div
+          className="flex overflow-x-auto pb-4"
+          whileTap={{ cursor: "grabbing" }}
+        >
           {calendar.map((date, index) => (
-            <button
+            <motion.button
               key={index}
               onClick={() => handleDateClick(date)}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
               className={`flex flex-col items-center justify-center w-16 h-20 mr-2 rounded-lg ${
                 selectedDate?.toDateString() === date.toDateString()
                   ? "bg-[#ffc300] text-[#010101]"
@@ -180,19 +236,27 @@ export default function SlotBookingScreen({ params }: Booking) {
                 {date.toLocaleDateString("en-US", { weekday: "short" })}
               </span>
               <span className="text-lg font-bold">{date.getDate()}</span>
-            </button>
+            </motion.button>
           ))}
-        </div>
-      </section>
-      <section className="mb-8">
-        <h2 className="text-xl font-semibold text-[#010101] mb-4">
+        </motion.div>
+      </motion.section>
+      <motion.section
+        initial={{ y: 20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ delay: 0.4 }}
+        className="mb-8"
+      >
+        <h2 className="text-xl font-semibold text-[#010101] mb-4 flex items-center">
+          <Clock className="w-5 h-5 mr-2" />
           Select Time
         </h2>
         <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2">
           {timeSlots.map((time, index) => (
-            <button
+            <motion.button
               key={index}
               onClick={() => handleTimeClick(time)}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
               className={`py-2 px-4 rounded-lg ${
                 selectedTime === time
                   ? "bg-[#ffc300] text-[#010101]"
@@ -200,82 +264,101 @@ export default function SlotBookingScreen({ params }: Booking) {
               } shadow-sm transition-colors duration-200`}
             >
               {time}
-            </button>
+            </motion.button>
           ))}
         </div>
-      </section>
-      <Button
-        onClick={handleProceed}
-        disabled={!selectedDate || !selectedTime}
-        className={`w-full py-3 px-4 rounded-lg text-white font-semibold transition-colors duration-300 ${
-          selectedDate && selectedTime
-            ? "bg-[#ffc300] hover:bg-[#e6b000]"
-            : "bg-gray-300 cursor-not-allowed"
-        } focus:outline-none focus:ring-4 focus:ring-yellow-300`}
+      </motion.section>
+      <motion.div
+        initial={{ y: 20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ delay: 0.5 }}
       >
-        Proceed
-      </Button>
-      {locationError && <p className="text-red-500 mt-4">{locationError}</p>}
-      <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent className="sm:max-w-[425px] bg-white">
-          <DialogHeader>
-            <DialogTitle>Enter Your Details</DialogTitle>
-            <DialogDescription>
-              Please provide your information to complete the booking.
-            </DialogDescription>
-          </DialogHeader>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <Label htmlFor="name">Name</Label>
-              <Input
-                id="name"
-                name="name"
-                value={userData.name}
-                onChange={handleInputChange}
-                required
-              />
-            </div>
-            <div>
-              <Label htmlFor="phone">Phone</Label>
-              <Input
-                id="phone"
-                name="phone"
-                type="tel"
-                value={userData.phone}
-                onChange={handleInputChange}
-                required
-              />
-            </div>
-            <div>
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                name="email"
-                type="email"
-                value={userData.email}
-                onChange={handleInputChange}
-                required
-              />
-            </div>
-            <div>
-              <Label htmlFor="address">Address</Label>
-              <Input
-                id="address"
-                name="address"
-                value={userData.address}
-                onChange={handleInputChange}
-                required
-              />
-            </div>
-            <Button
-              type="submit"
-              className="w-full bg-[#ffc300] text-[#010101] hover:bg-[#e6b000]"
-            >
-              Confirm Booking
-            </Button>
-          </form>
-        </DialogContent>
-      </Dialog>
-    </div>
+        <Button
+          onClick={handleProceed}
+          disabled={!selectedDate || !selectedTime}
+          className={`w-full py-3 px-4 rounded-lg text-white font-semibold transition-colors duration-300 ${
+            selectedDate && selectedTime
+              ? "bg-[#ffc300] hover:bg-[#e6b000]"
+              : "bg-gray-300 cursor-not-allowed"
+          } focus:outline-none focus:ring-4 focus:ring-yellow-300`}
+        >
+          Proceed
+        </Button>
+      </motion.div>
+      {locationError && (
+        <motion.p
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="text-red-500 mt-4"
+        >
+          {locationError}
+        </motion.p>
+      )}
+      <AnimatePresence>
+        {isModalOpen && (
+          <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+            <DialogContent className="sm:max-w-[425px] bg-white">
+              <DialogHeader>
+                <DialogTitle>Enter Your Details</DialogTitle>
+                <DialogDescription>
+                  Please provide your information to complete the booking.
+                </DialogDescription>
+              </DialogHeader>
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div>
+                  <Label htmlFor="name">Name</Label>
+                  <Input
+                    id="name"
+                    name="name"
+                    value={userData.name}
+                    onChange={handleInputChange}
+                    required
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="phone">Phone</Label>
+                  <Input
+                    id="phone"
+                    name="phone"
+                    type="tel"
+                    value={userData.phone}
+                    onChange={handleInputChange}
+                    required
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="email">Email</Label>
+                  <Input
+                    id="email"
+                    name="email"
+                    type="email"
+                    value={userData.email}
+                    onChange={handleInputChange}
+                    required
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="address">Address</Label>
+                  <Input
+                    id="address"
+                    name="address"
+                    value={userData.address}
+                    onChange={handleInputChange}
+                    required
+                  />
+                </div>
+                <Button
+                  type="submit"
+                  className="w-full bg-[#ffc300] text-[#010101] hover:bg-[#e6b000]"
+                  disabled={isLoading}
+                >
+                  {isLoading ? "Processing..." : "Confirm Booking"}
+                </Button>
+              </form>
+            </DialogContent>
+          </Dialog>
+        )}
+      </AnimatePresence>
+    </motion.div>
   );
 }

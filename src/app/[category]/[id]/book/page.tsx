@@ -36,7 +36,7 @@ interface Contact {
 
 interface ServiceSchedulingPageProps {
   params: {
-    id: string; // The service ID should be a string
+    id: string;
     category: string;
   };
 }
@@ -45,7 +45,6 @@ const generateTimeSlots = () => {
   const slots = [];
   for (let hour = 9; hour <= 20; hour++) {
     for (const minute of ["00", "30"]) {
-      // Use 'const' instead of 'let' for 'minute'
       slots.push(`${hour.toString().padStart(2, "0")}:${minute}:00.000Z`);
     }
   }
@@ -68,6 +67,8 @@ export default function ServiceSchedulingPage({
   const [loading, setLoading] = useState<boolean>(false);
   const [isContactModalOpen, setIsContactModalOpen] = useState(false);
   const { id, category } = params;
+  const router = useRouter();
+
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
@@ -77,7 +78,6 @@ export default function ServiceSchedulingPage({
       [name]: value,
     }));
   };
-  const router = useRouter();
 
   const handleDateClick = (selectedDate: Date) => {
     setDate(selectedDate.toISOString().split("T")[0] + "T00:00:00.000+00:00");
@@ -112,7 +112,7 @@ export default function ServiceSchedulingPage({
 
     try {
       const response = await axios.post(
-        "http://localhost:8000/api/orders/",
+        `${process.env.NEXT_PUBLIC_API_URL}/api/orders`,
         orderData
       );
 
@@ -132,7 +132,7 @@ export default function ServiceSchedulingPage({
       setIsContactModalOpen(false);
       router.push(`/${category}/${id}/book/${response.data._id}`);
     } catch (error) {
-      console.log(error);
+      console.error(error);
 
       toast({
         title: "Error",
@@ -157,17 +157,57 @@ export default function ServiceSchedulingPage({
 
   const calendar = generateCalendar();
 
+  const pageVariants = {
+    initial: { opacity: 0, y: 20 },
+    in: { opacity: 1, y: 0 },
+    out: { opacity: 0, y: -20 },
+  };
+
+  const pageTransition = {
+    type: "tween",
+    ease: "anticipate",
+    duration: 0.5,
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0 },
+  };
+
   return (
-    <div className="min-h-screen bg-[#fafafa] p-4 sm:p-6 lg:p-8">
+    <motion.div
+      initial="initial"
+      animate="in"
+      exit="out"
+      variants={pageVariants}
+      transition={pageTransition}
+      className="min-h-screen bg-[#fafafa] p-4 sm:p-6 lg:p-8"
+    >
       <header className="flex items-center mb-6">
-        <Button variant="ghost" className="mr-4" aria-label="Go back">
+        <Button
+          variant="ghost"
+          className="mr-4"
+          aria-label="Go back"
+          onClick={() => router.back()}
+        >
           <ChevronLeft className="w-6 h-6 text-[#010101]" />
         </Button>
-        <h1 className="text-2xl font-bold text-[#010101]">Schedule Service</h1>
+        <motion.h1
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="text-2xl font-bold text-[#010101]"
+        >
+          Schedule Service
+        </motion.h1>
       </header>
 
       <main className="space-y-8">
-        <section>
+        <motion.section
+          variants={itemVariants}
+          initial="hidden"
+          animate="visible"
+        >
           <h2 className="text-xl font-semibold text-[#010101] mb-4 flex items-center">
             <Calendar className="w-5 h-5 mr-2" />
             Select Date
@@ -185,6 +225,10 @@ export default function ServiceSchedulingPage({
                   } shadow-sm transition-colors duration-200 flex-shrink-0`}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  transition={{ delay: index * 0.05 }}
                 >
                   <span className="text-sm">
                     {calendarDate.toLocaleDateString("en-US", {
@@ -198,9 +242,13 @@ export default function ServiceSchedulingPage({
               ))}
             </AnimatePresence>
           </div>
-        </section>
+        </motion.section>
 
-        <section>
+        <motion.section
+          variants={itemVariants}
+          initial="hidden"
+          animate="visible"
+        >
           <h2 className="text-xl font-semibold text-[#010101] mb-4 flex items-center">
             <Clock className="w-5 h-5 mr-2" />
             Select Time
@@ -218,16 +266,25 @@ export default function ServiceSchedulingPage({
                   } shadow-sm transition-colors duration-200`}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  transition={{ delay: index * 0.02 }}
                 >
                   {slot.slice(0, 5)}
                 </motion.button>
               ))}
             </AnimatePresence>
           </div>
-        </section>
+        </motion.section>
       </main>
 
-      <footer className="mt-8">
+      <motion.footer
+        className="mt-8"
+        variants={itemVariants}
+        initial="hidden"
+        animate="visible"
+      >
         <Button
           onClick={handleProceed}
           disabled={!date || !timeSlot}
@@ -239,90 +296,106 @@ export default function ServiceSchedulingPage({
         >
           Proceed
         </Button>
-      </footer>
+      </motion.footer>
 
-      <Dialog open={isContactModalOpen} onOpenChange={setIsContactModalOpen}>
-        <DialogContent className="sm:max-w-[425px] bg-[#fafafa]">
-          <DialogHeader>
-            <DialogTitle className="text-[#010101]">
-              Contact Information
-            </DialogTitle>
-            <DialogDescription>
-              Please provide your contact details to complete the booking.
-            </DialogDescription>
-          </DialogHeader>
-          <form onSubmit={handleSubmit}>
-            <div className="grid gap-4 py-4">
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="name" className="text-right text-[#010101]">
-                  <User className="h-4 w-4 inline-block mr-2" />
-                  Name
-                </Label>
-                <Input
-                  id="name"
-                  name="name"
-                  value={contact.name}
-                  onChange={handleInputChange}
-                  className="col-span-3"
-                  required
-                />
-              </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="phone" className="text-right text-[#010101]">
-                  <Phone className="h-4 w-4 inline-block mr-2" />
-                  Phone
-                </Label>
-                <Input
-                  id="phone"
-                  name="phone"
-                  value={contact.phone}
-                  onChange={handleInputChange}
-                  className="col-span-3"
-                  required
-                />
-              </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="email" className="text-right text-[#010101]">
-                  <Mail className="h-4 w-4 inline-block mr-2" />
-                  Email
-                </Label>
-                <Input
-                  id="email"
-                  name="email"
-                  type="email"
-                  value={contact.email}
-                  onChange={handleInputChange}
-                  className="col-span-3"
-                  required
-                />
-              </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="address" className="text-right text-[#010101]">
-                  <MapPin className="h-4 w-4 inline-block mr-2" />
-                  Address
-                </Label>
-                <Textarea
-                  id="address"
-                  name="address"
-                  value={contact.address}
-                  onChange={handleInputChange}
-                  className="col-span-3"
-                  required
-                />
-              </div>
-            </div>
-            <DialogFooter>
-              <Button
-                type="submit"
-                className="bg-[#ffc300] text-[#010101] hover:bg-[#e6b000]"
-                disabled={loading}
-              >
-                {loading ? "Placing Order..." : "Complete Booking"}
-              </Button>
-            </DialogFooter>
-          </form>
-        </DialogContent>
-      </Dialog>
-    </div>
+      <AnimatePresence>
+        {isContactModalOpen && (
+          <Dialog
+            open={isContactModalOpen}
+            onOpenChange={setIsContactModalOpen}
+          >
+            <DialogContent className="sm:max-w-[425px] bg-[#fafafa]">
+              <DialogHeader>
+                <DialogTitle className="text-[#010101]">
+                  Contact Information
+                </DialogTitle>
+                <DialogDescription>
+                  Please provide your contact details to complete the booking.
+                </DialogDescription>
+              </DialogHeader>
+              <form onSubmit={handleSubmit}>
+                <div className="grid gap-4 py-4">
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="name" className="text-right text-[#010101]">
+                      <User className="h-4 w-4 inline-block mr-2" />
+                      Name
+                    </Label>
+                    <Input
+                      id="name"
+                      name="name"
+                      value={contact.name}
+                      onChange={handleInputChange}
+                      className="col-span-3"
+                      required
+                    />
+                  </div>
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label
+                      htmlFor="phone"
+                      className="text-right text-[#010101]"
+                    >
+                      <Phone className="h-4 w-4 inline-block mr-2" />
+                      Phone
+                    </Label>
+                    <Input
+                      id="phone"
+                      name="phone"
+                      value={contact.phone}
+                      onChange={handleInputChange}
+                      className="col-span-3"
+                      required
+                    />
+                  </div>
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label
+                      htmlFor="email"
+                      className="text-right text-[#010101]"
+                    >
+                      <Mail className="h-4 w-4 inline-block mr-2" />
+                      Email
+                    </Label>
+                    <Input
+                      id="email"
+                      name="email"
+                      type="email"
+                      value={contact.email}
+                      onChange={handleInputChange}
+                      className="col-span-3"
+                      required
+                    />
+                  </div>
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label
+                      htmlFor="address"
+                      className="text-right text-[#010101]"
+                    >
+                      <MapPin className="h-4 w-4 inline-block mr-2" />
+                      Address
+                    </Label>
+                    <Textarea
+                      id="address"
+                      name="address"
+                      value={contact.address}
+                      onChange={handleInputChange}
+                      className="col-span-3"
+                      required
+                    />
+                  </div>
+                </div>
+                <DialogFooter>
+                  <Button
+                    type="submit"
+                    className="bg-[#ffc300] text-[#010101] hover:bg-[#e6b000]"
+                    disabled={loading}
+                  >
+                    {loading ? "Placing Order..." : "Complete Booking"}
+                  </Button>
+                </DialogFooter>
+              </form>
+            </DialogContent>
+          </Dialog>
+        )}
+      </AnimatePresence>
+    </motion.div>
   );
 }

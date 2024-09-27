@@ -36,7 +36,13 @@ export default function Navbar() {
         <div className="flex justify-between h-16">
           <div className="flex">
             <div className="flex-shrink-0 flex items-center">
-              <Image className="h-8 w-auto" src="/placeholder.svg" alt="Logo" />
+              <Image
+                className="h-8 w-auto"
+                src="/placeholder.svg"
+                height={"100"}
+                width={"100"}
+                alt="Logo"
+              />
             </div>
           </div>
           <div className="hidden md:flex items-center space-x-4">

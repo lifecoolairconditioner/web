@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = "http://localhost:8000/api/orders";
+const API_URL = `${process.env.NEXT_PUBLIC_API_URL}/api/orders`;
 
 // Create a new order
 export const createOrder = async (orderData) => {

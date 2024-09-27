@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = "http://localhost:8000/api/acrent";
+const API_URL = `${process.env.NEXT_PUBLIC_API_URL}/api/acrent`;
 
 // Get all AC rentals
 export const getAllACRentals = async () => {
