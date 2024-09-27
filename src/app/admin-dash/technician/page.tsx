@@ -19,27 +19,9 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
-import {
-  Eye,
-  Search,
-  ArrowUpDown,
-  Plus,
-  X,
-  Edit,
-  Phone,
-  Mail,
-  MapPin,
-  User,
-} from "lucide-react";
+import { Eye, Search, ArrowUpDown, Plus, X, Edit } from "lucide-react";
 import {
   getAllTechnicians,
   createTechnician,
@@ -65,6 +47,7 @@ interface Service {
   _id: string;
   name: string;
 }
+
 const initialTechnicians: Technician[] = [];
 const initialServices: Service[] = [];
 
@@ -92,7 +75,10 @@ export default function TechnicianManagement() {
   }>({ key: null, direction: "ascending" });
   const [searchTerm, setSearchTerm] = useState("");
   const [services, setServices] = useState<Service[]>(initialServices);
-
+  console.log(selectedTechnician);
+  console.log(isProfileModalOpen);
+  console.log(isEditModalOpen);
+  console.log(selectedTechnician);
   useEffect(() => {
     const fetchTechnicians = async () => {
       try {
@@ -119,14 +105,17 @@ export default function TechnicianManagement() {
     };
 
     fetchServices();
-
     fetchTechnicians();
   }, []);
 
   const handleAddTechnician = async () => {
     try {
       const newTechnicianData = await createTechnician(newTechnician);
-      setTechnicians([...technicians, newTechnicianData]);
+      if ("data" in newTechnicianData) {
+        setTechnicians([...technicians, newTechnicianData.data]);
+      } else {
+        setTechnicians([...technicians, newTechnicianData]);
+      }
       resetNewTechnician();
       setIsAddModalOpen(false);
     } catch (error) {
@@ -151,23 +140,6 @@ export default function TechnicianManagement() {
       setTechnicians(technicians.filter((tech) => tech._id !== technicianId));
     } catch (error) {
       console.error("Failed to delete technician:", error);
-    }
-  };
-
-  const handleUpdateTechnician = async (updatedTechnician: Technician) => {
-    try {
-      const updatedData = await updateTechnician(
-        updatedTechnician._id,
-        updatedTechnician
-      );
-      setTechnicians((prevTechnicians) =>
-        prevTechnicians.map((tech) =>
-          tech._id === updatedTechnician._id ? updatedData.data : tech
-        )
-      );
-      setIsEditModalOpen(false);
-    } catch (error) {
-      console.error("Failed to update technician:", error);
     }
   };
 
@@ -205,8 +177,8 @@ export default function TechnicianManagement() {
     return sortableTechnicians;
   }, [technicians, sortConfig]);
 
-  const filteredTechnicians = sortedTechnicians.filter(
-    (technician) => technician.name
+  const filteredTechnicians = sortedTechnicians.filter((technician) =>
+    technician.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const toggleAvailability = async (technicianId: string) => {
@@ -300,103 +272,47 @@ export default function TechnicianManagement() {
                 />
               </TableCell>
               <TableCell>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => {
-                    setSelectedTechnician(technician);
-                    setIsProfileModalOpen(true);
-                  }}
-                >
-                  <Eye className="h-4 w-4" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => {
-                    setSelectedTechnician(technician);
-                    setIsEditModalOpen(true);
-                  }}
-                >
-                  <Edit className="h-4 w-4" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => handleDeleteTechnician(technician._id)}
-                >
-                  <X className="h-4 w-4" />
-                </Button>
+                <div className="flex space-x-2">
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      setSelectedTechnician(technician);
+                      setIsProfileModalOpen(true);
+                    }}
+                  >
+                    <Eye className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      setSelectedTechnician(technician);
+                      setIsEditModalOpen(true);
+                    }}
+                  >
+                    <Edit className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="destructive"
+                    onClick={() => handleDeleteTechnician(technician._id)}
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
               </TableCell>
             </TableRow>
           ))}
         </TableBody>
       </Table>
 
-      <Dialog open={isProfileModalOpen} onOpenChange={setIsProfileModalOpen}>
-        <DialogContent className="sm:max-w-[425px] bg-white">
-          <DialogHeader>
-            <DialogTitle>Technician Profile 👨‍🔧</DialogTitle>
-            <DialogDescription>View technician details.</DialogDescription>
-          </DialogHeader>
-          {selectedTechnician && (
-            <div className="space-y-4">
-              <div className="flex items-center">
-                <User className="mr-2 h-5 w-5 text-[#ffc300]" />
-                <Label>Name:</Label>
-                <div className="ml-2">{selectedTechnician.name}</div>
-              </div>
-              <div className="flex items-center">
-                <Mail className="mr-2 h-5 w-5 text-[#ffc300]" />
-                <Label>Email:</Label>
-                <div className="ml-2">{selectedTechnician.email}</div>
-              </div>
-              <div className="flex items-center">
-                <Phone className="mr-2 h-5 w-5 text-[#ffc300]" />
-                <Label>Phone:</Label>
-                <div className="ml-2">{selectedTechnician.phone}</div>
-              </div>
-              <div className="flex items-center">
-                <MapPin className="mr-2 h-5 w-5 text-[#ffc300]" />
-                <Label>Address:</Label>
-                <div className="ml-2">{selectedTechnician.address}</div>
-              </div>
-              <div>
-                <Label className="flex items-center">🛠️ Services:</Label>
-                <div className="flex flex-wrap gap-2 mt-2">
-                  {selectedTechnician.services.map((service, index) => (
-                    <Badge key={index} variant="secondary">
-                      {service}
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-              <div className="flex items-center">
-                <Label className="mr-2">Availability:</Label>
-                <Switch
-                  checked={selectedTechnician.availability}
-                  onCheckedChange={() =>
-                    toggleAvailability(selectedTechnician._id)
-                  }
-                />
-                <span className="ml-2">
-                  {selectedTechnician.availability ? "Available 🟢" : "Busy 🔴"}
-                </span>
-              </div>
-            </div>
-          )}
-          <DialogFooter>
-            <Button onClick={() => setIsProfileModalOpen(false)}>Close</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
       <Dialog open={isAddModalOpen} onOpenChange={setIsAddModalOpen}>
-        <DialogContent className="sm:max-w-[425px] bg-white">
+        <DialogContent>
           <DialogHeader>
-            <DialogTitle>Add Technician 🆕</DialogTitle>
+            <DialogTitle>Add New Technician</DialogTitle>
+            <DialogDescription>
+              Fill in the details to add a new technician.
+            </DialogDescription>
           </DialogHeader>
-          <div className="space-y-4">
+          <div className="grid gap-4">
             <div>
               <Label>Name</Label>
               <Input
@@ -404,6 +320,7 @@ export default function TechnicianManagement() {
                 onChange={(e) =>
                   setNewTechnician({ ...newTechnician, name: e.target.value })
                 }
+                placeholder="Enter technician name"
               />
             </div>
             <div>
@@ -413,6 +330,7 @@ export default function TechnicianManagement() {
                 onChange={(e) =>
                   setNewTechnician({ ...newTechnician, phone: e.target.value })
                 }
+                placeholder="Enter technician phone number"
               />
             </div>
             <div>
@@ -422,6 +340,7 @@ export default function TechnicianManagement() {
                 onChange={(e) =>
                   setNewTechnician({ ...newTechnician, email: e.target.value })
                 }
+                placeholder="Enter technician email"
               />
             </div>
             <div>
@@ -434,158 +353,50 @@ export default function TechnicianManagement() {
                     address: e.target.value,
                   })
                 }
+                placeholder="Enter technician address"
               />
             </div>
             <div>
               <Label>Services</Label>
-              <Select
-                onValueChange={(value) => {
-                  if (!newTechnician.services.includes(value)) {
-                    setNewTechnician({
-                      ...newTechnician,
-                      services: [...newTechnician.services, value],
-                    });
-                  }
-                }}
-              >
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="Select service" />
-                </SelectTrigger>
-                <SelectContent>
-                  {services.map((service) => (
-                    <SelectItem key={service._id} value={service._id}>
-                      {service.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <div className="flex flex-wrap gap-2">
+                {services.map((service) => (
+                  <div
+                    key={service._id}
+                    className="flex items-center space-x-2"
+                  >
+                    <input
+                      type="checkbox"
+                      id={service._id}
+                      checked={newTechnician.services.includes(service.name)}
+                      onChange={(e) => {
+                        if (e.target.checked) {
+                          setNewTechnician({
+                            ...newTechnician,
+                            services: [...newTechnician.services, service.name],
+                          });
+                        } else {
+                          setNewTechnician({
+                            ...newTechnician,
+                            services: newTechnician.services.filter(
+                              (s) => s !== service.name
+                            ),
+                          });
+                        }
+                      }}
+                    />
+                    <label htmlFor={service._id}>{service.name}</label>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
           <DialogFooter>
-            <Button onClick={handleAddTechnician}>Add</Button>
-            <Button onClick={() => setIsAddModalOpen(false)}>Close</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
-        <DialogContent className="sm:max-w-[425px] bg-white">
-          <DialogHeader>
-            <DialogTitle>Edit Technician ✏️</DialogTitle>
-          </DialogHeader>
-          {selectedTechnician && (
-            <div className="space-y-4">
-              <div>
-                <Label>Name</Label>
-                <Input
-                  value={selectedTechnician.name}
-                  onChange={(e) =>
-                    setSelectedTechnician({
-                      ...selectedTechnician,
-                      name: e.target.value,
-                    })
-                  }
-                />
-              </div>
-              <div>
-                <Label>Phone</Label>
-                <Input
-                  value={selectedTechnician.phone}
-                  onChange={(e) =>
-                    setSelectedTechnician({
-                      ...selectedTechnician,
-                      phone: e.target.value,
-                    })
-                  }
-                />
-              </div>
-              <div>
-                <Label>Email</Label>
-                <Input
-                  value={selectedTechnician.email}
-                  onChange={(e) =>
-                    setSelectedTechnician({
-                      ...selectedTechnician,
-                      email: e.target.value,
-                    })
-                  }
-                />
-              </div>
-              <div>
-                <Label>Address</Label>
-                <Input
-                  value={selectedTechnician.address}
-                  onChange={(e) =>
-                    setSelectedTechnician({
-                      ...selectedTechnician,
-                      address: e.target.value,
-                    })
-                  }
-                />
-              </div>
-              <div>
-                <Label>Services</Label>
-                <Select
-                  onValueChange={(value) => {
-                    if (!selectedTechnician.services.includes(value)) {
-                      setSelectedTechnician({
-                        ...selectedTechnician,
-                        services: [...selectedTechnician.services, value],
-                      });
-                    }
-                  }}
-                >
-                  <SelectTrigger className="w-[180px]">
-                    <SelectValue placeholder="Add service" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="66eefa629de96705a8a8b58f">
-                      Service 1
-                    </SelectItem>
-                    {/* Add more services as needed */}
-                  </SelectContent>
-                </Select>
-                <div className="flex flex-wrap gap-2 mt-2">
-                  {selectedTechnician.services.map((service, index) => (
-                    <Badge key={index} variant="secondary">
-                      {service}
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => {
-                          setSelectedTechnician({
-                            ...selectedTechnician,
-                            services: selectedTechnician.services.filter(
-                              (s) => s !== service
-                            ),
-                          });
-                        }}
-                      >
-                        <X className="h-3 w-3" />
-                      </Button>
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-              <div className="flex items-center">
-                <Label className="mr-2">Availability:</Label>
-                <Switch
-                  checked={selectedTechnician.availability}
-                  onCheckedChange={(checked) =>
-                    setSelectedTechnician({
-                      ...selectedTechnician,
-                      availability: checked,
-                    })
-                  }
-                />
-              </div>
-            </div>
-          )}
-          <DialogFooter>
-            <Button onClick={() => handleUpdateTechnician(selectedTechnician)}>
-              Update
+            <Button type="button" onClick={() => setIsAddModalOpen(false)}>
+              Cancel
             </Button>
-            <Button onClick={() => setIsEditModalOpen(false)}>Close</Button>
+            <Button type="submit" onClick={handleAddTechnician}>
+              Add Technician
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

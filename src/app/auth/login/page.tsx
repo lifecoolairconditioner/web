@@ -14,7 +14,6 @@ export default function LoginPage() {
   const [error, setError] = useState<string | null>(null);
 
   const router = useRouter(); // Correctly using router for app directory
-  console.log(error);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -24,12 +23,17 @@ export default function LoginPage() {
     try {
       await login(email, password);
       router.push("/admin-dash"); // Redirect to the dashboard after successful login
-    } catch (err: string) {
-      setError(err.message || "Login failed");
+    } catch (err) {
+      if (err instanceof Error) {
+        setError(err.message || "Login failed");
+      } else {
+        setError("Login failed");
+      }
     } finally {
       setIsLoading(false);
     }
   };
+  console.log(error);
 
   return (
     <div className="min-h-screen bg-[#fafafa] flex items-center justify-center p-4">

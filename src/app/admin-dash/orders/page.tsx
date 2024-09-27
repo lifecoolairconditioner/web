@@ -79,9 +79,10 @@ export default function OrderManagement() {
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
   const [sortConfig, setSortConfig] = useState<{
-    key: keyof Order | null;
+    key: keyof Order;
     direction: "ascending" | "descending";
-  }>({ key: null, direction: "ascending" });
+  }>({ key: "date", direction: "ascending" });
+
   const [filterStatus, setFilterStatus] = useState("all");
 
   useEffect(() => {
@@ -116,6 +117,11 @@ export default function OrderManagement() {
       sortableOrders.sort((a, b) => {
         const aValue = a[sortConfig.key];
         const bValue = b[sortConfig.key];
+
+        // Provide default values or handle undefined cases
+        if (aValue === undefined || bValue === undefined) {
+          return 0;
+        }
 
         if (aValue < bValue)
           return sortConfig.direction === "ascending" ? -1 : 1;

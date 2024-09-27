@@ -1,17 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useMemo } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import {
-  Plus,
-  Search,
-  ArrowUpDown,
-  Edit,
-  Trash,
-  Wind,
-  Thermometer,
-  DollarSign,
-} from "lucide-react";
+import { Plus, Search, ArrowUpDown, Edit, Trash } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -72,6 +62,11 @@ interface APIResponse {
   type?: string;
 }
 
+type SortConfig = {
+  key: keyof ACUnit;
+  direction: "ascending" | "descending";
+};
+
 export function AcRentalManagement() {
   const [acUnits, setACUnits] = useState<ACUnit[]>([]);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -128,13 +123,32 @@ export function AcRentalManagement() {
     });
   };
 
+  const isSortConfigDefined = (config: unknown): config is SortConfig => {
+    if (typeof config !== "object" || config === null) {
+      return false;
+    }
+    const { key, direction } = config as SortConfig;
+    return (
+      typeof key === "string" && ["ascending", "descending"].includes(direction)
+    );
+  };
+
   const sortedACUnits = useMemo(() => {
     const sortableUnits = [...acUnits];
-    if (sortConfig) {
+    if (isSortConfigDefined(sortConfig)) {
       sortableUnits.sort((a, b) => {
-        if (a[sortConfig.key] < b[sortConfig.key])
+        const aValue = a[sortConfig.key as keyof typeof a];
+        const bValue = b[sortConfig.key as keyof typeof b];
+
+        if (aValue === undefined && bValue === undefined) return 0;
+        if (aValue === undefined)
+          return sortConfig.direction === "ascending" ? 1 : -1;
+        if (bValue === undefined)
           return sortConfig.direction === "ascending" ? -1 : 1;
-        if (a[sortConfig.key] > b[sortConfig.key])
+
+        if (aValue < bValue)
+          return sortConfig.direction === "ascending" ? -1 : 1;
+        if (aValue > bValue)
           return sortConfig.direction === "ascending" ? 1 : -1;
         return 0;
       });
@@ -158,12 +172,18 @@ export function AcRentalManagement() {
         rentalRates: {
           "3_months": newUnit.dailyRate,
           "6_months": parseFloat(newUnit.energyRating),
-          "1_year": (newUnit.dailyRate * 365) / 12,
         },
         availability: newUnit.available,
         type: newUnit.type,
       });
-      setACUnits((prevUnits) => [...prevUnits, newACUnit]);
+
+      setACUnits((prevUnits) => [
+        ...prevUnits,
+        {
+          id: newACUnit.data._id,
+          ...newUnit,
+        },
+      ]);
       setIsAddModalOpen(false);
       resetNewUnit();
       toast({
@@ -207,7 +227,7 @@ export function AcRentalManagement() {
       });
       setACUnits((prevUnits) =>
         prevUnits.map((unit) =>
-          unit.id === selectedUnit.id ? updatedACUnit : unit
+          unit.id === selectedUnit.id ? { ...unit, ...updatedACUnit } : unit
         )
       );
       setIsEditModalOpen(false);
@@ -282,22 +302,110 @@ export function AcRentalManagement() {
 
         <Dialog open={isAddModalOpen} onOpenChange={setIsAddModalOpen}>
           <DialogTrigger asChild>
-            <Button className="bg-[#ffc300] text-[#010101] hover:bg-[#ffc300]/90">
-              <Plus className="mr-2 h-4 w-4" />
-              Add New AC Unit
+            <Button variant="default">
+              <Plus className="mr-2" />
+              Add AC Unit
             </Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
               <DialogTitle>Add New AC Unit</DialogTitle>
               <DialogDescription>
-                Fill in the details below to add a new AC unit to the inventory.
+                Fill in the details for the new AC unit.
               </DialogDescription>
             </DialogHeader>
-            <ACUnitForm acUnit={newUnit} setACUnit={setNewUnit} />
-            <DialogFooter>
-              <Button onClick={handleAddUnit}>Add Unit</Button>
-            </DialogFooter>
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                handleAddUnit();
+              }}
+            >
+              <div className="grid gap-4">
+                <div>
+                  <Label htmlFor="model">Model</Label>
+                  <Input
+                    id="model"
+                    value={newUnit.model}
+                    onChange={(e) =>
+                      setNewUnit({ ...newUnit, model: e.target.value })
+                    }
+                    required
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="capacity">Capacity</Label>
+                  <Input
+                    id="capacity"
+                    value={newUnit.capacity}
+                    onChange={(e) =>
+                      setNewUnit({ ...newUnit, capacity: e.target.value })
+                    }
+                    required
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="energyRating">Energy Rating (kWh)</Label>
+                  <Input
+                    id="energyRating"
+                    type="number"
+                    value={newUnit.energyRating}
+                    onChange={(e) =>
+                      setNewUnit({ ...newUnit, energyRating: e.target.value })
+                    }
+                    required
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="dailyRate">Daily Rate</Label>
+                  <Input
+                    id="dailyRate"
+                    type="number"
+                    value={newUnit.dailyRate}
+                    onChange={(e) =>
+                      setNewUnit({
+                        ...newUnit,
+                        dailyRate: parseFloat(e.target.value),
+                      })
+                    }
+                    required
+                  />
+                </div>
+                <div className="flex items-center">
+                  <Label htmlFor="available">Available</Label>
+                  <Switch
+                    id="available"
+                    checked={newUnit.available}
+                    onCheckedChange={(checked) =>
+                      setNewUnit({ ...newUnit, available: checked })
+                    }
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="type">Type</Label>
+                  <Select
+                    value={newUnit.type}
+                    onValueChange={(value) =>
+                      setNewUnit({ ...newUnit, type: value })
+                    }
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Window AC">Window AC</SelectItem>
+                      <SelectItem value="Split AC">Split AC</SelectItem>
+                      <SelectItem value="Central AC">Central AC</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              <DialogFooter>
+                <Button type="submit">Add AC Unit</Button>
+                <Button type="button" onClick={() => setIsAddModalOpen(false)}>
+                  Cancel
+                </Button>
+              </DialogFooter>
+            </form>
           </DialogContent>
         </Dialog>
       </div>
@@ -305,93 +413,46 @@ export function AcRentalManagement() {
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead
-              onClick={() => handleSort("model")}
-              className="cursor-pointer"
-            >
-              Model <ArrowUpDown className="inline h-4 w-4 ml-1" />
+            <TableHead onClick={() => handleSort("model")}>
+              Model <ArrowUpDown className="inline" />
             </TableHead>
-            <TableHead
-              onClick={() => handleSort("type")}
-              className="cursor-pointer"
-            >
-              Type <ArrowUpDown className="inline h-4 w-4 ml-1" />
+            <TableHead onClick={() => handleSort("capacity")}>
+              Capacity <ArrowUpDown className="inline" />
             </TableHead>
-            <TableHead
-              onClick={() => handleSort("capacity")}
-              className="cursor-pointer"
-            >
-              Capacity <Thermometer className="inline h-4 w-4 ml-1" />
+            <TableHead onClick={() => handleSort("dailyRate")}>
+              Daily Rate <ArrowUpDown className="inline" />
             </TableHead>
-            <TableHead
-              onClick={() => handleSort("energyRating")}
-              className="cursor-pointer"
-            >
-              Energy Rating <Wind className="inline h-4 w-4 ml-1" />
-            </TableHead>
-            <TableHead
-              onClick={() => handleSort("dailyRate")}
-              className="cursor-pointer"
-            >
-              Daily Rate <DollarSign className="inline h-4 w-4 ml-1" />
-            </TableHead>
-            <TableHead
-              onClick={() => handleSort("available")}
-              className="cursor-pointer"
-            >
-              Availability <ArrowUpDown className="inline h-4 w-4 ml-1" />
+            <TableHead onClick={() => handleSort("available")}>
+              Available <ArrowUpDown className="inline" />
             </TableHead>
             <TableHead>Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          <AnimatePresence>
-            {filteredACUnits.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={7} className="text-center">
-                  No AC units found 😕
-                </TableCell>
-              </TableRow>
-            ) : (
-              filteredACUnits.map((unit) => (
-                <motion.tr
-                  key={unit.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -20 }}
-                  className="hover:bg-gray-100"
+          {filteredACUnits.map((unit) => (
+            <TableRow key={unit.id}>
+              <TableCell>{unit.model}</TableCell>
+              <TableCell>{unit.capacity}</TableCell>
+              <TableCell>${unit.dailyRate.toFixed(2)}</TableCell>
+              <TableCell>{unit.available ? "Yes" : "No"}</TableCell>
+              <TableCell className="flex space-x-2">
+                <Button
+                  onClick={() => {
+                    setSelectedUnit(unit);
+                    setIsEditModalOpen(true);
+                  }}
                 >
-                  <TableCell>{unit.model}</TableCell>
-                  <TableCell>{unit.type}</TableCell>
-                  <TableCell>{unit.capacity}</TableCell>
-                  <TableCell>{unit.energyRating}</TableCell>
-                  <TableCell>${unit.dailyRate}</TableCell>
-                  <TableCell>
-                    {unit.available ? "✅ Available" : "❌ Rented"}
-                  </TableCell>
-                  <TableCell className="space-x-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => {
-                        setSelectedUnit(unit);
-                        setIsEditModalOpen(true);
-                      }}
-                    >
-                      <Edit className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="destructive"
-                      size="sm"
-                      onClick={() => handleDeleteUnit(unit.id)}
-                    >
-                      <Trash className="h-4 w-4" />
-                    </Button>
-                  </TableCell>
-                </motion.tr>
-              ))
-            )}
-          </AnimatePresence>
+                  <Edit />
+                </Button>
+                <Button
+                  onClick={() => handleDeleteUnit(unit.id)}
+                  variant="destructive"
+                >
+                  <Trash />
+                </Button>
+              </TableCell>
+            </TableRow>
+          ))}
         </TableBody>
       </Table>
 
@@ -399,101 +460,112 @@ export function AcRentalManagement() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Edit AC Unit</DialogTitle>
-            <DialogDescription>
-              Modify the details of the selected AC unit.
-            </DialogDescription>
           </DialogHeader>
           {selectedUnit && (
-            <ACUnitForm acUnit={selectedUnit} setACUnit={setSelectedUnit} />
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                handleUpdateUnit();
+              }}
+            >
+              <div className="grid gap-4">
+                <div>
+                  <Label htmlFor="model">Model</Label>
+                  <Input
+                    id="model"
+                    value={selectedUnit.model}
+                    onChange={(e) =>
+                      setSelectedUnit({
+                        ...selectedUnit,
+                        model: e.target.value,
+                      })
+                    }
+                    required
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="capacity">Capacity</Label>
+                  <Input
+                    id="capacity"
+                    value={selectedUnit.capacity}
+                    onChange={(e) =>
+                      setSelectedUnit({
+                        ...selectedUnit,
+                        capacity: e.target.value,
+                      })
+                    }
+                    required
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="energyRating">Energy Rating (kWh)</Label>
+                  <Input
+                    id="energyRating"
+                    type="number"
+                    value={selectedUnit.energyRating}
+                    onChange={(e) =>
+                      setSelectedUnit({
+                        ...selectedUnit,
+                        energyRating: e.target.value,
+                      })
+                    }
+                    required
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="dailyRate">Daily Rate</Label>
+                  <Input
+                    id="dailyRate"
+                    type="number"
+                    value={selectedUnit.dailyRate}
+                    onChange={(e) =>
+                      setSelectedUnit({
+                        ...selectedUnit,
+                        dailyRate: parseFloat(e.target.value),
+                      })
+                    }
+                    required
+                  />
+                </div>
+                <div className="flex items-center">
+                  <Label htmlFor="available">Available</Label>
+                  <Switch
+                    id="available"
+                    checked={selectedUnit.available}
+                    onCheckedChange={(checked) =>
+                      setSelectedUnit({ ...selectedUnit, available: checked })
+                    }
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="type">Type</Label>
+                  <Select
+                    value={selectedUnit.type}
+                    onValueChange={(value) =>
+                      setSelectedUnit({ ...selectedUnit, type: value })
+                    }
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Window AC">Window AC</SelectItem>
+                      <SelectItem value="Split AC">Split AC</SelectItem>
+                      <SelectItem value="Central AC">Central AC</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              <DialogFooter>
+                <Button type="submit">Update AC Unit</Button>
+                <Button type="button" onClick={() => setIsEditModalOpen(false)}>
+                  Cancel
+                </Button>
+              </DialogFooter>
+            </form>
           )}
-          <DialogFooter>
-            <Button onClick={handleUpdateUnit}>Update Unit</Button>
-          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>
   );
 }
-
-interface ACUnitFormProps {
-  acUnit: Omit<ACUnit, "id">;
-  setACUnit: React.Dispatch<React.SetStateAction<Omit<ACUnit, "id">>>;
-}
-
-const ACUnitForm: React.FC<ACUnitFormProps> = ({ acUnit, setACUnit }) => {
-  const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  ) => {
-    const { name, value } = e.target;
-    setACUnit((prevUnit) => ({
-      ...prevUnit,
-      [name]: name === "dailyRate" ? parseFloat(value) : value,
-    }));
-  };
-
-  return (
-    <>
-      <div className="space-y-4">
-        <div className="flex flex-col space-y-2">
-          <Label htmlFor="model">Model</Label>
-          <Input
-            name="model"
-            value={acUnit.model}
-            onChange={handleInputChange}
-            placeholder="Model name"
-          />
-        </div>
-        <div className="flex flex-col space-y-2">
-          <Label htmlFor="type">Type</Label>
-          <Select name="type" value={acUnit.type} onChange={handleInputChange}>
-            <SelectTrigger>
-              <SelectValue placeholder="Select AC type" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="Window AC">Window AC</SelectItem>
-              <SelectItem value="Split AC">Split AC</SelectItem>
-              <SelectItem value="Portable AC">Portable AC</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-        <div className="flex flex-col space-y-2">
-          <Label htmlFor="capacity">Capacity</Label>
-          <Input
-            name="capacity"
-            value={acUnit.capacity}
-            onChange={handleInputChange}
-            placeholder="Cooling capacity (e.g., 1.5 Ton)"
-          />
-        </div>
-        <div className="flex flex-col space-y-2">
-          <Label htmlFor="energyRating">Energy Rating</Label>
-          <Input
-            name="energyRating"
-            value={acUnit.energyRating}
-            onChange={handleInputChange}
-            placeholder="Energy rating (e.g., 5 Star)"
-          />
-        </div>
-        <div className="flex flex-col space-y-2">
-          <Label htmlFor="dailyRate">Daily Rate</Label>
-          <Input
-            type="number"
-            name="dailyRate"
-            value={acUnit.dailyRate}
-            onChange={handleInputChange}
-            placeholder="Daily rental rate in $"
-          />
-        </div>
-        <div className="flex items-center space-x-2">
-          <Label htmlFor="available">Availability</Label>
-          <Switch
-            checked={acUnit.available}
-            onCheckedChange={(checked) =>
-              setACUnit((prevUnit) => ({ ...prevUnit, available: checked }))
-            }
-          />
-        </div>
-      </div>
-    </>
-  );
-};

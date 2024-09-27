@@ -1,12 +1,20 @@
-"use client"
+"use client";
 
-import React, { useState } from "react"
-import { ChevronLeft, Calendar, Clock, User, Phone, Mail, MapPin } from "lucide-react"
-import { createOrder } from "@/apis/order"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
+import React, { useState } from "react";
+import {
+  ChevronLeft,
+  Calendar,
+  Clock,
+  User,
+  Phone,
+  Mail,
+  MapPin,
+} from "lucide-react";
+import { createOrder } from "@/apis/order";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Dialog,
   DialogContent,
@@ -14,95 +22,98 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog"
-import { toast } from "@/components/ui/use-toast"
+} from "@/components/ui/dialog";
+import { toast } from "@/hooks/use-toast";
 
 const generateTimeSlots = () => {
-  const slots = []
+  const slots = [];
   for (let hour = 9; hour <= 20; hour++) {
-    slots.push(`${hour}:00`)
-    if (hour !== 20) slots.push(`${hour}:30`)
+    slots.push(`${hour}:00`);
+    if (hour !== 20) slots.push(`${hour}:30`);
   }
-  return slots
-}
+  return slots;
+};
 
-const timeSlots = generateTimeSlots()
+const timeSlots = generateTimeSlots();
 
 export function ServiceSchedulingPageComponent() {
-  const [selectedDate, setSelectedDate] = useState<Date | null>(null)
-  const [selectedTime, setSelectedTime] = useState<string | null>(null)
-  const [isContactModalOpen, setIsContactModalOpen] = useState(false)
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const [selectedTime, setSelectedTime] = useState<string | null>(null);
+  const [isContactModalOpen, setIsContactModalOpen] = useState(false);
   const [contactForm, setContactForm] = useState({
     name: "",
     phone: "",
     email: "",
     address: "",
-  })
+  });
 
   const handleDateClick = (date: Date) => {
-    setSelectedDate(date)
-  }
+    setSelectedDate(date);
+  };
 
   const handleTimeClick = (time: string) => {
-    setSelectedTime(time)
-  }
+    setSelectedTime(time);
+  };
 
   const handleProceed = () => {
     if (selectedDate && selectedTime) {
-      setIsContactModalOpen(true)
+      setIsContactModalOpen(true);
     } else {
       toast({
         title: "Incomplete Selection",
         description: "Please select both a date and time before proceeding.",
         variant: "destructive",
-      })
+      });
     }
-  }
+  };
 
-  const handleContactFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    setContactForm({ ...contactForm, [e.target.name]: e.target.value })
-  }
+  const handleContactFormChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    setContactForm({ ...contactForm, [e.target.name]: e.target.value });
+  };
 
   const handleContactFormSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
     if (selectedDate && selectedTime) {
       try {
         const orderData = {
           ...contactForm,
           date: selectedDate.toISOString(),
           timeSlot: selectedTime,
-        }
-        const response = await createOrder(orderData)
-        console.log("Order created:", response)
-        setIsContactModalOpen(false)
+        };
+        const response = await createOrder(orderData);
+        console.log("Order created:", response);
+        setIsContactModalOpen(false);
         toast({
           title: "Booking Successful",
           description: "Your service has been scheduled successfully!",
-        })
+        });
         // Implement navigation to confirmation page or dashboard here
       } catch (error) {
-        console.error("Error creating order:", error)
+        console.error("Error creating order:", error);
         toast({
           title: "Booking Failed",
-          description: "There was an error scheduling your service. Please try again.",
+          description:
+            "There was an error scheduling your service. Please try again.",
           variant: "destructive",
-        })
+        });
       }
     }
-  }
+  };
 
   const generateCalendar = () => {
-    const today = new Date()
-    const calendar = []
+    const today = new Date();
+    const calendar = [];
     for (let i = 0; i < 14; i++) {
-      const date = new Date(today)
-      date.setDate(today.getDate() + i)
-      calendar.push(date)
+      const date = new Date(today);
+      date.setDate(today.getDate() + i);
+      calendar.push(date);
     }
-    return calendar
-  }
+    return calendar;
+  };
 
-  const calendar = generateCalendar()
+  const calendar = generateCalendar();
 
   return (
     <div className="min-h-screen bg-[#fafafa] p-4 sm:p-6 lg:p-8">
@@ -124,7 +135,11 @@ export function ServiceSchedulingPageComponent() {
               <Button
                 key={index}
                 onClick={() => handleDateClick(date)}
-                variant={selectedDate?.toDateString() === date.toDateString() ? "default" : "outline"}
+                variant={
+                  selectedDate?.toDateString() === date.toDateString()
+                    ? "default"
+                    : "outline"
+                }
                 className="flex flex-col items-center justify-center w-16 h-20 mr-2 rounded-lg flex-shrink-0"
               >
                 <span className="text-sm">
@@ -240,5 +255,5 @@ export function ServiceSchedulingPageComponent() {
         </DialogContent>
       </Dialog>
     </div>
-  )
+  );
 }

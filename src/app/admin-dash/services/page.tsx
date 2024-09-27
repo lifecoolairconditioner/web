@@ -77,7 +77,7 @@ export default function ServiceManagement() {
   const handleAddService = async (newService: ServiceFormData) => {
     try {
       const response = await axios.post(
-        "http://localhost:8000/api/services",
+        `${process.env.NEXT_PUBLIC_API_URL}/api/services`,
         newService
       );
       setServices([...services, response.data]);
@@ -90,7 +90,7 @@ export default function ServiceManagement() {
   const handleEditService = async (updatedService: Service) => {
     try {
       await axios.put(
-        `http://localhost:8000/api/services/${updatedService._id}`,
+        `${process.env.NEXT_PUBLIC_API_URL}/api/services/${updatedService._id}`,
         updatedService
       );
       setServices(
@@ -108,7 +108,7 @@ export default function ServiceManagement() {
     try {
       if (selectedService) {
         await axios.delete(
-          `http://localhost:8000/api/services/${selectedService._id}`
+          `${process.env.NEXT_PUBLIC_API_URL}/api/services/${selectedService._id}`
         );
         setServices(
           services.filter((service) => service._id !== selectedService._id)
@@ -280,7 +280,7 @@ export default function ServiceManagement() {
 
 interface ServiceFormProps {
   initialData?: Service;
-  onSubmit: (data: ServiceFormData | Service) => void;
+  onSubmit: (data: Service) => void; // Accepts Service object for submission
 }
 
 function ServiceForm({ initialData, onSubmit }: ServiceFormProps) {
@@ -305,7 +305,7 @@ function ServiceForm({ initialData, onSubmit }: ServiceFormProps) {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit(formData);
+    onSubmit({ ...formData, _id: initialData?._id || "" }); // Include _id for edits
   };
 
   return (
