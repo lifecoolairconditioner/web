@@ -122,19 +122,36 @@ export default function ACRentalManagement() {
   };
 
   const sortedACUnits = React.useMemo(() => {
-    const sortableUnits = [...acUnits];
     if (sortConfig !== null) {
+      const sortableUnits = [...acUnits];
+
       sortableUnits.sort((a, b) => {
-        if (a[sortConfig.key] < b[sortConfig.key]) {
-          return sortConfig.direction === "ascending" ? -1 : 1;
+        const aValue = a[sortConfig.key];
+        const bValue = b[sortConfig.key];
+
+        // Check if both values are defined and comparable
+        if (aValue === undefined || bValue === undefined) {
+          return 0;
         }
-        if (a[sortConfig.key] > b[sortConfig.key]) {
-          return sortConfig.direction === "ascending" ? 1 : -1;
+
+        if (typeof aValue === "string" && typeof bValue === "string") {
+          return sortConfig.direction === "ascending"
+            ? aValue.localeCompare(bValue)
+            : bValue.localeCompare(aValue);
+        } else if (typeof aValue === "number" && typeof bValue === "number") {
+          return sortConfig.direction === "ascending"
+            ? aValue - bValue
+            : bValue - aValue;
         }
+
+        // Default case if types are incompatible or unexpected
         return 0;
       });
+
+      return sortableUnits;
     }
-    return sortableUnits;
+
+    return acUnits;
   }, [acUnits, sortConfig]);
 
   const filteredACUnits = sortedACUnits.filter(
