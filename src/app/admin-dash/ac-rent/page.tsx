@@ -162,7 +162,8 @@ export default function ACRentalManagement() {
 
   const handleAddUnit = async () => {
     try {
-      const newACUnit = await createACRental({
+      // Assuming createACRental returns an Axios response
+      const { data: newACUnit } = await createACRental({
         name: newUnit.model,
         description: newUnit.capacity,
         rentalRates: {
@@ -173,7 +174,10 @@ export default function ACRentalManagement() {
         availability: newUnit.available,
         type: newUnit.type,
       });
+
+      // Add the new unit to the state
       setACUnits((prevUnits) => [...prevUnits, newACUnit]);
+
       setIsAddModalOpen(false);
       resetNewUnit();
       toast({
