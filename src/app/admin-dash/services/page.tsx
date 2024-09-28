@@ -1,4 +1,5 @@
 "use client";
+
 import React, { useEffect, useState } from "react";
 import {
   Table,
@@ -27,27 +28,28 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Plus, Edit, Trash, Search, DollarSign, FileText } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import { motion, AnimatePresence } from "framer-motion";
 import axios from "axios";
+import { Plus, Edit, Trash, Search } from "lucide-react";
 
-// Define types for service and form data
 interface Service {
   _id: string;
   name: string;
-  category: string;
-  price: number;
   description: string;
-  imageUrl: string;
+  price: number;
+  imageUrl: string | File | null; // Allow both string and File types
+  category: string;
+  imageDescription: string;
 }
 
 interface ServiceFormData {
   name: string;
-  category: string;
-  price: number;
   description: string;
-  imageUrl: string;
+  price: number;
+  imageUrl: File | null; // Allow null for imageUrl
+  category: string;
+  imageDescription: string;
 }
 
 export default function ServiceManagement() {
@@ -56,14 +58,13 @@ export default function ServiceManagement() {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const [categoryFilter, setCategoryFilter] = useState("all");
-  const [searchTerm, setSearchTerm] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState<string>("all");
+  const [searchTerm, setSearchTerm] = useState<string>("");
 
-  // Fetch all services on component mount
   useEffect(() => {
     const fetchServices = async () => {
       try {
-        const response = await axios.get(
+        const response = await axios.get<Service[]>(
           `${process.env.NEXT_PUBLIC_API_URL}/api/services`
         );
         setServices(response.data);
@@ -74,30 +75,83 @@ export default function ServiceManagement() {
     fetchServices();
   }, []);
 
+  // Function to handle adding a new service
   const handleAddService = async (newService: ServiceFormData) => {
+    const formData = new FormData();
+    formData.append("name", newService.name);
+    formData.append("description", newService.description);
+    formData.append("price", String(newService.price));
+    formData.append("category", newService.category);
+    formData.append("imageDescription", newService.imageDescription);
+
+    if (newService.imageUrl) {
+      formData.append("imageUrl", newService.imageUrl); // Append file
+    } else {
+      console.error("No image file selected.");
+      return;
+    }
+
     try {
-      const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/services`,
-        newService
+      console.log(
+        "Sending data to:",
+        `${process.env.NEXT_PUBLIC_API_URL}/api/services`
       );
-      setServices([...services, response.data]);
+      console.log("Form Data:", formData);
+
+      const response = await axios.post<Service>(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/services`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+
+      console.log("Response:", response.data);
+
+      setServices((prevServices) => [...prevServices, response.data]);
       setIsAddDialogOpen(false);
     } catch (error) {
       console.error("Error adding service:", error);
+      if (axios.isAxiosError(error)) {
+        // Axios specific error handling
+        console.error("Axios error response:", error.response?.data);
+      }
     }
   };
 
-  const handleEditService = async (updatedService: Service) => {
+  const handleEditService = async (updatedService: ServiceFormData) => {
+    const formData = new FormData();
+    formData.append("name", updatedService.name);
+    formData.append("description", updatedService.description);
+    formData.append("price", String(updatedService.price));
+    formData.append("category", updatedService.category);
+    formData.append("imageDescription", updatedService.imageDescription);
+
+    if (updatedService.imageUrl) {
+      formData.append("imageUrl", updatedService.imageUrl); // Append file
+    }
+
     try {
-      await axios.put(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/services/${updatedService._id}`,
-        updatedService
+      await axios.put<Service>(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/services/${selectedService?._id}`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
       );
-      setServices(
-        services.map((service) =>
-          service._id === updatedService._id ? updatedService : service
+
+      setServices((prevServices) =>
+        prevServices.map((service) =>
+          service._id === selectedService?._id
+            ? { ...service, ...updatedService }
+            : service
         )
       );
+
       setIsEditDialogOpen(false);
     } catch (error) {
       console.error("Error updating service:", error);
@@ -110,8 +164,8 @@ export default function ServiceManagement() {
         await axios.delete(
           `${process.env.NEXT_PUBLIC_API_URL}/api/services/${selectedService._id}`
         );
-        setServices(
-          services.filter((service) => service._id !== selectedService._id)
+        setServices((prevServices) =>
+          prevServices.filter((service) => service._id !== selectedService._id)
         );
         setIsDeleteDialogOpen(false);
       }
@@ -131,12 +185,25 @@ export default function ServiceManagement() {
     );
 
   return (
-    <div className="container mx-auto p-6 space-y-6 bg-[#fafafa]">
-      <h1 className="text-3xl font-bold text-[#010101]">
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="container mx-auto p-6 space-y-6 bg-[#fafafa]"
+    >
+      <motion.h1
+        initial={{ y: -20 }}
+        animate={{ y: 0 }}
+        className="text-3xl font-bold text-[#010101]"
+      >
         Service Management 🛠️
-      </h1>
+      </motion.h1>
 
-      <div className="flex justify-between items-center">
+      <motion.div
+        initial={{ y: 20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        className="flex justify-between items-center"
+      >
         <div className="flex items-center space-x-4">
           <Select value={categoryFilter} onValueChange={setCategoryFilter}>
             <SelectTrigger className="w-[180px]">
@@ -176,7 +243,7 @@ export default function ServiceManagement() {
             <ServiceForm onSubmit={handleAddService} />
           </DialogContent>
         </Dialog>
-      </div>
+      </motion.div>
 
       <AnimatePresence>
         <motion.div
@@ -188,7 +255,6 @@ export default function ServiceManagement() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>ID 🆔</TableHead>
                 <TableHead>Name 📛</TableHead>
                 <TableHead>Category 🏷️</TableHead>
                 <TableHead>Price 💰</TableHead>
@@ -199,34 +265,29 @@ export default function ServiceManagement() {
             <TableBody>
               {filteredServices.map((service) => (
                 <TableRow key={service._id}>
-                  <TableCell>{service._id}</TableCell>
                   <TableCell>{service.name}</TableCell>
                   <TableCell>{service.category}</TableCell>
                   <TableCell>${service.price}</TableCell>
                   <TableCell>{service.description}</TableCell>
-                  <TableCell>
-                    <div className="flex space-x-2">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => {
-                          setSelectedService(service);
-                          setIsEditDialogOpen(true);
-                        }}
-                      >
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => {
-                          setSelectedService(service);
-                          setIsDeleteDialogOpen(true);
-                        }}
-                      >
-                        <Trash className="h-4 w-4" />
-                      </Button>
-                    </div>
+                  <TableCell className="flex space-x-2">
+                    <Button
+                      className="bg-[#4caf50] text-white"
+                      onClick={() => {
+                        setSelectedService(service);
+                        setIsEditDialogOpen(true);
+                      }}
+                    >
+                      <Edit className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      className="bg-[#f44336] text-white"
+                      onClick={() => {
+                        setSelectedService(service);
+                        setIsDeleteDialogOpen(true);
+                      }}
+                    >
+                      <Trash className="h-4 w-4" />
+                    </Button>
                   </TableCell>
                 </TableRow>
               ))}
@@ -239,14 +300,19 @@ export default function ServiceManagement() {
         <DialogContent className="bg-white">
           <DialogHeader>
             <DialogTitle>Edit Service ✏️</DialogTitle>
-            <DialogDescription>
-              Update the details for this service.
-            </DialogDescription>
+            <DialogDescription>Update the service details.</DialogDescription>
           </DialogHeader>
           {selectedService && (
             <ServiceForm
-              initialData={selectedService}
               onSubmit={handleEditService}
+              initialData={{
+                name: selectedService.name,
+                description: selectedService.description,
+                price: selectedService.price,
+                category: selectedService.category,
+                imageDescription: selectedService.imageDescription,
+                imageUrl: null, // Optional, handle file upload separately
+              }}
             />
           )}
         </DialogContent>
@@ -255,7 +321,7 @@ export default function ServiceManagement() {
       <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
         <DialogContent className="bg-white">
           <DialogHeader>
-            <DialogTitle>Delete Service 🗑️</DialogTitle>
+            <DialogTitle>Confirm Deletion ❌</DialogTitle>
             <DialogDescription>
               Are you sure you want to delete this service? This action cannot
               be undone.
@@ -268,52 +334,57 @@ export default function ServiceManagement() {
             >
               Cancel
             </Button>
-            <Button variant="destructive" onClick={handleDeleteService}>
-              Delete
+            <Button
+              onClick={handleDeleteService}
+              className="bg-red-600 text-white"
+            >
+              Confirm
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </div>
+    </motion.div>
   );
 }
 
 interface ServiceFormProps {
-  initialData?: Service;
-  onSubmit: (data: Service) => void; // Accepts Service object for submission
+  onSubmit: (data: ServiceFormData) => Promise<void>;
+  initialData?: ServiceFormData;
 }
 
-function ServiceForm({ initialData, onSubmit }: ServiceFormProps) {
+const ServiceForm: React.FC<ServiceFormProps> = ({ onSubmit, initialData }) => {
   const [formData, setFormData] = useState<ServiceFormData>({
     name: initialData?.name || "",
-    category: initialData?.category || "",
-    price: initialData?.price || 0,
     description: initialData?.description || "",
-    imageUrl: initialData?.imageUrl || "",
+    price: initialData?.price || 0,
+    imageUrl: null,
+    category: initialData?.category || "",
+    imageDescription: initialData?.imageDescription || "",
   });
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
   ) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleCategoryChange = (value: string) => {
-    setFormData({ ...formData, category: value });
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files ? e.target.files[0] : null;
+    setFormData((prev) => ({ ...prev, imageUrl: file }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    onSubmit({ ...formData, _id: initialData?._id || "" }); // Include _id for edits
+    await onSubmit(formData);
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 bg-white">
+    <form onSubmit={handleSubmit} className="space-y-4">
       <div>
-        <Label htmlFor="name" className="flex items-center">
-          Service Name
-        </Label>
+        <Label htmlFor="name">Service Name</Label>
         <Input
           id="name"
           name="name"
@@ -323,24 +394,26 @@ function ServiceForm({ initialData, onSubmit }: ServiceFormProps) {
         />
       </div>
       <div>
-        <Label htmlFor="category" className="flex items-center">
-          <FileText className="mr-2 h-4 w-4" /> Category
-        </Label>
-        <Select value={formData.category} onValueChange={handleCategoryChange}>
+        <Label htmlFor="category">Category</Label>
+        <Select
+          name="category"
+          value={formData.category}
+          onValueChange={(value) =>
+            setFormData({ ...formData, category: value })
+          }
+        >
           <SelectTrigger>
-            <SelectValue placeholder="Select a category" />
+            <SelectValue placeholder="Select category" />
           </SelectTrigger>
-          <SelectContent className="bg-white">
-            <SelectItem value="Repair">Repair 🔧</SelectItem>
-            <SelectItem value="Maintenance">Maintenance 🔨</SelectItem>
-            <SelectItem value="Installation">Installation 🔌</SelectItem>
+          <SelectContent>
+            <SelectItem value="Repair">Repair</SelectItem>
+            <SelectItem value="Maintenance">Maintenance</SelectItem>
+            <SelectItem value="Installation">Installation</SelectItem>
           </SelectContent>
         </Select>
       </div>
       <div>
-        <Label htmlFor="price" className="flex items-center">
-          <DollarSign className="mr-2 h-4 w-4" /> Price
-        </Label>
+        <Label htmlFor="price">Price</Label>
         <Input
           id="price"
           name="price"
@@ -351,9 +424,7 @@ function ServiceForm({ initialData, onSubmit }: ServiceFormProps) {
         />
       </div>
       <div>
-        <Label htmlFor="description" className="flex items-center">
-          <FileText className="mr-2 h-4 w-4" /> Description
-        </Label>
+        <Label htmlFor="description">Description</Label>
         <Textarea
           id="description"
           name="description"
@@ -363,26 +434,27 @@ function ServiceForm({ initialData, onSubmit }: ServiceFormProps) {
         />
       </div>
       <div>
-        <Label htmlFor="imageUrl" className="flex items-center">
-          Image URL
-        </Label>
+        <Label htmlFor="imageDescription">Image Description</Label>
+        <Textarea
+          id="imageDescription"
+          name="imageDescription"
+          value={formData.imageDescription}
+          onChange={handleChange}
+        />
+      </div>
+      <div>
+        <Label htmlFor="imageUrl">Upload Image</Label>
         <Input
           id="imageUrl"
           name="imageUrl"
-          type="url"
-          value={formData.imageUrl}
-          onChange={handleChange}
-          required
+          type="file"
+          accept="image/*"
+          onChange={handleFileChange}
         />
       </div>
-      <DialogFooter>
-        <Button
-          type="submit"
-          className="bg-[#ffc300] text-[#010101] hover:bg-[#ffc300]/90"
-        >
-          Save
-        </Button>
-      </DialogFooter>
+      <Button type="submit" className="bg-blue-600 text-white">
+        Submit
+      </Button>
     </form>
   );
-}
+};
