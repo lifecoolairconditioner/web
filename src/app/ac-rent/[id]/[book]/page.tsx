@@ -26,7 +26,7 @@ const generateTimeSlots = () => {
   return slots;
 };
 
-const timeSlots = generateTimeSlots();
+const durations = generateTimeSlots();
 
 interface Booking {
   params: {
@@ -130,7 +130,7 @@ export default function SlotBookingScreen({ params }: Booking) {
 
     const bookingData = {
       rental,
-      timeSlot: rentalPeriod,
+      duration: rentalPeriod,
       date: formattedDate,
       contact: {
         name: userData.name,
@@ -251,7 +251,7 @@ export default function SlotBookingScreen({ params }: Booking) {
           Select Time
         </h2>
         <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2">
-          {timeSlots.map((time, index) => (
+          {durations.map((time, index) => (
             <motion.button
               key={index}
               onClick={() => handleTimeClick(time)}

@@ -1,5 +1,4 @@
 "use client";
-
 import React, { useState, useEffect } from "react";
 import {
   ChevronLeft,
@@ -10,6 +9,7 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { getOrderById } from "@/apis/order";
+import { getServiceById } from "@/apis/service"; // Import the service API
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "@/hooks/use-toast";
@@ -26,8 +26,10 @@ export default function PaymentPage({ params }: PaymentDetail) {
   const [showBankDetails, setShowBankDetails] = useState(false);
   const [totalPrice, setTotalPrice] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [serviceName, setServiceName] = useState<string | null>(null); // State for service name
   const { book, order } = params;
   const router = useRouter();
+  console.log(book);
 
   useEffect(() => {
     async function fetchRentalOrder() {
@@ -35,6 +37,12 @@ export default function PaymentPage({ params }: PaymentDetail) {
         setIsLoading(true);
         const rentalOrder = await getOrderById(order);
         setTotalPrice(rentalOrder.totalPrice);
+
+        // Fetch the service name if it's provided
+        if (rentalOrder.service) {
+          const service = await getServiceById(rentalOrder.service);
+          setServiceName(service.name); // Set the service name
+        }
       } catch (error) {
         console.error("Failed to fetch rental order:", error);
         toast({
@@ -134,9 +142,7 @@ export default function PaymentPage({ params }: PaymentDetail) {
                 Loading payment details...
               </motion.div>
             ) : (
-              <>
-                Pay ₹{totalPrice} for your {book}
-              </>
+              <>{`Pay ₹${totalPrice} for your ${serviceName || "Order"}`}</>
             )}
           </h2>
           <div className="flex flex-col items-center">

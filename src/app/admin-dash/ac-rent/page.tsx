@@ -1,8 +1,32 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Plus, Search, Edit, Trash, Loader2, Upload } from "lucide-react";
+import { Plus, Edit, Trash } from "lucide-react";
+import {
+  getAllACRentals,
+  getAllACTypes,
+  createACRental,
+  updateACRental,
+  deleteACRental,
+  createACType,
+  updateACType,
+  deleteACType,
+} from "@/apis/acrent";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { toast } from "@/hooks/use-toast";
 import {
   Table,
   TableBody,
@@ -11,674 +35,514 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Switch } from "@/components/ui/switch";
-import { Textarea } from "@/components/ui/textarea";
-import { toast } from "@/hooks/use-toast";
-import {
-  getAllACRentals,
-  createACRental,
-  deleteACRental,
-  updateACRental,
-} from "@/apis/acrent";
 
-interface ACUnit {
-  id: string;
-  _id?: string; // Make _id optional
+interface RentalRate {
+  duration: number;
+  price: number;
+}
+
+interface ACRental {
+  _id: string;
   name: string;
   description: string;
   availability: boolean;
-  rentalRates: {
-    "3_months": number;
-    "6_months": number;
-    "1_year": number;
-  };
+  rentalRates: RentalRate[];
   type: string;
-  imageUrl: File | string | null;
+  imageUrl?: string | null;
 }
 
-export default function ACRentalManagement() {
-  const [acUnits, setACUnits] = useState<ACUnit[]>([]);
-  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [selectedUnit, setSelectedUnit] = useState<ACUnit | null>(null);
-  const [newUnit, setNewUnit] = useState<Omit<ACUnit, "id" | "_id">>({
-    name: "",
-    description: "",
-    availability: true,
-    rentalRates: {
-      "3_months": 0,
-      "6_months": 0,
-      "1_year": 0,
-    },
-    type: "Window AC",
-    imageUrl: null,
-  });
+interface ACType {
+  _id: string;
+  name: string;
+  description: string;
+}
 
-  const fileInputRef = useRef<HTMLInputElement>(null);
+export default function ACManagement() {
+  const [acRentals, setACRentals] = useState<ACRental[]>([]);
+  const [acTypes, setACTypes] = useState<ACType[]>([]);
+  const [isRentalModalOpen, setIsRentalModalOpen] = useState(false);
+  const [isTypeModalOpen, setIsTypeModalOpen] = useState(false);
+  const [selectedRental, setSelectedRental] = useState<ACRental | null>(null);
+  const [selectedType, setSelectedType] = useState<ACType | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [rentalRates, setRentalRates] = useState<RentalRate[]>([
+    { duration: 1, price: 0 },
+  ]);
+  const [imageFile, setImageFile] = useState<File | null>(null);
 
   useEffect(() => {
-    fetchACUnits();
+    fetchACRentals();
+    fetchACTypes();
   }, []);
 
-  const fetchACUnits = async () => {
-    setIsLoading(true);
+  const fetchACRentals = async () => {
     try {
-      const data = await getAllACRentals();
-      setACUnits(data);
+      const rentals = await getAllACRentals();
+      setACRentals(rentals);
     } catch (error) {
-      console.error("Failed to fetch AC units", error);
+      console.log(error);
       toast({
         title: "Error",
-        description: "Failed to fetch AC units. Please try again.",
+        description: "Failed to fetch AC rentals",
         variant: "destructive",
       });
-    } finally {
-      setIsLoading(false);
     }
   };
 
-  const handleAddUnit = async () => {
-    setIsLoading(true);
+  const fetchACTypes = async () => {
     try {
-      const formData = new FormData();
-      Object.entries(newUnit).forEach(([key, value]) => {
-        if (
-          key === "rentalRates" &&
-          typeof value === "object" &&
-          value !== null
-        ) {
-          for (const [rateKey, rateValue] of Object.entries(value)) {
-            formData.append(`rentalRates[${rateKey}]`, rateValue.toString());
-          }
-        } else if (key === "imageUrl" && value instanceof File) {
-          formData.append("imageUrl", value);
-        } else if (value !== null && value !== undefined) {
-          formData.append(key, String(value));
-        }
-      });
-
-      const response = await createACRental(formData);
-      setACUnits([...acUnits, response.data]);
-      setIsAddModalOpen(false);
-      resetNewUnit();
-      toast({
-        title: "Success",
-        description: "New AC unit added successfully.",
-      });
+      const types = await getAllACTypes();
+      setACTypes(types);
     } catch (error) {
-      console.error("Failed to add AC unit", error);
+      console.log(error);
       toast({
         title: "Error",
-        description: "Failed to add new AC unit. Please try again.",
+        description: "Failed to fetch AC types",
         variant: "destructive",
       });
-    } finally {
-      setIsLoading(false);
     }
   };
 
-  const handleUpdateUnit = async () => {
-    if (!selectedUnit) return;
-    setIsLoading(true);
-    try {
-      const formData = new FormData();
-      Object.entries(selectedUnit).forEach(([key, value]) => {
-        if (
-          key === "rentalRates" &&
-          typeof value === "object" &&
-          value !== null
-        ) {
-          for (const [rateKey, rateValue] of Object.entries(value)) {
-            formData.append(`rentalRates[${rateKey}]`, String(rateValue));
-          }
-        } else if (key === "imageUrl" && value instanceof File) {
-          formData.append("imageUrl", value);
-        } else if (value !== null && value !== undefined) {
-          formData.append(key, String(value));
-        }
-      });
-      const response = await updateACRental(selectedUnit._id, formData);
-      setACUnits(
-        acUnits.map((unit) =>
-          unit._id === selectedUnit._id ? response.data : unit
-        )
-      );
-      setIsUpdateModalOpen(false);
-      toast({
-        title: "Success",
-        description: "AC unit updated successfully.",
-      });
-    } catch (error) {
-      console.error("Failed to update AC unit", error);
+  const handleRentalSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setLoading(true);
+
+    const form = e.currentTarget;
+    const formData = new FormData(form);
+
+    if (imageFile) {
+      formData.append("imageUrl", imageFile);
+    }
+
+    const rentalData = {
+      name: formData.get("name") as string,
+      description: formData.get("description") as string,
+      availability: formData.get("availability") === "on",
+      rentalRates: rentalRates.filter(
+        (rate) => rate.duration > 0 && rate.price >= 0
+      ),
+      type: formData.get("type") as string,
+    };
+
+    if (rentalData.rentalRates.length === 0) {
       toast({
         title: "Error",
-        description: "Failed to update AC unit. Please try again.",
+        description: "At least one valid rental rate is required.",
+        variant: "destructive",
+      });
+      setLoading(false);
+      return;
+    }
+
+    try {
+      if (selectedRental) {
+        await updateACRental(selectedRental._id, rentalData);
+        toast({
+          title: "Success",
+          description: "AC rental updated successfully",
+        });
+      } else {
+        await createACRental(rentalData);
+        toast({
+          title: "Success",
+          description: "AC rental created successfully",
+        });
+      }
+      fetchACRentals();
+      resetRentalModal();
+    } catch (error) {
+      let errorMessage = "Failed to save AC rental";
+      if (error instanceof Error && error.message) {
+        errorMessage = error.message;
+      }
+      toast({
+        title: "Error",
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
 
-  const handleDeleteUnit = async (id: string) => {
-    setIsLoading(true);
+  const handleTypeSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setLoading(true);
+
+    const form = e.currentTarget;
+    const formData = new FormData(form);
+    const typeData = {
+      name: formData.get("name") as string,
+      description: formData.get("description") as string,
+    };
+
+    try {
+      if (selectedType) {
+        await updateACType(selectedType._id, typeData);
+        toast({
+          title: "Success",
+          description: "AC type updated successfully",
+        });
+      } else {
+        await createACType(typeData);
+        toast({
+          title: "Success",
+          description: "AC type created successfully",
+        });
+      }
+      fetchACTypes();
+      resetTypeModal();
+    } catch (error) {
+      console.log(error);
+      toast({
+        title: "Error",
+        description: "Failed to save AC type",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const resetRentalModal = () => {
+    setIsRentalModalOpen(false);
+    setSelectedRental(null);
+    setRentalRates([{ duration: 1, price: 0 }]);
+    setImageFile(null);
+  };
+
+  const resetTypeModal = () => {
+    setIsTypeModalOpen(false);
+    setSelectedType(null);
+  };
+
+  const handleRateChange = (index: number, field: string, value: string) => {
+    const updatedRates = [...rentalRates];
+    updatedRates[index] = {
+      ...updatedRates[index],
+      [field]: parseFloat(value) || 0,
+    };
+    setRentalRates(updatedRates);
+  };
+
+  const handleAddRate = () => {
+    setRentalRates([...rentalRates, { duration: 1, price: 0 }]);
+  };
+
+  const handleRemoveRate = (index: number) => {
+    setRentalRates(rentalRates.filter((_, i) => i !== index));
+  };
+
+  const handleDeleteRental = async (id: string) => {
     try {
       await deleteACRental(id);
-      setACUnits(acUnits.filter((unit) => unit.id !== id));
       toast({
         title: "Success",
-        description: "AC unit deleted successfully.",
+        description: "AC rental deleted successfully",
       });
+      fetchACRentals();
     } catch (error) {
-      console.error("Failed to delete AC unit", error);
+      console.log(error);
       toast({
         title: "Error",
-        description: "Failed to delete AC unit. Please try again.",
+        description: "Failed to delete AC rental",
         variant: "destructive",
       });
-    } finally {
-      setIsLoading(false);
     }
   };
 
-  const resetNewUnit = () => {
-    setNewUnit({
-      name: "",
-      description: "",
-      availability: true,
-      rentalRates: {
-        "3_months": 0,
-        "6_months": 0,
-        "1_year": 0,
-      },
-      type: "Window AC",
-      imageUrl: null,
-    });
-  };
-
-  const handleFileChange = (
-    e: React.ChangeEvent<HTMLInputElement>,
-    isNewUnit: boolean
-  ) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
-      if (isNewUnit) {
-        setNewUnit({ ...newUnit, imageUrl: file }); // Store file
-      } else if (selectedUnit) {
-        setSelectedUnit({ ...selectedUnit, imageUrl: file }); // Store file for selected unit
-      }
+  const handleDeleteType = async (id: string) => {
+    try {
+      await deleteACType(id);
+      toast({ title: "Success", description: "AC type deleted successfully" });
+      fetchACTypes();
+    } catch (error) {
+      console.log(error);
+      toast({
+        title: "Error",
+        description: "Failed to delete AC type",
+        variant: "destructive",
+      });
     }
   };
-
-  const filteredACUnits = acUnits.filter((unit) =>
-    unit.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      className="container mx-auto p-6 space-y-6 bg-[#fafafa]"
-    >
-      <motion.h1
-        initial={{ y: -20 }}
-        animate={{ y: 0 }}
-        className="text-3xl font-bold text-[#010101]"
-      >
-        AC Rental Management ❄️
-      </motion.h1>
+    <div className="min-h-screen bg-[#fafafa] p-4 sm:p-6 lg:p-8">
+      <h1 className="text-3xl font-bold text-[#010101] mb-6">
+        AC Management ❄️
+      </h1>
 
-      <motion.div
-        initial={{ y: 20, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        className="flex justify-between items-center"
-      >
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-          <Input
-            placeholder="Search AC units..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10 pr-4 py-2 w-64"
-          />
-        </div>
-
-        <Dialog open={isAddModalOpen} onOpenChange={setIsAddModalOpen}>
-          <DialogTrigger asChild>
-            <Button className="bg-[#ffc300] text-[#010101] hover:bg-[#ffc300]/90">
-              <Plus className="mr-2 h-4 w-4" /> Add New AC Unit
+      <div className="space-y-8">
+        <section>
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-2xl font-semibold text-[#010101]">
+              AC Rentals
+            </h2>
+            <Button
+              onClick={() => setIsRentalModalOpen(true)}
+              className="bg-[#ffc300] text-[#010101] hover:bg-[#e6b000]"
+            >
+              <Plus className="mr-2 h-4 w-4" /> Add New Rental
             </Button>
-          </DialogTrigger>
-          <DialogContent className="bg-white sm:max-w-[425px]">
-            <DialogHeader>
-              <DialogTitle>Add New AC Unit</DialogTitle>
-              <DialogDescription>
-                Enter the details for the new AC unit here.
-              </DialogDescription>
-            </DialogHeader>
-            <div className="grid gap-4 py-4">
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="name" className="text-right">
-                  Name
-                </Label>
-                <Input
-                  id="name"
-                  value={newUnit.name}
-                  onChange={(e) =>
-                    setNewUnit({ ...newUnit, name: e.target.value })
-                  }
-                  className="col-span-3"
-                />
-              </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="description" className="text-right">
-                  Description
-                </Label>
-                <Textarea
-                  id="description"
-                  value={newUnit.description}
-                  onChange={(e) =>
-                    setNewUnit({ ...newUnit, description: e.target.value })
-                  }
-                  className="col-span-3"
-                />
-              </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="type" className="text-right">
-                  Type
-                </Label>
-                <Select
-                  value={newUnit.type}
-                  onValueChange={(value) =>
-                    setNewUnit({ ...newUnit, type: value })
-                  }
-                >
-                  <SelectTrigger className="col-span-3">
-                    <SelectValue placeholder="Select AC type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Window AC">Window AC</SelectItem>
-                    <SelectItem value="Split AC">Split AC</SelectItem>
-                    <SelectItem value="Portable AC">Portable AC</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="3_months" className="text-right">
-                  3 Months Rate
-                </Label>
-                <Input
-                  id="3_months"
-                  type="number"
-                  value={newUnit.rentalRates["3_months"]}
-                  onChange={(e) =>
-                    setNewUnit({
-                      ...newUnit,
-                      rentalRates: {
-                        ...newUnit.rentalRates,
-                        "3_months": parseFloat(e.target.value),
-                      },
-                    })
-                  }
-                  className="col-span-3"
-                />
-              </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="6_months" className="text-right">
-                  6 Months Rate
-                </Label>
-                <Input
-                  id="6_months"
-                  type="number"
-                  value={newUnit.rentalRates["6_months"]}
-                  onChange={(e) =>
-                    setNewUnit({
-                      ...newUnit,
-                      rentalRates: {
-                        ...newUnit.rentalRates,
-                        "6_months": parseFloat(e.target.value),
-                      },
-                    })
-                  }
-                  className="col-span-3"
-                />
-              </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="1_year" className="text-right">
-                  1 Year Rate
-                </Label>
-                <Input
-                  id="1_year"
-                  type="number"
-                  value={newUnit.rentalRates["1_year"]}
-                  onChange={(e) =>
-                    setNewUnit({
-                      ...newUnit,
-                      rentalRates: {
-                        ...newUnit.rentalRates,
-                        "1_year": parseFloat(e.target.value),
-                      },
-                    })
-                  }
-                  className="col-span-3"
-                />
-              </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="image" className="text-right">
-                  Image
-                </Label>
-                <div className="col-span-3">
-                  <Input
-                    id="image"
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => handleFileChange(e, true)}
-                    className="hidden"
-                    ref={fileInputRef}
-                  />
-                  <Button
-                    type="button"
-                    onClick={() => fileInputRef.current?.click()}
-                    className="w-full bg-[#ffc300] text-[#010101] hover:bg-[#ffc300]/90"
-                  >
-                    <Upload className="mr-2 h-4 w-4" /> Upload Image
-                  </Button>
-                  {newUnit.imageUrl && (
-                    <p className="mt-2 text-sm text-gray-500">
-                      {newUnit.imageUrl instanceof File
-                        ? newUnit.imageUrl.name
-                        : "Image uploaded"}
-                    </p>
-                  )}
-                </div>
-              </div>
-              <div className="flex items-center space-x-2">
-                <Switch
-                  id="availability"
-                  checked={newUnit.availability}
-                  onCheckedChange={(checked) =>
-                    setNewUnit({ ...newUnit, availability: checked })
-                  }
-                />
-                <Label htmlFor="availability">Available</Label>
-              </div>
-            </div>
-            <DialogFooter>
-              <Button
-                onClick={handleAddUnit}
-                className="bg-[#ffc300] text-[#010101] hover:bg-[#ffc300]/90"
-              >
-                Add AC Unit
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-      </motion.div>
-
-      <AnimatePresence>
-        {isLoading ? (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="flex justify-center items-center h-64"
-          >
-            <Loader2 className="h-8 w-8 animate-spin" />
-          </motion.div>
-        ) : (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.3 }}
-          >
+          </div>
+          <div className="bg-white shadow rounded-md overflow-hidden">
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-[200px]">Name</TableHead>
+                  <TableHead>Name</TableHead>
                   <TableHead>Description</TableHead>
-                  <TableHead>Type</TableHead>
-                  <TableHead>3 Months Rate</TableHead>
-                  <TableHead>6 Months Rate</TableHead>
-                  <TableHead>1 Year Rate</TableHead>
                   <TableHead>Availability</TableHead>
+                  <TableHead>Rental Rates</TableHead>
+                  <TableHead>Type</TableHead>
                   <TableHead>Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredACUnits.map((unit) => (
-                  <TableRow key={unit.id}>
-                    <TableCell className="font-medium">{unit.name}</TableCell>
-                    <TableCell>{unit.description}</TableCell>
-                    <TableCell>{unit.type}</TableCell>
-                    <TableCell>${unit.rentalRates["3_months"]}</TableCell>
-                    <TableCell>${unit.rentalRates["6_months"]}</TableCell>
-                    <TableCell>${unit.rentalRates["1_year"]}</TableCell>
-                    <TableCell>
-                      {unit.availability ? "Available" : "Not Available"}
-                    </TableCell>
-                    <TableCell>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="mr-2"
-                        onClick={() => {
-                          setSelectedUnit(unit);
-                          setIsUpdateModalOpen(true);
-                        }}
-                      >
-                        <Edit className="h-4 w-4" />
-                        <span className="sr-only">Edit</span>
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => unit._id && handleDeleteUnit(unit._id)}
-                      >
-                        <Trash className="h-4 w-4" />
-                        <span className="sr-only">Delete</span>
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                ))}
+                <AnimatePresence>
+                  {acRentals.map((rental) => (
+                    <motion.tr
+                      key={rental._id}
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                    >
+                      <TableCell>{rental.name}</TableCell>
+                      <TableCell>{rental.description}</TableCell>
+                      <TableCell>
+                        <Switch
+                          id="availability"
+                          name="availability"
+                          defaultChecked={selectedRental?.availability}
+                        />
+                      </TableCell>
+                      <TableCell>
+                        {rental.rentalRates.map((rate) => (
+                          <div key={rate.duration}>
+                            {rate.duration} hours - ${rate.price}
+                          </div>
+                        ))}
+                      </TableCell>
+                      <TableCell>{rental.type}</TableCell>
+                      <TableCell>
+                        <Button
+                          onClick={() => {
+                            setSelectedRental(rental);
+                            setIsRentalModalOpen(true);
+                          }}
+                          variant="outline"
+                          className="mr-2"
+                        >
+                          <Edit className="mr-1 h-4 w-4" />
+                        </Button>
+                        <Button
+                          onClick={() => handleDeleteRental(rental._id)}
+                          variant="destructive"
+                        >
+                          <Trash className="mr-1 h-4 w-4" />
+                        </Button>
+                      </TableCell>
+                    </motion.tr>
+                  ))}
+                </AnimatePresence>
               </TableBody>
             </Table>
-          </motion.div>
-        )}
-      </AnimatePresence>
+          </div>
+        </section>
 
-      <Dialog open={isUpdateModalOpen} onOpenChange={setIsUpdateModalOpen}>
-        <DialogContent className="bg-white sm:max-w-[425px]">
+        <section>
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-2xl font-semibold text-[#010101]">AC Types</h2>
+            <Button
+              onClick={() => setIsTypeModalOpen(true)}
+              className="bg-[#ffc300] text-[#010101] hover:bg-[#e6b000]"
+            >
+              <Plus className="mr-2 h-4 w-4" /> Add New Type
+            </Button>
+          </div>
+          <div className="bg-white shadow rounded-md overflow-hidden">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Name</TableHead>
+                  <TableHead>Description</TableHead>
+                  <TableHead>Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                <AnimatePresence>
+                  {acTypes.map((type) => (
+                    <motion.tr
+                      key={type._id}
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                    >
+                      <TableCell>{type.name}</TableCell>
+                      <TableCell>{type.description}</TableCell>
+                      <TableCell>
+                        <Button
+                          onClick={() => {
+                            setSelectedType(type);
+                            setIsTypeModalOpen(true);
+                          }}
+                          variant="outline"
+                          className="mr-2"
+                        >
+                          <Edit className="mr-1 h-4 w-4" />
+                        </Button>
+                        <Button
+                          onClick={() => handleDeleteType(type._id)}
+                          variant="destructive"
+                        >
+                          <Trash className="mr-1 h-4 w-4" />
+                        </Button>
+                      </TableCell>
+                    </motion.tr>
+                  ))}
+                </AnimatePresence>
+              </TableBody>
+            </Table>
+          </div>
+        </section>
+      </div>
+
+      {/* Rental Modal */}
+      <Dialog open={isRentalModalOpen} onOpenChange={resetRentalModal}>
+        <DialogContent>
           <DialogHeader>
-            <DialogTitle>Update AC Unit</DialogTitle>
+            <DialogTitle>
+              {selectedRental ? "Edit AC Rental" : "Add New AC Rental"}
+            </DialogTitle>
             <DialogDescription>
-              Update the details for the selected AC unit here.
+              Fill out the details for the AC rental.
             </DialogDescription>
           </DialogHeader>
-          {selectedUnit && (
-            <div className="grid gap-4 py-4">
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="update-name" className="text-right">
-                  Name
-                </Label>
-                <Input
-                  id="update-name"
-                  value={selectedUnit.name}
-                  onChange={(e) =>
-                    setSelectedUnit({ ...selectedUnit, name: e.target.value })
-                  }
-                  className="col-span-3"
-                />
-              </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="update-description" className="text-right">
-                  Description
-                </Label>
-                <Textarea
-                  id="update-description"
-                  value={selectedUnit.description}
-                  onChange={(e) =>
-                    setSelectedUnit({
-                      ...selectedUnit,
-                      description: e.target.value,
-                    })
-                  }
-                  className="col-span-3"
-                />
-              </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="update-type" className="text-right">
-                  Type
-                </Label>
-                <Select
-                  value={selectedUnit.type}
-                  onValueChange={(value) =>
-                    setSelectedUnit({ ...selectedUnit, type: value })
-                  }
-                >
-                  <SelectTrigger className="col-span-3">
-                    <SelectValue placeholder="Select AC type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Window AC">Window AC</SelectItem>
-                    <SelectItem value="Split AC">Split AC</SelectItem>
-                    <SelectItem value="Portable AC">Portable AC</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="update-3_months" className="text-right">
-                  3 Months Rate
-                </Label>
-                <Input
-                  id="update-3_months"
-                  type="number"
-                  value={selectedUnit.rentalRates["3_months"]}
-                  onChange={(e) =>
-                    setSelectedUnit({
-                      ...selectedUnit,
-                      rentalRates: {
-                        ...selectedUnit.rentalRates,
-                        "3_months": parseFloat(e.target.value),
-                      },
-                    })
-                  }
-                  className="col-span-3"
-                />
-              </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="update-6_months" className="text-right">
-                  6 Months Rate
-                </Label>
-                <Input
-                  id="update-6_months"
-                  type="number"
-                  value={selectedUnit.rentalRates["6_months"]}
-                  onChange={(e) =>
-                    setSelectedUnit({
-                      ...selectedUnit,
-                      rentalRates: {
-                        ...selectedUnit.rentalRates,
-                        "6_months": parseFloat(e.target.value),
-                      },
-                    })
-                  }
-                  className="col-span-3"
-                />
-              </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="update-1_year" className="text-right">
-                  1 Year Rate
-                </Label>
-                <Input
-                  id="update-1_year"
-                  type="number"
-                  value={selectedUnit.rentalRates["1_year"]}
-                  onChange={(e) =>
-                    setSelectedUnit({
-                      ...selectedUnit,
-                      rentalRates: {
-                        ...selectedUnit.rentalRates,
-                        "1_year": parseFloat(e.target.value),
-                      },
-                    })
-                  }
-                  className="col-span-3"
-                />
-              </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="update-image" className="text-right">
-                  Image
-                </Label>
-                <div className="col-span-3">
+          <form onSubmit={handleRentalSubmit} className="space-y-4">
+            <div>
+              <Label htmlFor="name">Name</Label>
+              <Input
+                id="name"
+                name="name"
+                required
+                defaultValue={selectedRental?.name || ""}
+              />
+            </div>
+            <div>
+              <Label htmlFor="description">Description</Label>
+              <Textarea
+                id="description"
+                name="description"
+                required
+                defaultValue={selectedRental?.description || ""}
+              />
+            </div>
+            <div>
+              <Label htmlFor="availability">Available</Label>
+              <Switch
+                id="availability"
+                name="availability"
+                defaultChecked={selectedRental?.availability}
+              />
+            </div>
+            <div>
+              <Label>Rental Rates</Label>
+              {rentalRates.map((rate, index) => (
+                <div key={index} className="flex space-x-2 mb-2">
                   <Input
-                    id="update-image"
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => handleFileChange(e, false)}
-                    className="hidden"
-                    ref={fileInputRef}
+                    type="number"
+                    placeholder="Duration (hrs)"
+                    value={rate.duration}
+                    onChange={(e) =>
+                      handleRateChange(index, "duration", e.target.value)
+                    }
+                    required
+                  />
+                  <Input
+                    type="number"
+                    placeholder="Price ($)"
+                    value={rate.price}
+                    onChange={(e) =>
+                      handleRateChange(index, "price", e.target.value)
+                    }
+                    required
                   />
                   <Button
                     type="button"
-                    onClick={() => fileInputRef.current?.click()}
-                    className="w-full bg-[#ffc300] text-[#010101] hover:bg-[#ffc300]/90"
+                    onClick={() => handleRemoveRate(index)}
+                    variant="destructive"
                   >
-                    <Upload className="mr-2 h-4 w-4" /> Upload Image
+                    Remove
                   </Button>
-                  {selectedUnit.imageUrl && (
-                    <p className="mt-2 text-sm text-gray-500">
-                      {selectedUnit.imageUrl instanceof File
-                        ? selectedUnit.imageUrl.name
-                        : "Current image"}
-                    </p>
-                  )}
                 </div>
-              </div>
-              <div className="flex items-center space-x-2">
-                <Switch
-                  id="update-availability"
-                  checked={selectedUnit.availability}
-                  onCheckedChange={(checked) =>
-                    setSelectedUnit({ ...selectedUnit, availability: checked })
-                  }
-                />
-                <Label htmlFor="update-availability">Available</Label>
-              </div>
+              ))}
+              <Button type="button" onClick={handleAddRate}>
+                Add Rental Rate
+              </Button>
             </div>
-          )}
-          <DialogFooter>
-            <Button
-              onClick={handleUpdateUnit}
-              className="bg-[#ffc300] text-[#010101] hover:bg-[#ffc300]/90"
-            >
-              Update AC Unit
-            </Button>
-          </DialogFooter>
+            <div>
+              <Label htmlFor="imageUrl">Upload Image</Label>
+              <Input
+                type="file"
+                accept="image/*"
+                onChange={(e) => {
+                  const file = e.target.files?.[0] || null;
+                  setImageFile(file);
+                }}
+              />
+            </div>
+            <DialogFooter>
+              <Button type="button" onClick={resetRentalModal}>
+                Cancel
+              </Button>
+              <Button type="submit" disabled={loading}>
+                {loading ? "Saving..." : "Save"}
+              </Button>
+            </DialogFooter>
+          </form>
         </DialogContent>
       </Dialog>
-    </motion.div>
+
+      {/* Type Modal */}
+      <Dialog open={isTypeModalOpen} onOpenChange={resetTypeModal}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>
+              {selectedType ? "Edit AC Type" : "Add New AC Type"}
+            </DialogTitle>
+            <DialogDescription>
+              Fill out the details for the AC type.
+            </DialogDescription>
+          </DialogHeader>
+          <form onSubmit={handleTypeSubmit} className="space-y-4">
+            <div>
+              <Label htmlFor="name">Name</Label>
+              <Input
+                id="name"
+                name="name"
+                required
+                defaultValue={selectedType?.name || ""}
+              />
+            </div>
+            <div>
+              <Label htmlFor="description">Description</Label>
+              <Textarea
+                id="description"
+                name="description"
+                required
+                defaultValue={selectedType?.description || ""}
+              />
+            </div>
+            <DialogFooter>
+              <Button type="button" onClick={resetTypeModal}>
+                Cancel
+              </Button>
+              <Button type="submit" disabled={loading}>
+                {loading ? "Saving..." : "Save"}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+    </div>
   );
 }

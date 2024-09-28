@@ -1,21 +1,27 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { ChevronLeft, Check, Loader2 } from "lucide-react";
+import { ChevronLeft, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { getACRentalById } from "@/apis/acrent";
+import { getACRentalById, getACTypeById } from "@/apis/acrent";
 import Image from "next/image";
 import { motion } from "framer-motion";
+
+// Define the structure of the ACDetails object.
+interface RentalRate {
+  duration: string;
+  price: number;
+}
 
 interface ACDetails {
   id: string;
   name: string;
   description: string;
   imageUrl: string;
-  type: string;
+  type: string; // Assume this is the type ID
   availability: boolean;
-  rentalRates: { [key: string]: number };
+  rentalRates: RentalRate[];
 }
 
 interface ACDetailsPageProps {
@@ -29,6 +35,7 @@ export default function ACDetailsPage({ params }: ACDetailsPageProps) {
   const { id } = params;
 
   const [acDetails, setACDetails] = useState<ACDetails | null>(null);
+  const [acTypeName, setACTypeName] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -36,7 +43,13 @@ export default function ACDetailsPage({ params }: ACDetailsPageProps) {
     const fetchACDetails = async () => {
       try {
         const response = await getACRentalById(id);
-        setACDetails(response.data);
+        setACDetails(response);
+
+        // Fetch the AC type name if the type ID exists
+        if (response.type) {
+          const typeResponse = await getACTypeById(response.type);
+          setACTypeName(typeResponse.name); // Assuming the API returns an object with a 'name' property
+        }
       } catch (err) {
         console.error("Error fetching AC details:", err);
         setError("Failed to fetch AC details");
@@ -152,41 +165,6 @@ export default function ACDetailsPage({ params }: ACDetailsPageProps) {
 
           <section>
             <h2 className="text-xl font-semibold text-[#010101] mb-3">
-              Key Features
-            </h2>
-            <ul className="space-y-2">
-              <motion.li
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.4 }}
-                className="flex items-start"
-              >
-                <Check className="w-5 h-5 text-green-500 mr-2 flex-shrink-0" />
-                Portable and compact design
-              </motion.li>
-              <motion.li
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.5 }}
-                className="flex items-start"
-              >
-                <Check className="w-5 h-5 text-green-500 mr-2 flex-shrink-0" />
-                Energy-efficient cooling
-              </motion.li>
-              <motion.li
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.6 }}
-                className="flex items-start"
-              >
-                <Check className="w-5 h-5 text-green-500 mr-2 flex-shrink-0" />
-                Easy installation and maintenance
-              </motion.li>
-            </ul>
-          </section>
-
-          <section>
-            <h2 className="text-xl font-semibold text-[#010101] mb-3">
               Specifications
             </h2>
             <div className="grid grid-cols-2 gap-4">
@@ -196,7 +174,7 @@ export default function ACDetailsPage({ params }: ACDetailsPageProps) {
               >
                 <h3 className="text-sm font-medium text-gray-500">Type</h3>
                 <p className="text-lg font-semibold text-[#010101]">
-                  {acDetails.type}
+                  {acTypeName || "Unknown Type"}
                 </p>
               </motion.div>
               <motion.div
@@ -223,33 +201,29 @@ export default function ACDetailsPage({ params }: ACDetailsPageProps) {
       >
         <h2 className="text-2xl font-bold text-[#010101] mb-4">Rental Plans</h2>
         <div className="grid gap-4 sm:grid-cols-3">
-          {Object.entries(acDetails.rentalRates).map(
-            ([duration, price], index) => (
-              <motion.div
-                key={duration}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.8 + index * 0.1 }}
+          {acDetails.rentalRates.map(({ duration, price }, index) => (
+            <motion.div
+              key={duration}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.8 + index * 0.1 }}
+              whileHover={{ scale: 1.05 }}
+              className="bg-white p-6 rounded-xl shadow-md text-center"
+            >
+              <h3 className="text-lg font-semibold text-[#010101] mb-2">
+                {duration} months
+              </h3>
+              <p className="text-2xl font-bold text-[#ffc300] mb-4">₹{price}</p>
+              <motion.button
                 whileHover={{ scale: 1.05 }}
-                className="bg-white p-6 rounded-xl shadow-md text-center"
+                whileTap={{ scale: 0.95 }}
+                onClick={() => handlePlanSelection(duration)}
+                className="w-full py-2 px-4 bg-[#ffc300] text-[#010101] rounded-lg font-semibold hover:bg-[#e6b000] transition-colors duration-300 focus:outline-none focus:ring-4 focus:ring-yellow-300"
               >
-                <h3 className="text-lg font-semibold text-[#010101] mb-2">
-                  {duration.replace("_", " ")}
-                </h3>
-                <p className="text-2xl font-bold text-[#ffc300] mb-4">
-                  ₹{price}
-                </p>
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => handlePlanSelection(duration)}
-                  className="w-full py-2 px-4 bg-[#ffc300] text-[#010101] rounded-lg font-semibold hover:bg-[#e6b000] transition-colors duration-300 focus:outline-none focus:ring-4 focus:ring-yellow-300"
-                >
-                  Select Plan
-                </motion.button>
-              </motion.div>
-            )
-          )}
+                Select Plan
+              </motion.button>
+            </motion.div>
+          ))}
         </div>
       </motion.section>
     </motion.div>

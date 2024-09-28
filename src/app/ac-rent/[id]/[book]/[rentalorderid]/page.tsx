@@ -119,7 +119,7 @@ export default function PaymentPage({ params }: PaymentDetail) {
               </motion.div>
             ) : (
               <>
-                Pay ₹{totalPrice} for your {book}
+                Pay ₹{totalPrice} for {book} months
               </>
             )}
           </h2>
