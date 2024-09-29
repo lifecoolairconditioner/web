@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { ChevronLeft, Star, Clock } from "lucide-react";
-import { getServiceById } from "@/apis/service";
+import { ChevronLeft, Clock } from "lucide-react";
+import { getServiceById } from "../../../apis/service";
 import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
@@ -126,17 +126,20 @@ export default function ServiceDetailsPage({
       exit={{ opacity: 0 }}
       className="min-h-screen bg-[#fafafa]"
     >
-      <header className="bg-[#010101] text-white p-4 sm:p-6 flex items-center justify-between sticky top-0 z-10">
+      <header className="bg-[#fafafa] text-black p-4 sm:p-6 flex items-center justify-between sticky top-0 z-10">
         <div className="flex items-center">
-          <motion.button
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
-            className="mr-4"
-            aria-label="Go back"
-            onClick={() => window.history.back()}
-          >
-            <ChevronLeft className="w-6 h-6" />
-          </motion.button>
+          <Link href="./">
+            {" "}
+            <motion.button
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
+              className="mr-4"
+              aria-label="Go back"
+              onClick={() => window.history.back()}
+            >
+              <ChevronLeft className="w-6 h-6" />
+            </motion.button>{" "}
+          </Link>
           <motion.h1
             initial={{ y: -20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
@@ -146,18 +149,6 @@ export default function ServiceDetailsPage({
             {serviceDetails.name}
           </motion.h1>
         </div>
-        <motion.div
-          initial={{ x: 20, opacity: 0 }}
-          animate={{ x: 0, opacity: 1 }}
-          transition={{ delay: 0.4 }}
-          className="flex items-center"
-        >
-          <Star className="w-5 h-5 text-[#ffc300] mr-1" />
-          <span className="font-semibold">{serviceDetails.rating}</span>
-          <span className="text-sm ml-1">
-            ({serviceDetails.reviews} reviews)
-          </span>
-        </motion.div>
       </header>
 
       <motion.main

@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { ChevronLeft, Check, X } from "lucide-react";
 import Link from "next/link";
-import { getAllACRentals } from "@/apis/acrent";
+import { getAllACRentals } from "../../apis/acrent";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -55,7 +55,7 @@ export default function ACRentTypesScreen() {
       className="min-h-screen bg-[#fafafa] p-4 sm:p-6 lg:p-8"
     >
       <header className="flex items-center mb-6">
-        <Link href="/">
+        <Link href="./">
           <motion.button
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}

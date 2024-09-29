@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import { ChevronLeft, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { getACRentalById, getACTypeById } from "@/apis/acrent";
+import { getACRentalById, getACTypeById } from "../../../apis/acrent";
 import Image from "next/image";
 import { motion } from "framer-motion";
 
@@ -115,7 +115,7 @@ export default function ACDetailsPage({ params }: ACDetailsPageProps) {
       className="min-h-screen bg-[#fafafa] p-4 sm:p-6 lg:p-8"
     >
       <header className="flex items-center mb-6">
-        <Link href="/">
+        <Link href="../">
           <motion.button
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}

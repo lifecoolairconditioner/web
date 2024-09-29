@@ -12,10 +12,10 @@ import {
   MapPin,
 } from "lucide-react";
 import axios from "axios";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
+import { Button } from "../../../../components/ui/button";
+import { Input } from "../../../../components/ui/input";
+import { Label } from "../../../../components/ui/label";
+import { Textarea } from "../../../../components/ui/textarea";
 import {
   Dialog,
   DialogContent,
@@ -23,10 +23,10 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import { toast } from "@/hooks/use-toast";
+} from "../../../../components/ui/dialog";
+import { toast } from "../../../../hooks/use-toast";
 import { useRouter } from "next/navigation";
-
+import Link from "next/link";
 interface Contact {
   name: string;
   email: string;
@@ -184,14 +184,17 @@ export default function ServiceSchedulingPage({
       className="min-h-screen bg-[#fafafa] p-4 sm:p-6 lg:p-8"
     >
       <header className="flex items-center mb-6">
-        <Button
-          variant="ghost"
-          className="mr-4"
-          aria-label="Go back"
-          onClick={() => router.back()}
-        >
-          <ChevronLeft className="w-6 h-6 text-[#010101]" />
-        </Button>
+        <Link href="./">
+          {" "}
+          <Button
+            variant="ghost"
+            className="mr-4"
+            aria-label="Go back"
+            onClick={() => router.back()}
+          >
+            <ChevronLeft className="w-6 h-6 text-[#010101]" />
+          </Button>{" "}
+        </Link>
         <motion.h1
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}

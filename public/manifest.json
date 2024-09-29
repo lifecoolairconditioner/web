@@ -1,21 +1,24 @@
 {
-  "name": "AC Rental & Repair App",
-  "short_name": "CooL AC",
-  "description": "A Progressive Web App built with Next.js",
-  "start_url": "/",
-  "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#000000",
+  "theme_color": "#8936FF",
+  "background_color": "#2EC6FE",
   "icons": [
     {
-      "src": "/placeholder.svg",
-      "sizes": "192x192",
+      "purpose": "maskable",
+      "sizes": "512x512",
+      "src": "icon512_maskable.png",
       "type": "image/png"
     },
     {
-      "src": "/placeholder.svg",
+      "purpose": "any",
       "sizes": "512x512",
+      "src": "icon512_rounded.png",
       "type": "image/png"
     }
-  ]
+  ],
+  "orientation": "any",
+  "display": "standalone",
+  "dir": "auto",
+  "lang": "en",
+  "name": "ac rental app",
+  "short_name": "arp"
 }

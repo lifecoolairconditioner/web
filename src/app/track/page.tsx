@@ -9,7 +9,7 @@ import {
   DollarSign,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-
+import Link from "next/link";
 type OrderStatus = "Pending" | "Approved" | "Rejected";
 
 interface ContactDetails {
@@ -166,14 +166,16 @@ export default function OrderTrackingPage() {
       className="min-h-screen bg-[#fafafa] p-4 sm:p-6 lg:p-8"
     >
       <header className="flex items-center mb-6">
-        <motion.button
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.9 }}
-          className="mr-4"
-          aria-label="Go back"
-        >
-          <ChevronLeft className="w-6 h-6 text-[#010101]" />
-        </motion.button>
+        <Link href="../">
+          <motion.button
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
+            className="mr-4"
+            aria-label="Go back"
+          >
+            <ChevronLeft className="w-6 h-6 text-[#010101]" />
+          </motion.button>{" "}
+        </Link>
         <motion.h1
           initial={{ y: -20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}

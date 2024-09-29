@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { ChevronLeft, ChevronRight, Filter } from "lucide-react";
-import { getServiceBycategory } from "@/apis/service";
+import { getServiceBycategory } from "../../apis/service";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
@@ -80,15 +80,18 @@ export default function ServiceListingPage({
     >
       <header className="flex items-center justify-between mb-6">
         <div className="flex items-center">
-          <motion.button
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
-            className="mr-4"
-            aria-label="Go back"
-            onClick={() => router.back()}
-          >
-            <ChevronLeft className="w-6 h-6 text-[#010101]" />
-          </motion.button>
+          <Link href="../">
+            {" "}
+            <motion.button
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
+              className="mr-4"
+              aria-label="Go back"
+              onClick={() => router.back()}
+            >
+              <ChevronLeft className="w-6 h-6 text-[#010101]" />
+            </motion.button>{" "}
+          </Link>
           <motion.h1
             initial={{ y: -20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
