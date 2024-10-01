@@ -1,8 +1,30 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Plus, Edit, Trash } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Loader2, Plus, Edit, Trash2 } from "lucide-react";
 import {
   getAllACRentals,
   getAllACTypes,
@@ -13,536 +35,694 @@ import {
   updateACType,
   deleteACType,
 } from "@/apis/acrent";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Switch } from "@/components/ui/switch";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { toast } from "@/hooks/use-toast";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-
-interface RentalRate {
-  duration: number;
-  price: number;
-}
+import Image from "next/image";
 
 interface ACRental {
   _id: string;
   name: string;
   description: string;
-  availability: boolean;
-  rentalRates: RentalRate[];
   type: string;
-  imageUrl?: string | null;
+  availability: boolean;
+  imageUrl?: string;
+  rentalRates: Array<{ duration: string; price: string }>;
 }
 
 interface ACType {
   _id: string;
   name: string;
   description: string;
+  features: string[];
 }
 
-export default function ACManagement() {
-  const [acRentals, setACRentals] = useState<ACRental[]>([]);
-  const [acTypes, setACTypes] = useState<ACType[]>([]);
-  const [isRentalModalOpen, setIsRentalModalOpen] = useState(false);
-  const [isTypeModalOpen, setIsTypeModalOpen] = useState(false);
+export default function ACRentalDashboard() {
+  const [rentals, setRentals] = useState<ACRental[]>([]);
   const [selectedRental, setSelectedRental] = useState<ACRental | null>(null);
+  const [rentalName, setRentalName] = useState("");
+  const [rentalDescription, setRentalDescription] = useState("");
+  const [rentalType, setRentalType] = useState("");
+  const [rentalAvailability, setRentalAvailability] = useState(true);
+  const [rentalImageFile, setRentalImageFile] = useState<File | null>(null);
+  const [rentalRates, setRentalRates] = useState<
+    Array<{ duration: string; price: string }>
+  >([{ duration: "", price: "" }]);
+
+  const [types, setTypes] = useState<ACType[]>([]);
   const [selectedType, setSelectedType] = useState<ACType | null>(null);
+  const [typeName, setTypeName] = useState("");
+  const [typeDescription, setTypeDescription] = useState("");
+  const [typeFeatures, setTypeFeatures] = useState<string[]>([]);
+
   const [loading, setLoading] = useState(false);
-  const [rentalRates, setRentalRates] = useState<RentalRate[]>([
-    { duration: 1, price: 0 },
-  ]);
-  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
 
   useEffect(() => {
-    fetchACRentals();
-    fetchACTypes();
+    fetchRentals();
+    fetchTypes();
   }, []);
 
-  const fetchACRentals = async () => {
+  const fetchRentals = async () => {
     try {
-      const rentals = await getAllACRentals();
-      setACRentals(rentals);
-    } catch (error) {
-      console.log(error);
-      toast({
-        title: "Error",
-        description: "Failed to fetch AC rentals",
-        variant: "destructive",
-      });
+      const data = await getAllACRentals();
+      setRentals(data);
+    } catch (err) {
+      console.error("Failed to fetch rentals", err);
+      setError("Failed to fetch rentals");
     }
   };
 
-  const fetchACTypes = async () => {
+  const fetchTypes = async () => {
     try {
-      const types = await getAllACTypes();
-      setACTypes(types);
-    } catch (error) {
-      console.log(error);
-      toast({
-        title: "Error",
-        description: "Failed to fetch AC types",
-        variant: "destructive",
-      });
+      const data = await getAllACTypes();
+      setTypes(data);
+    } catch (err) {
+      console.error("Failed to fetch AC types", err);
+      setError("Failed to fetch AC types");
     }
   };
 
-  const handleRentalSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleCreateRental = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    setError(null);
+    setSuccess(null);
 
-    const form = e.currentTarget;
-    const formData = new FormData(form);
-
-    if (imageFile) {
-      formData.append("imageUrl", imageFile);
+    const formData = new FormData();
+    formData.append("name", rentalName);
+    formData.append("description", rentalDescription);
+    formData.append("type", rentalType);
+    formData.append("availability", rentalAvailability.toString());
+    if (rentalImageFile) {
+      formData.append("imageUrl", rentalImageFile);
     }
-
-    const rentalData = {
-      name: formData.get("name") as string,
-      description: formData.get("description") as string,
-      availability: formData.get("availability") === "on",
-      rentalRates: rentalRates.filter(
-        (rate) => rate.duration > 0 && rate.price >= 0
-      ),
-      type: formData.get("type") as string,
-    };
-
-    if (rentalData.rentalRates.length === 0) {
-      toast({
-        title: "Error",
-        description: "At least one valid rental rate is required.",
-        variant: "destructive",
-      });
-      setLoading(false);
-      return;
-    }
+    rentalRates.forEach((rate, index) => {
+      formData.append(`rentalRates[${index}][duration]`, rate.duration);
+      formData.append(`rentalRates[${index}][price]`, rate.price);
+    });
 
     try {
-      if (selectedRental) {
-        await updateACRental(selectedRental._id, rentalData);
-        toast({
-          title: "Success",
-          description: "AC rental updated successfully",
-        });
-      } else {
-        await createACRental(rentalData);
-        toast({
-          title: "Success",
-          description: "AC rental created successfully",
-        });
-      }
-      fetchACRentals();
-      resetRentalModal();
-    } catch (error) {
-      let errorMessage = "Failed to save AC rental";
-      if (error instanceof Error && error.message) {
-        errorMessage = error.message;
-      }
-      toast({
-        title: "Error",
-        description: errorMessage,
-        variant: "destructive",
-      });
+      await createACRental(formData);
+      setSuccess("AC Rental created successfully!");
+      fetchRentals();
+      resetRentalForm();
+    } catch (err) {
+      console.error("Failed to create AC Rental", err);
+      setError("Failed to create AC Rental");
     } finally {
       setLoading(false);
     }
   };
 
-  const handleTypeSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleUpdateRental = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
+    if (!selectedRental) return;
 
-    const form = e.currentTarget;
-    const formData = new FormData(form);
-    const typeData = {
-      name: formData.get("name") as string,
-      description: formData.get("description") as string,
-    };
+    setLoading(true);
+    setError(null);
+    setSuccess(null);
+
+    const formData = new FormData();
+    formData.append("name", rentalName);
+    formData.append("description", rentalDescription);
+    formData.append("type", rentalType);
+    formData.append("availability", rentalAvailability.toString());
+    if (rentalImageFile) {
+      formData.append("imageUrl", rentalImageFile);
+    }
+    rentalRates.forEach((rate, index) => {
+      formData.append(`rentalRates[${index}][duration]`, rate.duration);
+      formData.append(`rentalRates[${index}][price]`, rate.price);
+    });
 
     try {
-      if (selectedType) {
-        await updateACType(selectedType._id, typeData);
-        toast({
-          title: "Success",
-          description: "AC type updated successfully",
-        });
-      } else {
-        await createACType(typeData);
-        toast({
-          title: "Success",
-          description: "AC type created successfully",
-        });
-      }
-      fetchACTypes();
-      resetTypeModal();
-    } catch (error) {
-      console.log(error);
-      toast({
-        title: "Error",
-        description: "Failed to save AC type",
-        variant: "destructive",
-      });
+      await updateACRental(selectedRental._id, formData);
+      setSuccess("AC Rental updated successfully!");
+      fetchRentals();
+      resetRentalForm();
+    } catch (err) {
+      console.error("Failed to update AC Rental", err);
+      setError("Failed to update AC Rental");
     } finally {
       setLoading(false);
     }
   };
 
-  const resetRentalModal = () => {
-    setIsRentalModalOpen(false);
+  const handleDeleteRental = async (rentalId: string) => {
+    setLoading(true);
+    setError(null);
+    setSuccess(null);
+
+    try {
+      await deleteACRental(rentalId);
+      setSuccess("AC Rental deleted successfully!");
+      fetchRentals();
+    } catch (err) {
+      console.error("Failed to delete AC Rental", err);
+      setError("Failed to delete AC Rental");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCreateType = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
+    setSuccess(null);
+
+    try {
+      await createACType({
+        name: typeName,
+        description: typeDescription,
+        features: typeFeatures,
+      });
+      setSuccess("AC Type created successfully!");
+      fetchTypes();
+      resetTypeForm();
+    } catch (err) {
+      console.error("Failed to create AC Type", err);
+      setError("Failed to create AC Type");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUpdateType = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedType) return;
+
+    setLoading(true);
+    setError(null);
+    setSuccess(null);
+
+    try {
+      await updateACType(selectedType._id, {
+        name: typeName,
+        description: typeDescription,
+        features: typeFeatures,
+      });
+      setSuccess("AC Type updated successfully!");
+      fetchTypes();
+      resetTypeForm();
+    } catch (err) {
+      console.error("Failed to update AC Type", err);
+      setError("Failed to update AC Type");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDeleteType = async (typeId: string) => {
+    setLoading(true);
+    setError(null);
+    setSuccess(null);
+
+    try {
+      await deleteACType(typeId);
+      setSuccess("AC Type deleted successfully!");
+      fetchTypes();
+    } catch (err) {
+      console.error("Failed to delete AC Type", err);
+      setError("Failed to delete AC Type");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const resetRentalForm = () => {
     setSelectedRental(null);
-    setRentalRates([{ duration: 1, price: 0 }]);
-    setImageFile(null);
+    setRentalName("");
+    setRentalDescription("");
+    setRentalType("");
+    setRentalAvailability(true);
+    setRentalImageFile(null);
+    setRentalRates([{ duration: "", price: "" }]);
   };
 
-  const resetTypeModal = () => {
-    setIsTypeModalOpen(false);
+  const resetTypeForm = () => {
     setSelectedType(null);
+    setTypeName("");
+    setTypeDescription("");
+    setTypeFeatures([]);
   };
 
-  const handleRateChange = (index: number, field: string, value: string) => {
+  const handleRentalSelect = (rentalId: string) => {
+    const rental = rentals.find((r) => r._id === rentalId);
+    if (rental) {
+      setSelectedRental(rental);
+      setRentalName(rental.name);
+      setRentalDescription(rental.description);
+      setRentalType(rental.type);
+      setRentalAvailability(rental.availability);
+      setRentalRates(rental.rentalRates);
+    }
+  };
+
+  const handleTypeSelect = (typeId: string) => {
+    const type = types.find((t) => t._id === typeId);
+    if (type) {
+      setSelectedType(type);
+      setTypeName(type.name);
+      setTypeDescription(type.description);
+      setTypeFeatures(type.features);
+    }
+  };
+
+  const handleRentalRateChange = (
+    index: number,
+    field: "duration" | "price",
+    value: string
+  ) => {
     const updatedRates = [...rentalRates];
-    updatedRates[index] = {
-      ...updatedRates[index],
-      [field]: parseFloat(value) || 0,
-    };
+    updatedRates[index][field] = value;
     setRentalRates(updatedRates);
   };
 
-  const handleAddRate = () => {
-    setRentalRates([...rentalRates, { duration: 1, price: 0 }]);
+  const addRentalRate = () => {
+    setRentalRates([...rentalRates, { duration: "", price: "" }]);
   };
 
-  const handleRemoveRate = (index: number) => {
-    setRentalRates(rentalRates.filter((_, i) => i !== index));
+  const addTypeFeature = () => {
+    setTypeFeatures([...typeFeatures, ""]);
   };
 
-  const handleDeleteRental = async (id: string) => {
-    try {
-      await deleteACRental(id);
-      toast({
-        title: "Success",
-        description: "AC rental deleted successfully",
-      });
-      fetchACRentals();
-    } catch (error) {
-      console.log(error);
-      toast({
-        title: "Error",
-        description: "Failed to delete AC rental",
-        variant: "destructive",
-      });
-    }
+  const handleTypeFeatureChange = (index: number, value: string) => {
+    const updatedFeatures = [...typeFeatures];
+    updatedFeatures[index] = value;
+    setTypeFeatures(updatedFeatures);
   };
 
-  const handleDeleteType = async (id: string) => {
-    try {
-      await deleteACType(id);
-      toast({ title: "Success", description: "AC type deleted successfully" });
-      fetchACTypes();
-    } catch (error) {
-      console.log(error);
-      toast({
-        title: "Error",
-        description: "Failed to delete AC type",
-        variant: "destructive",
-      });
-    }
+  const removeTypeFeature = (index: number) => {
+    const updatedFeatures = typeFeatures.filter((_, i) => i !== index);
+    setTypeFeatures(updatedFeatures);
+  };
+
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1,
+      },
+    },
+  };
+
+  const itemVariants = {
+    hidden: { y: 20, opacity: 0 },
+    visible: {
+      y: 0,
+      opacity: 1,
+      transition: {
+        type: "spring",
+        stiffness: 300,
+        damping: 24,
+      },
+    },
   };
 
   return (
-    <div className="min-h-screen bg-[#fafafa] p-4 sm:p-6 lg:p-8">
-      <h1 className="text-3xl font-bold text-[#010101] mb-6">
-        AC Management ❄️
-      </h1>
+    <div className="container mx-auto p-4 bg-[#fafafa] min-h-screen">
+      <motion.h1
+        className="text-4xl font-bold mb-8 text-[#010101]"
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
+        AC Rental Dashboard
+      </motion.h1>
 
-      <div className="space-y-8">
-        <section>
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-2xl font-semibold text-[#010101]">
-              AC Rentals
-            </h2>
-            <Button
-              onClick={() => setIsRentalModalOpen(true)}
-              className="bg-[#ffc300] text-[#010101] hover:bg-[#e6b000]"
-            >
-              <Plus className="mr-2 h-4 w-4" /> Add New Rental
-            </Button>
-          </div>
-          <div className="bg-white shadow rounded-md overflow-hidden">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Description</TableHead>
-                  <TableHead>Availability</TableHead>
-                  <TableHead>Rental Rates</TableHead>
-                  <TableHead>Type</TableHead>
-                  <TableHead>Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                <AnimatePresence>
-                  {acRentals.map((rental) => (
-                    <motion.tr
-                      key={rental._id}
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      exit={{ opacity: 0 }}
-                    >
-                      <TableCell>{rental.name}</TableCell>
-                      <TableCell>{rental.description}</TableCell>
-                      <TableCell>
-                        <Switch
-                          id="availability"
-                          name="availability"
-                          defaultChecked={selectedRental?.availability}
-                        />
-                      </TableCell>
-                      <TableCell>
-                        {rental.rentalRates.map((rate) => (
-                          <div key={rate.duration}>
-                            {rate.duration} hours - ${rate.price}
-                          </div>
-                        ))}
-                      </TableCell>
-                      <TableCell>{rental.type}</TableCell>
-                      <TableCell>
-                        <Button
-                          onClick={() => {
-                            setSelectedRental(rental);
-                            setIsRentalModalOpen(true);
-                          }}
-                          variant="outline"
-                          className="mr-2"
-                        >
-                          <Edit className="mr-1 h-4 w-4" />
-                        </Button>
-                        <Button
-                          onClick={() => handleDeleteRental(rental._id)}
-                          variant="destructive"
-                        >
-                          <Trash className="mr-1 h-4 w-4" />
-                        </Button>
-                      </TableCell>
-                    </motion.tr>
-                  ))}
-                </AnimatePresence>
-              </TableBody>
-            </Table>
-          </div>
-        </section>
+      <Tabs defaultValue="rentals" className="space-y-4">
+        <TabsList className="bg-[#ffc300] p-1 rounded-full">
+          <TabsTrigger
+            value="rentals"
+            className="rounded-full px-4 py-2 data-[state=active]:bg-[#010101] data-[state=active]:text-[#fafafa]"
+          >
+            AC Rentals
+          </TabsTrigger>
+          <TabsTrigger
+            value="types"
+            className="rounded-full px-4 py-2 data-[state=active]:bg-[#010101] data-[state=active]:text-[#fafafa]"
+          >
+            AC Types
+          </TabsTrigger>
+        </TabsList>
 
-        <section>
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-2xl font-semibold text-[#010101]">AC Types</h2>
-            <Button
-              onClick={() => setIsTypeModalOpen(true)}
-              className="bg-[#ffc300] text-[#010101] hover:bg-[#e6b000]"
-            >
-              <Plus className="mr-2 h-4 w-4" /> Add New Type
-            </Button>
-          </div>
-          <div className="bg-white shadow rounded-md overflow-hidden">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Description</TableHead>
-                  <TableHead>Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                <AnimatePresence>
-                  {acTypes.map((type) => (
-                    <motion.tr
-                      key={type._id}
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      exit={{ opacity: 0 }}
-                    >
-                      <TableCell>{type.name}</TableCell>
-                      <TableCell>{type.description}</TableCell>
-                      <TableCell>
-                        <Button
-                          onClick={() => {
-                            setSelectedType(type);
-                            setIsTypeModalOpen(true);
-                          }}
-                          variant="outline"
-                          className="mr-2"
-                        >
-                          <Edit className="mr-1 h-4 w-4" />
-                        </Button>
-                        <Button
-                          onClick={() => handleDeleteType(type._id)}
-                          variant="destructive"
-                        >
-                          <Trash className="mr-1 h-4 w-4" />
-                        </Button>
-                      </TableCell>
-                    </motion.tr>
-                  ))}
-                </AnimatePresence>
-              </TableBody>
-            </Table>
-          </div>
-        </section>
-      </div>
+        <TabsContent value="rentals">
+          <motion.div
+            className="space-y-8"
+            variants={containerVariants}
+            initial="hidden"
+            animate="visible"
+          >
+            <motion.div variants={itemVariants}>
+              <Card>
+                <CardHeader>
+                  <CardTitle>All AC Rentals</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Name</TableHead>
+                        <TableHead>Description</TableHead>
+                        <TableHead>Type</TableHead>
+                        <TableHead>Availability</TableHead>
+                        <TableHead>Actions</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {rentals.map((rental) => (
+                        <TableRow key={rental._id}>
+                          <TableCell>{rental.name}</TableCell>
+                          <TableCell>{rental.description}</TableCell>
+                          <TableCell>{rental.type}</TableCell>
+                          <TableCell>
+                            {rental.availability
+                              ? "Available"
+                              : "Not Available"}
+                          </TableCell>
+                          <TableCell>
+                            <Button
+                              onClick={() => handleRentalSelect(rental._id)}
+                              className="mr-2 bg-[#ffc300] text-[#010101] hover:bg-[#ffc300]/80"
+                            >
+                              <Edit className="w-4 h-4 mr-1" /> Edit
+                            </Button>
+                            <Button
+                              onClick={() => handleDeleteRental(rental._id)}
+                              variant="destructive"
+                            >
+                              <Trash2 className="w-4 h-4 mr-1" /> Delete
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </CardContent>
+              </Card>
+            </motion.div>
 
-      {/* Rental Modal */}
-      <Dialog open={isRentalModalOpen} onOpenChange={resetRentalModal}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>
-              {selectedRental ? "Edit AC Rental" : "Add New AC Rental"}
-            </DialogTitle>
-            <DialogDescription>
-              Fill out the details for the AC rental.
-            </DialogDescription>
-          </DialogHeader>
-          <form onSubmit={handleRentalSubmit} className="space-y-4">
-            <div>
-              <Label htmlFor="name">Name</Label>
-              <Input
-                id="name"
-                name="name"
-                required
-                defaultValue={selectedRental?.name || ""}
-              />
-            </div>
-            <div>
-              <Label htmlFor="description">Description</Label>
-              <Textarea
-                id="description"
-                name="description"
-                required
-                defaultValue={selectedRental?.description || ""}
-              />
-            </div>
-            <div>
-              <Label htmlFor="availability">Available</Label>
-              <Switch
-                id="availability"
-                name="availability"
-                defaultChecked={selectedRental?.availability}
-              />
-            </div>
-            <div>
-              <Label>Rental Rates</Label>
-              {rentalRates.map((rate, index) => (
-                <div key={index} className="flex space-x-2 mb-2">
-                  <Input
-                    type="number"
-                    placeholder="Duration (hrs)"
-                    value={rate.duration}
-                    onChange={(e) =>
-                      handleRateChange(index, "duration", e.target.value)
+            <motion.div variants={itemVariants}>
+              <Card>
+                <CardHeader>
+                  <CardTitle>
+                    {selectedRental ? "Update" : "Create"} AC Rental
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <form
+                    onSubmit={
+                      selectedRental ? handleUpdateRental : handleCreateRental
                     }
-                    required
-                  />
-                  <Input
-                    type="number"
-                    placeholder="Price ($)"
-                    value={rate.price}
-                    onChange={(e) =>
-                      handleRateChange(index, "price", e.target.value)
-                    }
-                    required
-                  />
-                  <Button
-                    type="button"
-                    onClick={() => handleRemoveRate(index)}
-                    variant="destructive"
+                    className="space-y-4"
                   >
-                    Remove
-                  </Button>
-                </div>
-              ))}
-              <Button type="button" onClick={handleAddRate}>
-                Add Rental Rate
-              </Button>
-            </div>
-            <div>
-              <Label htmlFor="imageUrl">Upload Image</Label>
-              <Input
-                type="file"
-                accept="image/*"
-                onChange={(e) => {
-                  const file = e.target.files?.[0] || null;
-                  setImageFile(file);
-                }}
-              />
-            </div>
-            <DialogFooter>
-              <Button type="button" onClick={resetRentalModal}>
-                Cancel
-              </Button>
-              <Button type="submit" disabled={loading}>
-                {loading ? "Saving..." : "Save"}
-              </Button>
-            </DialogFooter>
-          </form>
-        </DialogContent>
-      </Dialog>
+                    <div>
+                      <Label htmlFor="rentalName">Name</Label>
+                      <Input
+                        id="rentalName"
+                        value={rentalName}
+                        onChange={(e) => setRentalName(e.target.value)}
+                        required
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="rentalDescription">Description</Label>
+                      <Textarea
+                        id="rentalDescription"
+                        value={rentalDescription}
+                        onChange={(e) => setRentalDescription(e.target.value)}
+                        required
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="rentalType">Type</Label>
+                      <Select value={rentalType} onValueChange={setRentalType}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select AC Type" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {types.map((type) => (
+                            <SelectItem key={type._id} value={type._id}>
+                              {type.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <Label htmlFor="rentalImageUrl">Image</Label>
+                      <Input
+                        id="rentalImageUrl"
+                        type="file"
+                        onChange={(e) =>
+                          setRentalImageFile(e.target.files?.[0] || null)
+                        }
+                      />
+                      {selectedRental?.imageUrl && (
+                        <Image
+                          src={selectedRental.imageUrl}
+                          alt="Current AC"
+                          className="mt-2 w-32 h-32 object-cover rounded-lg"
+                        />
+                      )}
+                    </div>
+                    <div>
+                      <Label>Availability</Label>
+                      <Switch
+                        checked={rentalAvailability}
+                        onCheckedChange={setRentalAvailability}
+                      />
+                    </div>
+                    <div>
+                      <Label>Rental Rates</Label>
+                      {rentalRates.map((rate, index) => (
+                        <div key={index} className="flex space-x-2 mt-2">
+                          <Input
+                            placeholder="Duration"
+                            value={rate.duration}
+                            onChange={(e) =>
+                              handleRentalRateChange(
+                                index,
+                                "duration",
+                                e.target.value
+                              )
+                            }
+                            required
+                          />
+                          <Input
+                            placeholder="Price"
+                            value={rate.price}
+                            onChange={(e) =>
+                              handleRentalRateChange(
+                                index,
+                                "price",
+                                e.target.value
+                              )
+                            }
+                            required
+                          />
+                        </div>
+                      ))}
+                      <Button
+                        type="button"
+                        onClick={addRentalRate}
+                        className="mt-2 bg-[#ffc300] text-[#010101] hover:bg-[#ffc300]/80"
+                      >
+                        <Plus className="w-4 h-4 mr-1" /> Add Rate
+                      </Button>
+                    </div>
+                    <Button
+                      type="submit"
+                      disabled={loading}
+                      className="bg-[#010101] text-[#fafafa] hover:bg-[#010101]/80"
+                    >
+                      {loading ? (
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      ) : null}
+                      {loading
+                        ? "Processing..."
+                        : (selectedRental ? "Update" : "Create") + " AC Rental"}
+                    </Button>
+                    {selectedRental && (
+                      <Button
+                        type="button"
+                        onClick={resetRentalForm}
+                        variant="outline"
+                        className="ml-2"
+                      >
+                        Cancel Edit
+                      </Button>
+                    )}
+                  </form>
+                </CardContent>
+              </Card>
+            </motion.div>
+          </motion.div>
+        </TabsContent>
 
-      {/* Type Modal */}
-      <Dialog open={isTypeModalOpen} onOpenChange={resetTypeModal}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>
-              {selectedType ? "Edit AC Type" : "Add New AC Type"}
-            </DialogTitle>
-            <DialogDescription>
-              Fill out the details for the AC type.
-            </DialogDescription>
-          </DialogHeader>
-          <form onSubmit={handleTypeSubmit} className="space-y-4">
-            <div>
-              <Label htmlFor="name">Name</Label>
-              <Input
-                id="name"
-                name="name"
-                required
-                defaultValue={selectedType?.name || ""}
-              />
-            </div>
-            <div>
-              <Label htmlFor="description">Description</Label>
-              <Textarea
-                id="description"
-                name="description"
-                required
-                defaultValue={selectedType?.description || ""}
-              />
-            </div>
-            <DialogFooter>
-              <Button type="button" onClick={resetTypeModal}>
-                Cancel
-              </Button>
-              <Button type="submit" disabled={loading}>
-                {loading ? "Saving..." : "Save"}
-              </Button>
-            </DialogFooter>
-          </form>
-        </DialogContent>
-      </Dialog>
+        <TabsContent value="types">
+          <motion.div
+            className="space-y-8"
+            variants={containerVariants}
+            initial="hidden"
+            animate="visible"
+          >
+            <motion.div variants={itemVariants}>
+              <Card>
+                <CardHeader>
+                  <CardTitle>All AC Types</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Name</TableHead>
+                        <TableHead>Description</TableHead>
+                        <TableHead>Features</TableHead>
+                        <TableHead>Actions</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {types.map((type) => (
+                        <TableRow key={type._id}>
+                          <TableCell>{type.name}</TableCell>
+                          <TableCell>{type.description}</TableCell>
+                          <TableCell>{type.features.join(", ")}</TableCell>
+                          <TableCell>
+                            <Button
+                              onClick={() => handleTypeSelect(type._id)}
+                              className="mr-2 bg-[#ffc300] text-[#010101] hover:bg-[#ffc300]/80"
+                            >
+                              <Edit className="w-4 h-4 mr-1" /> Edit
+                            </Button>
+                            <Button
+                              onClick={() => handleDeleteType(type._id)}
+                              variant="destructive"
+                            >
+                              <Trash2 className="w-4 h-4 mr-1" /> Delete
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </CardContent>
+              </Card>
+            </motion.div>
+
+            <motion.div variants={itemVariants}>
+              <Card>
+                <CardHeader>
+                  <CardTitle>
+                    {selectedType ? "Update" : "Create"} AC Type
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <form
+                    onSubmit={
+                      selectedType ? handleUpdateType : handleCreateType
+                    }
+                    className="space-y-4"
+                  >
+                    <div>
+                      <Label htmlFor="typeName">Type Name</Label>
+                      <Input
+                        id="typeName"
+                        value={typeName}
+                        onChange={(e) => setTypeName(e.target.value)}
+                        required
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="typeDescription">Description</Label>
+                      <Textarea
+                        id="typeDescription"
+                        value={typeDescription}
+                        onChange={(e) => setTypeDescription(e.target.value)}
+                        required
+                      />
+                    </div>
+                    <div>
+                      <Label>Features</Label>
+                      {typeFeatures.map((feature, index) => (
+                        <div key={index} className="flex space-x-2 mt-2">
+                          <Input
+                            value={feature}
+                            onChange={(e) =>
+                              handleTypeFeatureChange(index, e.target.value)
+                            }
+                            placeholder="Feature"
+                          />
+                          <Button
+                            type="button"
+                            onClick={() => removeTypeFeature(index)}
+                            variant="destructive"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      ))}
+                      <Button
+                        type="button"
+                        onClick={addTypeFeature}
+                        className="mt-2 bg-[#ffc300] text-[#010101] hover:bg-[#ffc300]/80"
+                      >
+                        <Plus className="w-4 h-4 mr-1" /> Add Feature
+                      </Button>
+                    </div>
+                    <Button
+                      type="submit"
+                      disabled={loading}
+                      className="bg-[#010101] text-[#fafafa] hover:bg-[#010101]/80"
+                    >
+                      {loading ? (
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      ) : null}
+                      {loading
+                        ? "Processing..."
+                        : (selectedType ? "Update" : "Create") + " AC Type"}
+                    </Button>
+                    {selectedType && (
+                      <Button
+                        type="button"
+                        onClick={resetTypeForm}
+                        variant="outline"
+                        className="ml-2"
+                      >
+                        Cancel Edit
+                      </Button>
+                    )}
+                  </form>
+                </CardContent>
+              </Card>
+            </motion.div>
+          </motion.div>
+        </TabsContent>
+      </Tabs>
+
+      <AnimatePresence>
+        {error && (
+          <motion.div
+            className="mt-4 p-4 bg-red-100 text-red-700 rounded"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+          >
+            {error}
+          </motion.div>
+        )}
+        {success && (
+          <motion.div
+            className="mt-4 p-4 bg-green-100 text-green-700 rounded"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+          >
+            {success}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

@@ -92,12 +92,6 @@ export default function ServiceManagement() {
     }
 
     try {
-      console.log(
-        "Sending data to:",
-        `${process.env.NEXT_PUBLIC_API_URL}/api/services`
-      );
-      console.log("Form Data:", formData);
-
       const response = await axios.post<Service>(
         `${process.env.NEXT_PUBLIC_API_URL}/api/services`,
         formData,
@@ -211,9 +205,10 @@ export default function ServiceManagement() {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Categories 📋</SelectItem>
-              <SelectItem value="repair">Repair 🔧</SelectItem>
-              <SelectItem value="maintenance">Maintenance 🔨</SelectItem>
-              <SelectItem value="installation">Installation 🔌</SelectItem>
+              <SelectItem value="fridge">Fridge 🔧</SelectItem>
+              <SelectItem value="washingmachine">Washing Machine 🔨</SelectItem>
+              <SelectItem value="oven">Oven 🔌</SelectItem>
+              <SelectItem value="airconditioner">Air Conditioner 🔌</SelectItem>
             </SelectContent>
           </Select>
           <div className="relative">
@@ -406,9 +401,11 @@ const ServiceForm: React.FC<ServiceFormProps> = ({ onSubmit, initialData }) => {
             <SelectValue placeholder="Select category" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="Repair">Repair</SelectItem>
-            <SelectItem value="Maintenance">Maintenance</SelectItem>
-            <SelectItem value="Installation">Installation</SelectItem>
+            <SelectItem value="all">All Categories 📋</SelectItem>
+            <SelectItem value="fridge">Fridge 🔧</SelectItem>
+            <SelectItem value="washingmachine">Washing Machine 🔨</SelectItem>
+            <SelectItem value="oven">Oven 🔌</SelectItem>
+            <SelectItem value="airconditioner">Air Conditioner 🔌</SelectItem>
           </SelectContent>
         </Select>
       </div>

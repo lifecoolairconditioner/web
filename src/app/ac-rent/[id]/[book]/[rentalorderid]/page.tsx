@@ -10,12 +10,13 @@ import {
   MessageCircle,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { getOrderById } from "../../../../../apis/order";
+import { getOrderById } from "@/apis/order";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Link from "next/link";
+
 interface PaymentDetail {
   params: {
     id: string;
@@ -24,29 +25,50 @@ interface PaymentDetail {
   };
 }
 
+interface ScannerDetails {
+  _id: string;
+  scannerImage: string;
+  phonePeNumber: string;
+  upiId: string;
+  bankName: string;
+  accountNumber: string;
+  ifscCode: string;
+  contactPhone: string;
+  contactEmail: string;
+}
+
 export default function PaymentPage({ params }: PaymentDetail) {
   const [showBankDetails, setShowBankDetails] = useState(false);
   const [totalPrice, setTotalPrice] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [scannerDetails, setScannerDetails] = useState<ScannerDetails | null>(
+    null
+  );
   const { book, rentalorderid } = params;
   const router = useRouter();
 
   useEffect(() => {
-    async function fetchRentalOrder() {
+    async function fetchData() {
       try {
         setIsLoading(true);
-        const rentalOrder = await getOrderById(rentalorderid);
-        console.log(rentalOrder);
+        const [rentalOrder, scannerResponse] = await Promise.all([
+          getOrderById(rentalorderid),
+          fetch("http://192.168.43.177:8000/api/scanner/"),
+        ]);
+
+        const scannerData = await scannerResponse.json();
+
         setTotalPrice(rentalOrder.totalPrice);
+        setScannerDetails(scannerData[0]);
       } catch (error) {
-        console.error("Failed to fetch rental order:", error);
-        toast.error("Failed to fetch order details. Please try again.");
+        console.error("Failed to fetch data:", error);
+        toast.error("Failed to fetch details. Please try again.");
       } finally {
         setIsLoading(false);
       }
     }
 
-    fetchRentalOrder();
+    fetchData();
   }, [rentalorderid]);
 
   const handleCopy = (text: string) => {
@@ -81,7 +103,6 @@ export default function PaymentPage({ params }: PaymentDetail) {
       <ToastContainer position="top-right" autoClose={3000} />
       <header className="flex items-center mb-6">
         <Link href="../">
-          {" "}
           <motion.button
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
@@ -90,7 +111,7 @@ export default function PaymentPage({ params }: PaymentDetail) {
             onClick={() => router.back()}
           >
             <ChevronLeft className="w-6 h-6 text-[#010101]" />
-          </motion.button>{" "}
+          </motion.button>
         </Link>
         <motion.h1
           initial={{ y: -20, opacity: 0 }}
@@ -127,13 +148,15 @@ export default function PaymentPage({ params }: PaymentDetail) {
             )}
           </h2>
           <div className="flex flex-col items-center">
-            <Image
-              src="/placeholder.svg"
-              alt="Payment QR Code"
-              width={400}
-              height={300}
-              className="w-full max-w-[200px] h-auto mx-auto mb-4"
-            />
+            {scannerDetails && (
+              <Image
+                src={scannerDetails.scannerImage}
+                alt="Payment QR Code"
+                width={400}
+                height={300}
+                className="w-full max-w-[200px] h-auto mx-auto mb-4"
+              />
+            )}
           </div>
           <p className="text-sm text-gray-600 text-center">
             Scan this QR code with any UPI app to make the payment
@@ -149,11 +172,13 @@ export default function PaymentPage({ params }: PaymentDetail) {
               PhonePe Number
             </h3>
             <div className="flex items-center justify-between bg-gray-100 p-2 rounded-lg">
-              <span className="font-medium">9876543210</span>
+              <span className="font-medium">
+                {scannerDetails?.phonePeNumber}
+              </span>
               <motion.button
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
-                onClick={() => handleCopy("9876543210")}
+                onClick={() => handleCopy(scannerDetails?.phonePeNumber || "")}
                 className="text-[#ffc300] hover:text-[#e6b000] transition-colors"
                 aria-label="Copy PhonePe number"
               >
@@ -165,11 +190,11 @@ export default function PaymentPage({ params }: PaymentDetail) {
           <div>
             <h3 className="text-sm font-medium text-gray-500 mb-1">UPI ID</h3>
             <div className="flex items-center justify-between bg-gray-100 p-2 rounded-lg">
-              <span className="font-medium">urbancompany@upi</span>
+              <span className="font-medium">{scannerDetails?.upiId}</span>
               <motion.button
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
-                onClick={() => handleCopy("urbancompany@upi")}
+                onClick={() => handleCopy(scannerDetails?.upiId || "")}
                 className="text-[#ffc300] hover:text-[#e6b000] transition-colors"
                 aria-label="Copy UPI ID"
               >
@@ -193,7 +218,7 @@ export default function PaymentPage({ params }: PaymentDetail) {
               )}
             </motion.button>
             <AnimatePresence>
-              {showBankDetails && (
+              {showBankDetails && scannerDetails && (
                 <motion.div
                   initial={{ opacity: 0, height: 0 }}
                   animate={{ opacity: 1, height: "auto" }}
@@ -202,16 +227,17 @@ export default function PaymentPage({ params }: PaymentDetail) {
                   className="mt-2 p-4 bg-gray-50 rounded-lg"
                 >
                   <p>
-                    <strong>Account Name:</strong> Urban Company
+                    <strong>Account Name:</strong> {scannerDetails.bankName}
                   </p>
                   <p>
-                    <strong>Account Number:</strong> 1234567890
+                    <strong>Account Number:</strong>{" "}
+                    {scannerDetails.accountNumber}
                   </p>
                   <p>
-                    <strong>IFSC Code:</strong> ABCD0001234
+                    <strong>IFSC Code:</strong> {scannerDetails.ifscCode}
                   </p>
                   <p>
-                    <strong>Bank Name:</strong> Example Bank
+                    <strong>Bank Name:</strong> {scannerDetails.bankName}
                   </p>
                 </motion.div>
               )}
@@ -230,16 +256,16 @@ export default function PaymentPage({ params }: PaymentDetail) {
             <motion.a
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              href="tel:1800123456"
+              href={`tel:${scannerDetails?.contactPhone}`}
               className="flex items-center text-[#010101] hover:text-[#ffc300] transition-colors"
             >
               <Phone className="w-5 h-5 mr-2" />
-              <span>1800-123-456</span>
+              <span>{scannerDetails?.contactPhone}</span>
             </motion.a>
             <motion.a
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              href="https://wa.me/911234567890"
+              href={`https://wa.me/${scannerDetails?.contactPhone}`}
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center text-[#010101] hover:text-[#ffc300] transition-colors"

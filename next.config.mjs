@@ -6,4 +6,7 @@ const withPWA = withPWAInit({
 
 export default withPWA({
   reactStrictMode: true,
+  images: {
+    domains: ["res.cloudinary.com"], // Allow images from Cloudinary
+  },
 });
