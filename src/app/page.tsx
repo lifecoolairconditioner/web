@@ -11,25 +11,25 @@ const services = [
     name: "AC Repair",
     icon: Wind,
     color: "bg-blue-500",
-    link: "/Repair",
+    link: "/airconditioner",
   },
   {
     name: "Fridge Repair",
     icon: Refrigerator,
     color: "bg-green-500",
-    link: "/Repair",
+    link: "/fridge",
   },
   {
     name: "Washing Machine Repair",
     icon: WashingMachine,
     color: "bg-purple-500",
-    link: "/Repair",
+    link: "/washingmachine",
   },
   {
     name: "Microwave Repair",
     icon: Microwave,
     color: "bg-red-500",
-    link: "/Repair",
+    link: "/oven",
   },
 ];
 

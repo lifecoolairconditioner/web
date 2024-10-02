@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
-
+import "./manifest"
 export const metadata: Metadata = {
   title: "Cool Air",
   description: "App designed and developed by Md. Azam",

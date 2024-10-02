@@ -46,6 +46,7 @@ export default function PaymentPage({ params }: PaymentDetail) {
   );
   const { book, rentalorderid } = params;
   const router = useRouter();
+  console.log(scannerDetails);
 
   useEffect(() => {
     async function fetchData() {

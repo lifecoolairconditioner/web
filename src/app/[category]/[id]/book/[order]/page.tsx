@@ -44,7 +44,7 @@ export default function PaymentPage({ params }: PaymentDetail) {
   const [scannerDetails, setScannerDetails] = useState<ScannerDetails | null>(
     null
   );
-  const { order } = params;
+  const { order, id } = params;
   const router = useRouter();
 
   useEffect(() => {
@@ -53,7 +53,7 @@ export default function PaymentPage({ params }: PaymentDetail) {
         setIsLoading(true);
         const [rentalOrder, service, scannerResponse] = await Promise.all([
           getOrderById(order),
-          getServiceById(order),
+          getServiceById(id),
           fetch("http://192.168.43.177:8000/api/scanner/"),
         ]);
 
@@ -75,7 +75,7 @@ export default function PaymentPage({ params }: PaymentDetail) {
     }
 
     fetchData();
-  }, [order]);
+  }, [id, order]);
 
   const handleCopy = (text: string) => {
     navigator.clipboard

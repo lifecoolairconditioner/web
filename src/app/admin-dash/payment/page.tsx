@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 
 interface PaymentDetails {
+  _id: string;
   scannerImage: string;
   phonePeNumber: string;
   upiId: string;
@@ -17,68 +18,127 @@ interface PaymentDetails {
 }
 
 export default function PaymentDetailsCMS() {
-  const [details, setDetails] = useState<PaymentDetails>({
-    scannerImage: "",
-    phonePeNumber: "",
-    upiId: "",
-    bankName: "",
-    accountNumber: "",
-    ifscCode: "",
-    contactPhone: "",
-    contactEmail: "",
-  });
+  const [details, setDetails] = useState<PaymentDetails | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [showBankDetails, setShowBankDetails] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [imageFile, setImageFile] = useState<File | null>(null);
 
   useEffect(() => {
-    // Simulating fetching existing details from an API
-    const fetchedDetails: PaymentDetails = {
-      scannerImage: "/placeholder.svg?height=300&width=300",
-      phonePeNumber: "9876543210",
-      upiId: "example@upi",
-      bankName: "Example Bank",
-      accountNumber: "XXXX XXXX XXXX 1234",
-      ifscCode: "EXMP0001234",
-      contactPhone: "1234567890",
-      contactEmail: "contact@example.com",
-    };
-    setDetails(fetchedDetails);
+    fetchDetails();
   }, []);
+
+  const fetchDetails = async () => {
+    setIsLoading(true);
+    try {
+      const response = await fetch("http://192.168.43.177:8000/api/scanner/");
+      if (!response.ok) {
+        throw new Error("Failed to fetch payment details");
+      }
+
+      const data = await response.json();
+      setDetails(Array.isArray(data) && data.length > 0 ? data[0] : null);
+    } catch (err) {
+      console.log(err);
+
+      setError("Failed to load payment details. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
+    if (!details) return;
     const { name, value } = e.target;
-    setDetails((prevDetails) => ({
-      ...prevDetails,
-      [name]: value,
-    }));
+    setDetails({ ...details, [name]: value });
   };
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setDetails((prevDetails) => ({
-          ...prevDetails,
-          scannerImage: reader.result as string,
-        }));
-      };
-      reader.readAsDataURL(file);
+    if (file && details) {
+      setImageFile(file);
+      setDetails({ ...details, scannerImage: URL.createObjectURL(file) });
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Simulating API call to update details
-    console.log("Updating details:", details);
-    setIsEditing(false);
+    if (!details) return;
+
+    const formData = new FormData();
+    Object.entries(details).forEach(([key, value]) => {
+      if (key !== "_id" && key !== "__v") {
+        formData.append(key, value);
+      }
+    });
+
+    if (imageFile) {
+      formData.set("scannerImage", imageFile);
+    }
+
+    try {
+      const response = await fetch(
+        `http://192.168.43.177:8000/api/scanner/${details._id}`,
+        {
+          method: "PUT",
+          body: formData,
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to update payment details");
+      }
+
+      const updatedData = await response.json();
+      setDetails(updatedData);
+      setIsEditing(false);
+      setImageFile(null);
+    } catch (err) {
+      console.log(err);
+
+      setError("Failed to update payment details. Please try again.");
+    }
   };
 
   const toggleEditMode = () => {
     setIsEditing(!isEditing);
   };
+
+  if (isLoading) {
+    return (
+      <div
+        className="min-h-screen flex items-center justify-center"
+        aria-live="polite"
+      >
+        <p className="text-lg">Loading payment details...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div
+        className="min-h-screen flex items-center justify-center text-red-500"
+        aria-live="assertive"
+      >
+        <p>{error}</p>
+      </div>
+    );
+  }
+
+  if (!details) {
+    return (
+      <div
+        className="min-h-screen flex items-center justify-center"
+        aria-live="polite"
+      >
+        <p>No payment details found.</p>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#fafafa] p-4 sm:p-6 lg:p-8">
@@ -120,8 +180,10 @@ export default function PaymentDetailsCMS() {
               <div className="flex items-center space-x-4">
                 <Image
                   src={details.scannerImage}
-                  alt="Payment Scanner"
-                  className="w-32 h-32 object-cover rounded-lg"
+                  alt="Payment QR Code"
+                  width={200}
+                  height={200}
+                  className="w-full max-w-[200px] h-auto mx-auto mb-4 object-cover rounded-lg"
                 />
                 <label className="cursor-pointer bg-[#ffc300] text-[#010101] py-2 px-4 rounded-lg hover:bg-[#e6b000] transition duration-300">
                   <Upload className="w-5 h-5 inline-block mr-2" />
@@ -288,7 +350,9 @@ export default function PaymentDetailsCMS() {
               <Image
                 src={details.scannerImage}
                 alt="Payment Scanner"
-                className="w-64 h-64 object-cover rounded-lg"
+                width={300}
+                height={300}
+                className="w-full max-w-[300px] h-auto object-cover rounded-lg"
               />
             </div>
 
@@ -313,6 +377,7 @@ export default function PaymentDetailsCMS() {
               <button
                 onClick={() => setShowBankDetails(!showBankDetails)}
                 className="flex items-center text-sm text-[#010101] hover:text-[#ffc300] transition duration-300"
+                aria-expanded={showBankDetails}
               >
                 {showBankDetails ? (
                   <>

@@ -72,3 +72,19 @@ export const AssignTechnician = async (id, technician) => {
     throw error;
   }
 };
+
+export const updateOrderDateAndTimeSlot = async (id, date, timeSlot) => {
+  try {
+    const response = await axios.put(`${API_URL}/${id}/update`, {
+      date,
+      timeSlot,
+    });
+    return response.data;
+  } catch (error) {
+    console.error(
+      `Error updating order date and time slot for ID (${id}):`,
+      error
+    );
+    throw error;
+  }
+};

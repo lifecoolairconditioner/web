@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { ChevronLeft, Clock } from "lucide-react";
+import { ChevronLeft } from "lucide-react";
 import { getServiceById } from "../../../apis/service";
 import Link from "next/link";
 import Image from "next/image";
@@ -175,14 +175,6 @@ export default function ServiceDetailsPage({
             About this service
           </h2>
           <p className="text-gray-600 mb-4">{serviceDetails.description}</p>
-          <div className="flex items-center text-[#010101] mb-2">
-            <Clock className="w-5 h-5 mr-2" />
-            <span>{serviceDetails.duration}</span>
-          </div>
-          <div className="flex items-center text-[#010101]">
-            <Clock className="w-5 h-5 mr-2" />
-            <span>Professional grade equipment</span>
-          </div>
         </motion.section>
       </motion.main>
 

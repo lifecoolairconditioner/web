@@ -132,6 +132,7 @@ export default function SlotBookingScreen({ params }: Booking) {
       rental,
       duration: rentalPeriod,
       date: formattedDate,
+      timeSlot: selectedTime,
       contact: {
         name: userData.name,
         phone: userData.phone,

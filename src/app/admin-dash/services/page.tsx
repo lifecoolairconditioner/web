@@ -203,7 +203,7 @@ export default function ServiceManagement() {
             <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="Filter by category" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="bg-white">
               <SelectItem value="all">All Categories 📋</SelectItem>
               <SelectItem value="fridge">Fridge 🔧</SelectItem>
               <SelectItem value="washingmachine">Washing Machine 🔨</SelectItem>
@@ -262,7 +262,7 @@ export default function ServiceManagement() {
                 <TableRow key={service._id}>
                   <TableCell>{service.name}</TableCell>
                   <TableCell>{service.category}</TableCell>
-                  <TableCell>${service.price}</TableCell>
+                  <TableCell>₹{service.price}</TableCell>
                   <TableCell>{service.description}</TableCell>
                   <TableCell className="flex space-x-2">
                     <Button
@@ -400,7 +400,7 @@ const ServiceForm: React.FC<ServiceFormProps> = ({ onSubmit, initialData }) => {
           <SelectTrigger>
             <SelectValue placeholder="Select category" />
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent className="bg-white">
             <SelectItem value="all">All Categories 📋</SelectItem>
             <SelectItem value="fridge">Fridge 🔧</SelectItem>
             <SelectItem value="washingmachine">Washing Machine 🔨</SelectItem>

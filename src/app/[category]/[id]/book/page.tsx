@@ -12,10 +12,10 @@ import {
   MapPin,
 } from "lucide-react";
 import axios from "axios";
-import { Button } from "../../../../components/ui/button";
-import { Input } from "../../../../components/ui/input";
-import { Label } from "../../../../components/ui/label";
-import { Textarea } from "../../../../components/ui/textarea";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Dialog,
   DialogContent,
@@ -23,10 +23,11 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "../../../../components/ui/dialog";
-import { toast } from "../../../../hooks/use-toast";
+} from "@/components/ui/dialog";
+import { toast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+
 interface Contact {
   name: string;
   email: string;
@@ -45,7 +46,9 @@ const generateTimeSlots = () => {
   const slots = [];
   for (let hour = 9; hour <= 20; hour++) {
     for (const minute of ["00", "30"]) {
-      slots.push(`${hour.toString().padStart(2, "0")}:${minute}:00.000Z`);
+      const time = new Date();
+      time.setHours(hour, parseInt(minute), 0, 0);
+      slots.push(time);
     }
   }
   return slots;
@@ -66,6 +69,13 @@ export default function ServiceSchedulingPage({
   const [timeSlot, setTimeSlot] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
   const [isContactModalOpen, setIsContactModalOpen] = useState(false);
+  const [locationError, setLocationError] = useState<string | null>(null);
+  const [location, setLocation] = useState<{
+    latitude: number;
+    longitude: number;
+  } | null>(null);
+  console.log(locationError);
+
   const { id, category } = params;
   const router = useRouter();
 
@@ -83,19 +93,39 @@ export default function ServiceSchedulingPage({
     setDate(selectedDate.toISOString().split("T")[0] + "T00:00:00.000+00:00");
   };
 
-  const handleTimeClick = (selectedTime: string) => {
-    setTimeSlot(selectedTime);
+  const handleTimeClick = (selectedTime: Date) => {
+    setTimeSlot(selectedTime.toISOString());
   };
 
   const handleProceed = () => {
     if (date && timeSlot) {
       setIsContactModalOpen(true);
+      handleGetLocation();
     } else {
       toast({
         title: "Incomplete Selection",
         description: "Please select both a date and time before proceeding.",
         variant: "destructive",
       });
+    }
+  };
+
+  const handleGetLocation = () => {
+    if ("geolocation" in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+          setLocation({ latitude, longitude }); // Set location in state
+        },
+        (error) => {
+          // Handle location access errors
+          setLocationError("Unable to fetch location. Please try again.");
+          console.error("Geolocation error:", error);
+        }
+      );
+    } else {
+      // Browser does not support geolocation
+      setLocationError("Geolocation is not supported by this browser.");
     }
   };
 
@@ -108,6 +138,7 @@ export default function ServiceSchedulingPage({
       date,
       timeSlot,
       contact,
+      ...(location && { location }),
     };
 
     try {
@@ -185,7 +216,6 @@ export default function ServiceSchedulingPage({
     >
       <header className="flex items-center mb-6">
         <Link href="./">
-          {" "}
           <Button
             variant="ghost"
             className="mr-4"
@@ -193,7 +223,7 @@ export default function ServiceSchedulingPage({
             onClick={() => router.back()}
           >
             <ChevronLeft className="w-6 h-6 text-[#010101]" />
-          </Button>{" "}
+          </Button>
         </Link>
         <motion.h1
           initial={{ opacity: 0, y: -20 }}
@@ -263,7 +293,7 @@ export default function ServiceSchedulingPage({
                   key={index}
                   onClick={() => handleTimeClick(slot)}
                   className={`py-2 px-4 rounded-lg ${
-                    timeSlot === slot
+                    timeSlot === slot.toISOString()
                       ? "bg-[#ffc300] text-[#010101]"
                       : "bg-white text-[#010101]"
                   } shadow-sm transition-colors duration-200`}
@@ -274,7 +304,10 @@ export default function ServiceSchedulingPage({
                   exit={{ opacity: 0, y: -20 }}
                   transition={{ delay: index * 0.02 }}
                 >
-                  {slot.slice(0, 5)}
+                  {slot.toLocaleTimeString([], {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
                 </motion.button>
               ))}
             </AnimatePresence>

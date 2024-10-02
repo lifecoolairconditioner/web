@@ -461,7 +461,7 @@ export default function ACRentalDashboard() {
                         <SelectTrigger>
                           <SelectValue placeholder="Select AC Type" />
                         </SelectTrigger>
-                        <SelectContent>
+                        <SelectContent className="bg-white">
                           {types.map((type) => (
                             <SelectItem key={type._id} value={type._id}>
                               {type.name}
@@ -482,6 +482,8 @@ export default function ACRentalDashboard() {
                       {selectedRental?.imageUrl && (
                         <Image
                           src={selectedRental.imageUrl}
+                          width={100}
+                          height={100}
                           alt="Current AC"
                           className="mt-2 w-32 h-32 object-cover rounded-lg"
                         />

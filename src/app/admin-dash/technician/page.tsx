@@ -1,4 +1,5 @@
 "use client";
+
 import React, { useEffect, useState } from "react";
 import {
   Table,
@@ -21,7 +22,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
-import { Eye, Search, ArrowUpDown, Plus, X, Edit } from "lucide-react";
+import { Search, ArrowUpDown, Plus, X, Edit } from "lucide-react";
 import {
   getAllTechnicians,
   createTechnician,
@@ -56,7 +57,6 @@ export default function TechnicianManagement() {
     useState<Technician[]>(initialTechnicians);
   const [selectedTechnician, setSelectedTechnician] =
     useState<Technician | null>(null);
-  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [newTechnician, setNewTechnician] = useState<
@@ -69,16 +69,17 @@ export default function TechnicianManagement() {
     availability: true,
     address: "",
   });
+  const [editTechnician, setEditTechnician] = useState<Omit<
+    Technician,
+    "_id" | "createdAt" | "updatedAt" | "__v"
+  > | null>(null);
   const [sortConfig, setSortConfig] = useState<{
     key: keyof Technician | null;
     direction: "ascending" | "descending";
   }>({ key: null, direction: "ascending" });
   const [searchTerm, setSearchTerm] = useState("");
   const [services, setServices] = useState<Service[]>(initialServices);
-  console.log(selectedTechnician);
-  console.log(isProfileModalOpen);
-  console.log(isEditModalOpen);
-  console.log(selectedTechnician);
+
   useEffect(() => {
     const fetchTechnicians = async () => {
       try {
@@ -112,9 +113,9 @@ export default function TechnicianManagement() {
     try {
       const newTechnicianData = await createTechnician(newTechnician);
       if ("data" in newTechnicianData) {
-        setTechnicians([...technicians, newTechnicianData.data]);
+        setTechnicians((prev) => [...prev, newTechnicianData.data]);
       } else {
-        setTechnicians([...technicians, newTechnicianData]);
+        setTechnicians((prev) => [...prev, newTechnicianData]);
       }
       resetNewTechnician();
       setIsAddModalOpen(false);
@@ -140,6 +141,29 @@ export default function TechnicianManagement() {
       setTechnicians(technicians.filter((tech) => tech._id !== technicianId));
     } catch (error) {
       console.error("Failed to delete technician:", error);
+    }
+  };
+
+  const handleEditTechnician = async () => {
+    if (editTechnician && selectedTechnician) {
+      try {
+        const updatedTechnicianData = await updateTechnician(
+          selectedTechnician._id,
+          {
+            ...editTechnician,
+          }
+        );
+        setTechnicians((prev) =>
+          prev.map((tech) =>
+            tech._id === selectedTechnician._id
+              ? updatedTechnicianData.data
+              : tech
+          )
+        );
+        setIsEditModalOpen(false);
+      } catch (error) {
+        console.error("Failed to update technician:", error);
+      }
     }
   };
 
@@ -204,6 +228,11 @@ export default function TechnicianManagement() {
     }
   };
 
+  const getServiceName = (serviceId: string) => {
+    const service = services.find((s) => s._id === serviceId);
+    return service ? service.name : serviceId;
+  };
+
   return (
     <div className="container mx-auto p-6 space-y-6">
       <h1 className="text-3xl font-bold text-[#010101]">
@@ -258,9 +287,9 @@ export default function TechnicianManagement() {
               <TableCell>{technician.email}</TableCell>
               <TableCell>
                 <div className="flex flex-wrap gap-1">
-                  {technician.services.map((service, index) => (
-                    <Badge key={index} variant="secondary">
-                      {service}
+                  {technician.services.map((serviceId) => (
+                    <Badge key={serviceId} variant="secondary">
+                      {getServiceName(serviceId)}
                     </Badge>
                   ))}
                 </div>
@@ -277,15 +306,14 @@ export default function TechnicianManagement() {
                     variant="outline"
                     onClick={() => {
                       setSelectedTechnician(technician);
-                      setIsProfileModalOpen(true);
-                    }}
-                  >
-                    <Eye className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="outline"
-                    onClick={() => {
-                      setSelectedTechnician(technician);
+                      setEditTechnician({
+                        name: technician.name,
+                        phone: technician.phone,
+                        email: technician.email,
+                        services: technician.services,
+                        availability: technician.availability,
+                        address: technician.address,
+                      });
                       setIsEditModalOpen(true);
                     }}
                   >
@@ -304,8 +332,9 @@ export default function TechnicianManagement() {
         </TableBody>
       </Table>
 
+      {/* Add Technician Dialog */}
       <Dialog open={isAddModalOpen} onOpenChange={setIsAddModalOpen}>
-        <DialogContent>
+        <DialogContent className="bg-white">
           <DialogHeader>
             <DialogTitle>Add New Technician</DialogTitle>
             <DialogDescription>
@@ -367,18 +396,18 @@ export default function TechnicianManagement() {
                     <input
                       type="checkbox"
                       id={service._id}
-                      checked={newTechnician.services.includes(service.name)}
+                      checked={newTechnician.services.includes(service._id)}
                       onChange={(e) => {
                         if (e.target.checked) {
                           setNewTechnician({
                             ...newTechnician,
-                            services: [...newTechnician.services, service.name],
+                            services: [...newTechnician.services, service._id],
                           });
                         } else {
                           setNewTechnician({
                             ...newTechnician,
                             services: newTechnician.services.filter(
-                              (s) => s !== service.name
+                              (s) => s !== service._id
                             ),
                           });
                         }
@@ -396,6 +425,120 @@ export default function TechnicianManagement() {
             </Button>
             <Button type="submit" onClick={handleAddTechnician}>
               Add Technician
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Technician Dialog */}
+      <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
+        <DialogContent className="bg-white">
+          <DialogHeader>
+            <DialogTitle>Edit Technician</DialogTitle>
+            <DialogDescription>
+              Update the details for the selected technician.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4">
+            <div>
+              <Label>Name</Label>
+              <Input
+                value={editTechnician?.name || ""}
+                onChange={(e) =>
+                  setEditTechnician({
+                    ...editTechnician!,
+                    name: e.target.value,
+                  })
+                }
+                placeholder="Enter technician name"
+              />
+            </div>
+            <div>
+              <Label>Phone</Label>
+              <Input
+                value={editTechnician?.phone || ""}
+                onChange={(e) =>
+                  setEditTechnician({
+                    ...editTechnician!,
+                    phone: e.target.value,
+                  })
+                }
+                placeholder="Enter technician phone number"
+              />
+            </div>
+            <div>
+              <Label>Email</Label>
+              <Input
+                value={editTechnician?.email || ""}
+                onChange={(e) =>
+                  setEditTechnician({
+                    ...editTechnician!,
+                    email: e.target.value,
+                  })
+                }
+                placeholder="Enter technician email"
+              />
+            </div>
+            <div>
+              <Label>Address</Label>
+              <Input
+                value={editTechnician?.address || ""}
+                onChange={(e) =>
+                  setEditTechnician({
+                    ...editTechnician!,
+                    address: e.target.value,
+                  })
+                }
+                placeholder="Enter technician address"
+              />
+            </div>
+            <div>
+              <Label>Services</Label>
+              <div className="flex flex-wrap gap-2">
+                {services.map((service) => (
+                  <div
+                    key={service._id}
+                    className="flex items-center space-x-2"
+                  >
+                    <input
+                      type="checkbox"
+                      id={`edit-${service._id}`}
+                      checked={
+                        editTechnician?.services.includes(service._id) || false
+                      }
+                      onChange={(e) => {
+                        if (e.target.checked) {
+                          setEditTechnician({
+                            ...editTechnician!,
+                            services: [
+                              ...(editTechnician?.services || []),
+                              service._id,
+                            ],
+                          });
+                        } else {
+                          setEditTechnician({
+                            ...editTechnician!,
+                            services: (editTechnician?.services || []).filter(
+                              (s) => s !== service._id
+                            ),
+                          });
+                        }
+                      }}
+                    />
+                    <label htmlFor={`edit-${service._id}`}>
+                      {service.name}
+                    </label>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button type="button" onClick={() => setIsEditModalOpen(false)}>
+              Cancel
+            </Button>
+            <Button type="submit" onClick={handleEditTechnician}>
+              Save Changes
             </Button>
           </DialogFooter>
         </DialogContent>
