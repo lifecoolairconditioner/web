@@ -1,20 +1,20 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Refrigerator, WashingMachine, Microwave, Wind } from "lucide-react";
+import { Refrigerator, WashingMachine, Microwave, Wind ,} from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
 
 const services = [
   {
-    name: "AC Repair",
+    name: "AC Repair & maintainance",
     icon: Wind,
     color: "bg-blue-500",
     link: "/airconditioner",
   },
   {
-    name: "Fridge Repair",
+    name: "Fridge Repair & maintainance",
     icon: Refrigerator,
     color: "bg-green-500",
     link: "/fridge",
@@ -86,13 +86,7 @@ export default function MainScreen() {
                   Cool comfort, delivered to your doorstep
                 </p>
               </div>
-              <Image
-                src="/placeholder.svg"
-                alt="AC Rental"
-                width={120}
-                height={112}
-                className="w-30 h-28 object-cover rounded-xl"
-              />
+             
             </div>
           </Link>
         </motion.div>

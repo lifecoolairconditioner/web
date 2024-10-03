@@ -397,7 +397,9 @@ export default function OrderManagement() {
       <Tabs defaultValue="rental" className="w-full">
         <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="rental">Rental Orders</TabsTrigger>
-          <TabsTrigger value="service">Service Orders</TabsTrigger>
+          <TabsTrigger value="service" className="bg-black text-white">
+            Service Orders
+          </TabsTrigger>
         </TabsList>
         <TabsContent value="rental">
           <OrderTable orders={rentalOrders} isServiceOrder={false} />

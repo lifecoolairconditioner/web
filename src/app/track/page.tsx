@@ -292,6 +292,13 @@ export default function OrderTrackingPage() {
           >
             {isLoading ? "Fetching..." : "Track Orders"}
           </Button>
+
+          <Link
+            href={"review"}
+            className="w-full m-12  mt-12 bg-[#ffc300] text-[#010101] rounded-lg font-semibold hover:bg-[#e6b000] transition-colors focus:outline-none focus:ring-4 focus:ring-[#ffc300] focus:ring-opacity-50 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            Review
+          </Link>
         </form>
 
         <AnimatePresence>
@@ -445,7 +452,7 @@ export default function OrderTrackingPage() {
                   className="flex-1 py-2 px-4 bg-[#010101] text-white rounded-lg font-semibold hover:bg-gray-800 transition-colors focus:outline-none focus:ring-4 focus:ring-[#010101] focus:ring-opacity-50"
                 >
                   <Calendar className="inline-block mr-2" />
-                  Update Last Order
+                  Change Time slot
                 </Button>
               </motion.div>
             </motion.div>
