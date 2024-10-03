@@ -1,9 +1,8 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Refrigerator, WashingMachine, Microwave, Wind ,} from "lucide-react";
+import { Refrigerator, WashingMachine, Microwave, Wind } from "lucide-react";
 import Link from "next/link";
-import Image from "next/image";
 import { motion } from "framer-motion";
 
 const services = [
@@ -86,7 +85,6 @@ export default function MainScreen() {
                   Cool comfort, delivered to your doorstep
                 </p>
               </div>
-             
             </div>
           </Link>
         </motion.div>
