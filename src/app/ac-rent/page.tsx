@@ -22,7 +22,7 @@ interface ACType {
   rentalRates: RentalRates;
 }
 
-export default function ACRentTypesScreen() {
+export default function Component() {
   const [acTypes, setACTypes] = useState<ACType[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -157,9 +157,9 @@ export default function ACRentTypesScreen() {
                       </span>
                     </div>
                     <motion.button
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                      onClick={() => handleBookClick(ac._id)}
+                      whileHover={ac.availability ? { scale: 1.05 } : {}}
+                      whileTap={ac.availability ? { scale: 0.95 } : {}}
+                      onClick={() => ac.availability && handleBookClick(ac._id)}
                       className={`w-full py-2 px-4 rounded-lg text-white font-semibold transition-colors duration-300 ${
                         ac.availability
                           ? "bg-[#ffc300] hover:bg-[#e6b000] focus:ring-4 focus:ring-yellow-300"
