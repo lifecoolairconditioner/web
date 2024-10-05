@@ -293,11 +293,10 @@ export default function OrderTrackingPage() {
             {isLoading ? "Fetching..." : "Track Orders"}
           </Button>
 
-          <Link
-            href={"review"}
-            className="w-full m-12  mt-12 bg-[#ffc300] text-[#010101] rounded-lg font-semibold hover:bg-[#e6b000] transition-colors focus:outline-none focus:ring-4 focus:ring-[#ffc300] focus:ring-opacity-50 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            Review
+          <Link href="/review" passHref>
+            <Button className="w-full mt-5 py-2 px-4 bg-[#ffc300] text-[#010101] rounded-lg font-semibold hover:bg-[#e6b000] transition-colors focus:outline-none focus:ring-4 focus:ring-[#ffc300] focus:ring-opacity-50">
+              Review
+            </Button>
           </Link>
         </form>
 

@@ -54,7 +54,7 @@ export default function PaymentPage({ params }: PaymentDetail) {
         const [rentalOrder, service, scannerResponse] = await Promise.all([
           getOrderById(order),
           getServiceById(id),
-          fetch("http://192.168.43.177:8000/api/scanner/"),
+          fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/scanner/`),
         ]);
 
         const scannerData = await scannerResponse.json();
