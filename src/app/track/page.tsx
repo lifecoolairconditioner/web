@@ -371,7 +371,7 @@ export default function OrderTrackingPage() {
                       <strong>Payment Status:</strong> {order.paymentStatus}
                     </p>
                     <p>
-                      <strong>Total Price:</strong> $ {order.totalPrice}
+                      <strong>Total Price:</strong> ₹ {order.totalPrice}
                     </p>
                     <p>
                       <strong>Service:</strong> {order.service}
