@@ -32,7 +32,7 @@ export default function PaymentDetailsCMS() {
   const fetchDetails = async () => {
     setIsLoading(true);
     try {
-      const response = await fetch("http://192.168.43.177:8000/api/scanner/");
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/scanner/`);
       if (!response.ok) {
         throw new Error("Failed to fetch payment details");
       }
