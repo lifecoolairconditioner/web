@@ -81,7 +81,7 @@ export default function PaymentDetailsCMS() {
 
     try {
       const response = await fetch(
-        `http://192.168.43.177:8000/api/scanner/${details._id}`,
+        `${process.env.NEXT_PUBLIC_API_URL}/api/scanner/${details._id}`,
         {
           method: "PUT",
           body: formData,
