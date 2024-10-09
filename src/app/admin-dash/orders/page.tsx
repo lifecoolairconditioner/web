@@ -28,14 +28,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  Eye,
-  ArrowUpDown,
-  Calendar,
-  User,
-  Clock,
-  AlertTriangle,
-} from "lucide-react";
+import { Eye, Clock, AlertTriangle } from "lucide-react";
 import {
   getAllOrders,
   updateOrderStatus,
@@ -43,6 +36,7 @@ import {
   updatePaymentStatus,
 } from "@/apis/order";
 import { getAllTechnicians } from "@/apis/technician";
+import { toast } from "@/hooks/use-toast";
 
 interface Service {
   _id: string;
@@ -75,49 +69,49 @@ interface Order {
   service?: string;
   status: string;
   date: string;
-  timeSlot: "3_months" | "6_months" | "1_year";
+  duration: string;
   paymentStatus: string;
   totalPrice: number;
   createdAt: string;
   updatedAt: string;
   technician?: string;
+  location: {
+    latitude: number;
+    longitude: number;
+  };
+  timeSlot?: string; // Add timeSlot if it's needed
 }
 
-const calculateRemainingTime = (date: string, timeSlot: string) => {
-  const now = new Date();
-  const orderDate = new Date(date);
-  const endDate = new Date(orderDate);
-
-  switch (timeSlot) {
-    case "3_months":
-      endDate.setMonth(endDate.getMonth() + 3);
-      break;
-    case "6_months":
-      endDate.setMonth(endDate.getMonth() + 6);
-      break;
-    case "1_year":
-      endDate.setFullYear(endDate.getFullYear() + 1);
-      break;
-  }
-
-  const timeDiff = endDate.getTime() - now.getTime();
-  const days = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
-  const months = Math.floor(days / 30);
-
-  return { months, days: days % 30 };
+const calculateRemainingTime = (startDate: string, duration?: string) => {
+  if (!duration) return { months: 0, days: 0 }; // Handle undefined duration
+  const start = new Date(startDate);
+  const durationInMonths = parseInt(duration, 10);
+  const expiryDate = new Date(start);
+  expiryDate.setMonth(expiryDate.getMonth() + durationInMonths);
+  const currentDate = new Date();
+  const timeDifference = expiryDate.getTime() - currentDate.getTime();
+  const remainingDays = Math.ceil(timeDifference / (1000 * 60 * 60 * 24));
+  const months = Math.floor(remainingDays / 30);
+  const days = remainingDays % 30;
+  return { months, days };
 };
 
-const formatTimeSlot = (timeSlot: string) => {
-  switch (timeSlot) {
-    case "3_months":
-      return "3 Months";
-    case "6_months":
-      return "6 Months";
-    case "1_year":
-      return "1 Year";
-    default:
-      return timeSlot;
+const getRentExpiryAlerts = (startDate: string, duration: string) => {
+  const { months, days } = calculateRemainingTime(startDate, duration);
+  if (months === 0) {
+    if (days === 3) {
+      return "Rent expires in 3 days!";
+    } else if (days === 2) {
+      return "Rent expires in 2 days!";
+    } else if (days === 1) {
+      return "Rent expires tomorrow!";
+    } else if (days === 0) {
+      return "Rent expires today!";
+    } else if (days < 0) {
+      return "Rent has expired!";
+    }
   }
+  return null;
 };
 
 export default function OrderManagement() {
@@ -131,6 +125,7 @@ export default function OrderManagement() {
   }>({ key: "date", direction: "ascending" });
   const [filterStatus, setFilterStatus] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
+  console.log(setSortConfig);
 
   useEffect(() => {
     const fetchOrdersAndTechnicians = async () => {
@@ -140,6 +135,19 @@ export default function OrderManagement() {
         const techniciansData: Technician[] = techniciansResponse.data;
         setTechnicians(Array.isArray(techniciansData) ? techniciansData : []);
         setOrders(ordersData);
+
+        ordersData.forEach((order) => {
+          if (order.rental) {
+            const alert = getRentExpiryAlerts(order.date, order.duration);
+            if (alert) {
+              toast({
+                title: "Rent Expiry Alert",
+                description: `${alert} for order ${order._id}`,
+                variant: "destructive",
+              });
+            }
+          }
+        });
       } catch (error) {
         console.error("Error fetching orders or technicians:", error);
       }
@@ -147,30 +155,26 @@ export default function OrderManagement() {
     fetchOrdersAndTechnicians();
   }, []);
 
-  const handleSort = (key: keyof Order) => {
-    let direction: "ascending" | "descending" = "ascending";
-    if (sortConfig.key === key && sortConfig.direction === "ascending") {
-      direction = "descending";
-    }
-    setSortConfig({ key, direction });
-  };
-
   const sortedOrders = React.useMemo(() => {
-    const sortableOrders = [...orders];
-    if (sortConfig.key) {
+    const sortableOrders = [...(orders || [])]; // Ensure orders is not undefined
+
+    // Check if sortConfig and sortConfig.key are defined
+    if (sortConfig?.key) {
       sortableOrders.sort((a, b) => {
-        const aValue = a[sortConfig.key];
-        const bValue = b[sortConfig.key];
-        if (aValue === undefined || bValue === undefined) {
-          return 0;
-        }
-        if (aValue < bValue)
+        // Safely access the sorting key, providing fallback for undefined cases
+        const aValue = a[sortConfig.key] ?? "";
+        const bValue = b[sortConfig.key] ?? "";
+
+        if (aValue < bValue) {
           return sortConfig.direction === "ascending" ? -1 : 1;
-        if (aValue > bValue)
+        }
+        if (aValue > bValue) {
           return sortConfig.direction === "ascending" ? 1 : -1;
+        }
         return 0;
       });
     }
+
     return sortableOrders;
   }, [orders, sortConfig]);
 
@@ -221,10 +225,10 @@ export default function OrderManagement() {
     paymentStatus: string
   ) => {
     try {
-      const response = await updatePaymentStatus(orderId, paymentStatus);
+      await updatePaymentStatus(orderId, paymentStatus);
       setOrders((prevOrders) =>
         prevOrders.map((order) =>
-          order._id === orderId ? { ...response, paymentStatus } : order
+          order._id === orderId ? { ...order, paymentStatus } : order
         )
       );
     } catch (error) {
@@ -242,43 +246,29 @@ export default function OrderManagement() {
     <Table>
       <TableHeader>
         <TableRow>
-          <TableHead className="w-[100px]">Order ID</TableHead>
-          <TableHead>
-            <Button variant="ghost" onClick={() => handleSort("contact")}>
-              Customer <User className="ml-2 h-4 w-4" />
-            </Button>
-          </TableHead>
-          <TableHead>
-            <Button variant="ghost" onClick={() => handleSort("status")}>
-              Status <ArrowUpDown className="ml-2 h-4 w-4" />
-            </Button>
-          </TableHead>
-          <TableHead>
-            <Button variant="ghost" onClick={() => handleSort("date")}>
-              Start Date <Calendar className="ml-2 h-4 w-4" />
-            </Button>
-          </TableHead>
+          <TableHead>Order ID</TableHead>
+          <TableHead>Customer</TableHead>
+          <TableHead>Status</TableHead>
+          <TableHead>Start Date</TableHead>
           {!isServiceOrder && (
             <>
               <TableHead>Rental Duration</TableHead>
               <TableHead>Remaining Time</TableHead>
             </>
           )}
-          <TableHead>Technician 🔨</TableHead>
+          <TableHead>Technician</TableHead>
+          <TableHead>Location (Lat, Long)</TableHead>
           <TableHead>Actions</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
         {orders.map((order) => {
-          const { months, days } = calculateRemainingTime(
-            order.date,
-            order.timeSlot
-          );
-          const isNearingEnd = months === 0 && days < 7;
+          const expiryAlert = getRentExpiryAlerts(order.date, order.duration);
           return (
             <TableRow key={order._id}>
               <TableCell>{order._id}</TableCell>
-              <TableCell>{order.contact.name}</TableCell>
+              <TableCell>{order.contact?.name}</TableCell>{" "}
+              {/* Handle possible undefined contact */}
               <TableCell>
                 <Select
                   value={order.status}
@@ -300,18 +290,14 @@ export default function OrderManagement() {
               <TableCell>{new Date(order.date).toLocaleDateString()}</TableCell>
               {!isServiceOrder && (
                 <>
-                  <TableCell>{formatTimeSlot(order.timeSlot)}</TableCell>
+                  <TableCell>{order.duration} Months</TableCell>
                   <TableCell>
-                    <div
-                      className={`flex items-center ${
-                        isNearingEnd ? "text-red-500" : ""
-                      }`}
-                    >
-                      {isNearingEnd && (
+                    {expiryAlert && (
+                      <div className="text-red-500 flex items-center">
                         <AlertTriangle className="mr-2 h-4 w-4" />
-                      )}
-                      {months}m {days}d
-                    </div>
+                        {expiryAlert}
+                      </div>
+                    )}
                   </TableCell>
                 </>
               )}
@@ -335,6 +321,9 @@ export default function OrderManagement() {
                 </Select>
               </TableCell>
               <TableCell>
+                {order.location?.latitude}, {order.location?.longitude}
+              </TableCell>
+              <TableCell>
                 <Button
                   variant="ghost"
                   size="icon"
@@ -352,7 +341,6 @@ export default function OrderManagement() {
       </TableBody>
     </Table>
   );
-
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -465,7 +453,7 @@ export default function OrderManagement() {
               </div>
               <div className="border rounded-xl p-4">
                 <Label>Rental Duration ⏳</Label>
-                <div>{formatTimeSlot(selectedOrder.timeSlot)}</div>
+                <div>{selectedOrder.duration}</div>
               </div>
               <div className="border rounded-xl p-4">
                 <Label>Remaining Time ⏰</Label>
@@ -482,7 +470,10 @@ export default function OrderManagement() {
                         {isNearingEnd && (
                           <AlertTriangle className="mr-2 h-4 w-4" />
                         )}
-                        {months} months and {days} days
+                        {getRentExpiryAlerts(
+                          selectedOrder.date,
+                          selectedOrder.duration
+                        )}
                       </span>
                     );
                   })()}
