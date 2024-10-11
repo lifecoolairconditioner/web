@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Switch } from "@/components/ui/switch";
 import {
   Select,
   SelectContent,
@@ -42,7 +41,7 @@ interface ACRental {
   name: string;
   description: string;
   type: string;
-  availability: boolean;
+  availability: number; // Changed from boolean to number
   imageUrl?: string;
   rentalRates: Array<{ duration: string; price: string }>;
 }
@@ -60,7 +59,7 @@ export default function ACRentalDashboard() {
   const [rentalName, setRentalName] = useState("");
   const [rentalDescription, setRentalDescription] = useState("");
   const [rentalType, setRentalType] = useState("");
-  const [rentalAvailability, setRentalAvailability] = useState(true);
+  const [rentalAvailability, setRentalAvailability] = useState(0); // Changed initial value to 0
   const [rentalImageFile, setRentalImageFile] = useState<File | null>(null);
   const [rentalRates, setRentalRates] = useState<
     Array<{ duration: string; price: string }>
@@ -254,7 +253,7 @@ export default function ACRentalDashboard() {
     setRentalName("");
     setRentalDescription("");
     setRentalType("");
-    setRentalAvailability(true);
+    setRentalAvailability(0); // Reset to 0 instead of true
     setRentalImageFile(null);
     setRentalRates([{ duration: "", price: "" }]);
   };
@@ -386,7 +385,7 @@ export default function ACRentalDashboard() {
                         <TableHead>Name</TableHead>
                         <TableHead>Description</TableHead>
                         <TableHead>Type</TableHead>
-                        <TableHead>Availability</TableHead>
+                        <TableHead>Available Units</TableHead>
                         <TableHead>Actions</TableHead>
                       </TableRow>
                     </TableHeader>
@@ -396,11 +395,7 @@ export default function ACRentalDashboard() {
                           <TableCell>{rental.name}</TableCell>
                           <TableCell>{rental.description}</TableCell>
                           <TableCell>{rental.type}</TableCell>
-                          <TableCell>
-                            {rental.availability
-                              ? "Available"
-                              : "Not Available"}
-                          </TableCell>
+                          <TableCell>{rental.availability}</TableCell>
                           <TableCell>
                             <Button
                               onClick={() => handleRentalSelect(rental._id)}
@@ -490,10 +485,18 @@ export default function ACRentalDashboard() {
                       )}
                     </div>
                     <div>
-                      <Label>Availability</Label>
-                      <Switch
-                        checked={rentalAvailability}
-                        onCheckedChange={setRentalAvailability}
+                      <Label htmlFor="rentalAvailability">
+                        Available Units
+                      </Label>
+                      <Input
+                        id="rentalAvailability"
+                        type="number"
+                        min="0"
+                        value={rentalAvailability}
+                        onChange={(e) =>
+                          setRentalAvailability(parseInt(e.target.value))
+                        }
+                        required
                       />
                     </div>
                     <div>

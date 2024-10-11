@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { ChevronLeft, Check, X } from "lucide-react";
+import { ChevronLeft } from "lucide-react";
 import Link from "next/link";
 import { getAllACRentals } from "../../apis/acrent";
 import Image from "next/image";
@@ -18,7 +18,7 @@ interface ACType {
   name: string;
   description: string;
   imageUrl: string;
-  availability: boolean;
+  availability: number; // Changed from boolean to number
   rentalRates: RentalRates;
 }
 
@@ -93,6 +93,8 @@ export default function Component() {
                   <div className="h-6 bg-gray-300 rounded w-3/4 mb-2" />
                   <div className="h-4 bg-gray-300 rounded w-full mb-2" />
                   <div className="h-4 bg-gray-300 rounded w-5/6 mb-4" />
+                  <div className="h-6 bg-gray-300 rounded w-1/2 mb-4" />{" "}
+                  {/* Updated for availability count */}
                   <div className="h-10 bg-gray-300 rounded w-full" />
                 </div>
               </div>
@@ -140,34 +142,30 @@ export default function Component() {
                     <div className="flex justify-between items-center mb-4">
                       <span
                         className={`px-2 py-1 rounded-full text-sm ${
-                          ac.availability
+                          ac.availability > 0
                             ? "bg-green-100 text-green-800"
                             : "bg-red-100 text-red-800"
                         }`}
                       >
-                        {ac.availability ? (
-                          <>
-                            <Check className="w-4 h-4 inline mr-1" /> Available
-                          </>
-                        ) : (
-                          <>
-                            <X className="w-4 h-4 inline mr-1" /> Unavailable
-                          </>
-                        )}
+                        {ac.availability > 0
+                          ? `${ac.availability} Available`
+                          : "Out of Stock"}
                       </span>
                     </div>
                     <motion.button
-                      whileHover={ac.availability ? { scale: 1.05 } : {}}
-                      whileTap={ac.availability ? { scale: 0.95 } : {}}
-                      onClick={() => ac.availability && handleBookClick(ac._id)}
+                      whileHover={ac.availability > 0 ? { scale: 1.05 } : {}}
+                      whileTap={ac.availability > 0 ? { scale: 0.95 } : {}}
+                      onClick={() =>
+                        ac.availability > 0 && handleBookClick(ac._id)
+                      }
                       className={`w-full py-2 px-4 rounded-lg text-white font-semibold transition-colors duration-300 ${
-                        ac.availability
+                        ac.availability > 0
                           ? "bg-[#ffc300] hover:bg-[#e6b000] focus:ring-4 focus:ring-yellow-300"
                           : "bg-gray-300 cursor-not-allowed"
                       }`}
-                      disabled={!ac.availability}
+                      disabled={ac.availability === 0}
                     >
-                      {ac.availability ? "Book Now" : "Not Available"}
+                      {ac.availability > 0 ? "Book Now" : "Out of Stock"}
                     </motion.button>
                   </div>
                 </Link>

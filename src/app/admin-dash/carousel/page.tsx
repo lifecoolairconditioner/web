@@ -86,12 +86,10 @@ export default function MainScreen() {
     loadImages(); // Now safe to use loadImages
   }, [loadImages]); // Add loadImages to the dependency array
 
-  // Define nextSlide with useCallback
   const nextSlide = useCallback(() => {
     setCurrentSlide((prev) => (prev + 1) % carouselItems.length);
   }, [carouselItems.length]);
 
-  // Define prevSlide with useCallback
   const prevSlide = useCallback(() => {
     setCurrentSlide(
       (prev) => (prev - 1 + carouselItems.length) % carouselItems.length
