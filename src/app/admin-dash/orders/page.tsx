@@ -279,7 +279,7 @@ export default function OrderManagement() {
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="bg-white">
                     <SelectItem value="Pending">Pending</SelectItem>
                     <SelectItem value="Approved">Approved</SelectItem>
                     <SelectItem value="Completed">Completed</SelectItem>
@@ -311,7 +311,7 @@ export default function OrderManagement() {
                   <SelectTrigger>
                     <SelectValue placeholder="Assign" />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="bg-white">
                     {technicians.map((tech) => (
                       <SelectItem key={tech._id} value={tech._id}>
                         {tech.name}
@@ -365,7 +365,7 @@ export default function OrderManagement() {
           <SelectTrigger className="w-[180px]">
             <SelectValue placeholder="Filter by status" />
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent className="bg-white">
             <SelectItem value="all">All Statuses</SelectItem>
             <SelectItem value="pending">Pending</SelectItem>
             <SelectItem value="approved">Approved</SelectItem>
@@ -439,7 +439,7 @@ export default function OrderManagement() {
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="bg-white">
                     <SelectItem value="Pending">Pending ⏳</SelectItem>
                     <SelectItem value="Approved">Approved ✅</SelectItem>
                     <SelectItem value="Completed">Completed 🎉</SelectItem>
@@ -490,7 +490,7 @@ export default function OrderManagement() {
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="bg-white">
                     <SelectItem value="Paid">Paid ✅</SelectItem>
                     <SelectItem value="Unpaid">Unpaid ⏳</SelectItem>
                   </SelectContent>
@@ -511,7 +511,7 @@ export default function OrderManagement() {
                   <SelectTrigger>
                     <SelectValue placeholder="Assign Technician" />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="bg-white">
                     {technicians.map((tech) => (
                       <SelectItem key={tech._id} value={tech._id}>
                         {tech.name}
