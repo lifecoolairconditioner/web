@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { ChevronLeft, Calendar, Clock } from "lucide-react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {
   Dialog,
@@ -58,18 +58,14 @@ export default function SlotBookingScreen({ params }: Booking) {
   } | null>(null);
   const [locationError, setLocationError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-
   const router = useRouter();
-  const searchParams = useSearchParams();
+
   const { id, book } = params;
-
-  // Extract the `quantity` parameter from the URL
-  const quantity = searchParams.get("quantity") || "1"; // Default to '1' if not provided
-
   const rental = id;
   const rentalPeriod = book;
 
   useEffect(() => {
+    // Simulating initial loading
     setIsLoading(true);
     setTimeout(() => setIsLoading(false), 1000);
   }, []);
@@ -132,13 +128,11 @@ export default function SlotBookingScreen({ params }: Booking) {
 
     const formattedDate = selectedDate.toISOString().split("T")[0];
 
-    // Include quantity in the booking data
     const bookingData = {
       rental,
       duration: rentalPeriod,
       date: formattedDate,
       timeSlot: selectedTime,
-      quantity: parseInt(quantity, 10), // Convert quantity to a number
       contact: {
         name: userData.name,
         phone: userData.phone,
@@ -151,9 +145,7 @@ export default function SlotBookingScreen({ params }: Booking) {
     try {
       const response = await createOrder(bookingData);
       setIsModalOpen(false);
-      router.push(
-        `./${rentalPeriod}/${response._id}`
-      );
+      router.push(`/ac-rent/${rental}/${rentalPeriod}/${response._id}`);
     } catch (error) {
       console.error("Error creating booking:", error);
       alert("Failed to create booking. Please try again.");
@@ -303,7 +295,6 @@ export default function SlotBookingScreen({ params }: Booking) {
           {locationError}
         </motion.p>
       )}
-
       <AnimatePresence>
         {isModalOpen && (
           <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
@@ -315,7 +306,6 @@ export default function SlotBookingScreen({ params }: Booking) {
                 </DialogDescription>
               </DialogHeader>
               <form onSubmit={handleSubmit} className="space-y-4">
-                {/* Form fields for user data */}
                 <div>
                   <Label htmlFor="name">Name</Label>
                   <Input

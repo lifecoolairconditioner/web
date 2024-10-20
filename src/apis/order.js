@@ -16,7 +16,7 @@ export const createOrder = async (orderData) => {
 // Get all orders (Admin/Technician access)
 export const getAllOrders = async () => {
   try {
-    const response = await axios.get(API_URL);
+    const response = await axios.get(`${API_URL}/all`);
     return response.data;
   } catch (error) {
     console.error("Error fetching orders:", error);
@@ -27,7 +27,7 @@ export const getAllOrders = async () => {
 // Get an order by ID (Admin/Technician access)
 export const getOrderById = async (id) => {
   try {
-    const response = await axios.get(`${API_URL}/${id}`);
+    const response = await axios.get(`${API_URL}/byid/${id}`);
     return response.data;
   } catch (error) {
     console.error(`Error fetching order by ID (${id}):`, error);

@@ -41,9 +41,15 @@ interface ACRental {
   name: string;
   description: string;
   type: string;
-  availability: number; // Changed from boolean to number
+  availability: number;
   imageUrl?: string;
-  rentalRates: Array<{ duration: string; price: string }>;
+  amc: boolean;
+  rent: boolean;
+  rentalRates: Array<{
+    duration: number;
+    offerPrice: number;
+    actualPrice: number;
+  }>;
 }
 
 interface ACType {
@@ -59,11 +65,13 @@ export default function ACRentalDashboard() {
   const [rentalName, setRentalName] = useState("");
   const [rentalDescription, setRentalDescription] = useState("");
   const [rentalType, setRentalType] = useState("");
-  const [rentalAvailability, setRentalAvailability] = useState(0); // Changed initial value to 0
+  const [rentalAvailability, setRentalAvailability] = useState(0);
   const [rentalImageFile, setRentalImageFile] = useState<File | null>(null);
   const [rentalRates, setRentalRates] = useState<
-    Array<{ duration: string; price: string }>
-  >([{ duration: "", price: "" }]);
+    Array<{ duration: number; offerPrice: number; actualPrice: number }>
+  >([{ duration: 0, offerPrice: 0, actualPrice: 0 }]);
+  const [rentalAMC, setRentalAMC] = useState(false);
+  const [rentalRent, setRentalRent] = useState(false);
 
   const [types, setTypes] = useState<ACType[]>([]);
   const [selectedType, setSelectedType] = useState<ACType | null>(null);
@@ -107,16 +115,32 @@ export default function ACRentalDashboard() {
     setSuccess(null);
 
     const formData = new FormData();
-    formData.append("name", rentalName);
-    formData.append("description", rentalDescription);
-    formData.append("type", rentalType);
-    formData.append("availability", rentalAvailability.toString());
+    formData.append("name", rentalName || "");
+    formData.append("description", rentalDescription || "");
+    formData.append("type", rentalType || "");
+    formData.append("availability", (rentalAvailability ?? 0).toString());
+
     if (rentalImageFile) {
       formData.append("imageUrl", rentalImageFile);
     }
+
+    formData.append("amc", rentalAMC ? "true" : "false");
+    formData.append("rent", rentalRent ? "true" : "false");
+
+    // Ensure rentalRates values are numbers
     rentalRates.forEach((rate, index) => {
-      formData.append(`rentalRates[${index}][duration]`, rate.duration);
-      formData.append(`rentalRates[${index}][price]`, rate.price);
+      formData.append(
+        `rentalRates[${index}][duration]`,
+        (rate.duration ?? 0).toString()
+      );
+      formData.append(
+        `rentalRates[${index}][offerPrice]`,
+        Number(rate.offerPrice).toString()
+      );
+      formData.append(
+        `rentalRates[${index}][actualPrice]`,
+        Number(rate.actualPrice).toString()
+      );
     });
 
     try {
@@ -141,16 +165,32 @@ export default function ACRentalDashboard() {
     setSuccess(null);
 
     const formData = new FormData();
-    formData.append("name", rentalName);
-    formData.append("description", rentalDescription);
-    formData.append("type", rentalType);
-    formData.append("availability", rentalAvailability.toString());
+    formData.append("name", rentalName || "");
+    formData.append("description", rentalDescription || "");
+    formData.append("type", rentalType || "");
+    formData.append("availability", (rentalAvailability ?? 0).toString());
+
     if (rentalImageFile) {
       formData.append("imageUrl", rentalImageFile);
     }
+
+    formData.append("amc", rentalAMC ? "true" : "false");
+    formData.append("rent", rentalRent ? "true" : "false");
+
+    // Ensure rentalRates values are numbers
     rentalRates.forEach((rate, index) => {
-      formData.append(`rentalRates[${index}][duration]`, rate.duration);
-      formData.append(`rentalRates[${index}][price]`, rate.price);
+      formData.append(
+        `rentalRates[${index}][duration]`,
+        (rate.duration ?? 0).toString()
+      );
+      formData.append(
+        `rentalRates[${index}][offerPrice]`,
+        Number(rate.offerPrice).toString()
+      );
+      formData.append(
+        `rentalRates[${index}][actualPrice]`,
+        Number(rate.actualPrice).toString()
+      );
     });
 
     try {
@@ -253,9 +293,11 @@ export default function ACRentalDashboard() {
     setRentalName("");
     setRentalDescription("");
     setRentalType("");
-    setRentalAvailability(0); // Reset to 0 instead of true
+    setRentalAvailability(0);
     setRentalImageFile(null);
-    setRentalRates([{ duration: "", price: "" }]);
+    setRentalAMC(false);
+    setRentalRent(false);
+    setRentalRates([{ duration: 0, offerPrice: 0, actualPrice: 0 }]);
   };
 
   const resetTypeForm = () => {
@@ -274,6 +316,8 @@ export default function ACRentalDashboard() {
       setRentalType(rental.type);
       setRentalAvailability(rental.availability);
       setRentalRates(rental.rentalRates);
+      setRentalAMC(rental.amc);
+      setRentalRent(rental.rent);
     }
   };
 
@@ -289,8 +333,8 @@ export default function ACRentalDashboard() {
 
   const handleRentalRateChange = (
     index: number,
-    field: "duration" | "price",
-    value: string
+    field: "duration" | "offerPrice" | "actualPrice",
+    value: number
   ) => {
     const updatedRates = [...rentalRates];
     updatedRates[index][field] = value;
@@ -298,7 +342,10 @@ export default function ACRentalDashboard() {
   };
 
   const addRentalRate = () => {
-    setRentalRates([...rentalRates, { duration: "", price: "" }]);
+    setRentalRates([
+      ...rentalRates,
+      { duration: 0, offerPrice: 0, actualPrice: 0 },
+    ]);
   };
 
   const addTypeFeature = () => {
@@ -500,29 +547,62 @@ export default function ACRentalDashboard() {
                       />
                     </div>
                     <div>
+                      <Label htmlFor="rentalAMC">AMC</Label>
+                      <Input
+                        id="rentalAMC"
+                        type="checkbox"
+                        checked={rentalAMC}
+                        onChange={(e) => setRentalAMC(e.target.checked)}
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="rentalRent">Rent</Label>
+                      <Input
+                        id="rentalRent"
+                        type="checkbox"
+                        checked={rentalRent}
+                        onChange={(e) => setRentalRent(e.target.checked)}
+                      />
+                    </div>
+                    <div>
                       <Label>Rental Rates</Label>
                       {rentalRates.map((rate, index) => (
                         <div key={index} className="flex space-x-2 mt-2">
                           <Input
+                            type="number"
                             placeholder="Duration"
                             value={rate.duration}
                             onChange={(e) =>
                               handleRentalRateChange(
                                 index,
                                 "duration",
-                                e.target.value
+                                parseInt(e.target.value) || 0
                               )
                             }
                             required
                           />
                           <Input
-                            placeholder="Price"
-                            value={rate.price}
+                            type="number"
+                            placeholder="Offer Price"
+                            value={rate.offerPrice}
                             onChange={(e) =>
                               handleRentalRateChange(
                                 index,
-                                "price",
-                                e.target.value
+                                "offerPrice",
+                                parseFloat(e.target.value) || 0
+                              )
+                            }
+                            required
+                          />
+                          <Input
+                            type="number"
+                            placeholder="Actual Price"
+                            value={rate.actualPrice}
+                            onChange={(e) =>
+                              handleRentalRateChange(
+                                index,
+                                "actualPrice",
+                                parseFloat(e.target.value) || 0
                               )
                             }
                             required

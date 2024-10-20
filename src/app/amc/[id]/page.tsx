@@ -9,10 +9,9 @@ import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface RentalRate {
-  duration: string;
-  price: number; // If this is a base price, keep this
-  actualPrice: number; // Add this property for actual price
-  offerPrice: number; // Add this property for offer price
+  duration: string; // Keep duration as string if it's formatted like '1', '2', etc.
+  actualPrice: number; // Add actualPrice property
+  offerPrice: number; // Add offerPrice property
 }
 
 interface ACDetails {
@@ -263,7 +262,7 @@ export default function ACDetailsPage({ params }: ACDetailsPageProps) {
                   className="bg-white p-6 rounded-xl shadow-md text-center"
                 >
                   <h3 className="text-lg font-semibold text-[#010101] mb-2">
-                    {duration} month{Number(duration) > 1 ? "s" : ""}
+                    {duration} month{parseInt(duration) > 1 ? "s" : ""}
                     {/* Pluralization */}
                   </h3>
                   <p className="text-2xl line-through font-bold text-[#ffc300] mb-4">

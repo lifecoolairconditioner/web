@@ -2,20 +2,21 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import {
+  Wind,
   Refrigerator,
   WashingMachine,
   Microwave,
-  Wind,
   ChevronLeft,
   ChevronRight,
+  Calendar,
 } from "lucide-react";
+
 import Link from "next/link";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { fetchCarouselImages } from "@/apis/carousel";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { Skeleton } from "@/components/ui/skeleton";
 
 // Define the type for the carousel items
 interface CarouselItem {
@@ -91,13 +92,6 @@ export default function MainScreen() {
     setCurrentSlide((prev) => (prev + 1) % carouselItems.length);
   }, [carouselItems.length]);
 
-  // Define prevSlide with useCallback
-  const prevSlide = useCallback(() => {
-    setCurrentSlide(
-      (prev) => (prev - 1 + carouselItems.length) % carouselItems.length
-    );
-  }, [carouselItems.length]);
-
   // Auto slide every 5 seconds
   useEffect(() => {
     if (carouselItems.length > 0) {
@@ -135,105 +129,133 @@ export default function MainScreen() {
         Home Services
       </motion.h1>
 
-      {/* Carousel Section */}
-      <div className="relative mb-8 rounded-xl overflow-hidden shadow-lg h-64">
-        {carouselItems.length === 0 ? (
-          <Skeleton className="w-full h-full" />
-        ) : (
-          <>
-            <AnimatePresence initial={false} custom={currentSlide}>
-              {carouselItems.map((item, index) => (
-                <motion.div
-                  key={index}
-                  className={`absolute w-full h-full ${
-                    index === currentSlide ? "z-10" : "z-0"
-                  }`}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: index === currentSlide ? 1 : 0 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.5 }}
-                >
-                  <Image
-                    src={item.imageUrl}
-                    alt={item.title}
-                    fill
-                    priority={index === currentSlide}
-                    className="object-cover"
-                  />
-                  <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center flex-col p-4">
-                    <h3 className="text-white text-2xl font-bold mb-2">
-                      {item.title}
-                    </h3>
-                    <p className="text-white text-center">{item.description}</p>
-                  </div>
-                </motion.div>
-              ))}
-            </AnimatePresence>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {/* Carousel */}
+        <motion.div
+          className="md:col-span-2 relative rounded-xl object-center overflow-hidden shadow-lg h-96 md:w-[95vw]"
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+        >
+          <AnimatePresence initial={false} custom={currentSlide}>
+            {carouselItems.map((item, index) => (
+              <motion.div
+                key={index}
+                className={`absolute w-full h-full ${
+                  index === currentSlide ? "z-10" : "z-0"
+                }`}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: index === currentSlide ? 1 : 0 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.5 }}
+              >
+                <Image
+                  src={item.imageUrl}
+                  alt={item.title}
+                  fill
+                  priority={index === currentSlide}
+                  className="object-cover"
+                />
+                <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center flex-col p-4">
+                  <h3 className="text-white text-2xl font-bold mb-2">
+                    {item.title}
+                  </h3>
+                  <p className="text-white text-center">{item.description}</p>
+                </div>
+              </motion.div>
+            ))}
+          </AnimatePresence>
+          <Button
+            variant="outline"
+            size="icon"
+            className="absolute top-1/2 left-2 transform -translate-y-1/2 z-20"
+            onClick={() =>
+              setCurrentSlide(
+                (prev) =>
+                  (prev - 1 + carouselItems.length) % carouselItems.length
+              )
+            }
+          >
+            <ChevronLeft className="h-4 w-4" />
+            <span className="sr-only">Previous slide</span>
+          </Button>
+          <Button
+            variant="outline"
+            size="icon"
+            className="absolute top-1/2 right-2 transform -translate-y-1/2 z-20"
+            onClick={() =>
+              setCurrentSlide((prev) => (prev + 1) % carouselItems.length)
+            }
+          >
+            <ChevronRight className="h-4 w-4" />
+            <span className="sr-only">Next slide</span>
+          </Button>
+        </motion.div>
 
-            {/* Carousel Controls */}
-            <Button
-              variant="outline"
-              size="icon"
-              className="absolute top-1/2 left-2 transform -translate-y-1/2 z-20"
-              onClick={prevSlide}
-            >
-              <ChevronLeft className="h-4 w-4" />
-              <span className="sr-only">Previous slide</span>
-            </Button>
-            <Button
-              variant="outline"
-              size="icon"
-              className="absolute top-1/2 right-2 transform -translate-y-1/2 z-20"
-              onClick={nextSlide}
-            >
-              <ChevronRight className="h-4 w-4" />
-              <span className="sr-only">Next slide</span>
-            </Button>
-          </>
-        )}
-      </div>
-
-      {/* Services Section */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {/* AC Rental Service */}
         <motion.div
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
-          className="col-span-full lg:col-span-2 bg-[#ffc300] rounded-2xl shadow-lg overflow-hidden cursor-pointer"
+          className="md:col-span-3 bg-[#ffc300] rounded-2xl shadow-lg overflow-hidden cursor-pointer"
         >
           <Link href="/ac-rent">
-            <div className="p-6 flex items-center">
+            <div className="p-8 flex items-center h-full">
               <div className="flex-1">
-                <h2 className="text-2xl font-bold text-[#010101] mb-2">
+                <h2 className="text-3xl font-bold text-[#010101] mb-4">
                   AC Rental Service
                 </h2>
-                <p className="text-[#010101] opacity-80">
+                <p className="text-[#010101] opacity-80 text-xl">
                   Cool comfort, delivered to your doorstep
                 </p>
               </div>
+              <Wind className="w-24 h-24 text-[#010101] opacity-60" />
             </div>
           </Link>
         </motion.div>
 
-        {services.map((service, index) => (
-          <motion.div
-            key={service.name}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 * (index + 1), duration: 0.5 }}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className={`${service.color} rounded-xl shadow-md overflow-hidden cursor-pointer`}
-          >
-            <Link href={service.link}>
-              <div className="p-4 flex flex-col items-center">
-                <service.icon className="w-12 h-12 text-white mb-2" />
-                <h3 className="text-lg font-semibold text-white text-center">
-                  {service.name}
-                </h3>
+        {/* AMC */}
+        <motion.div
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+          className="md:col-span-3 bg-[#ffc300] rounded-2xl shadow-lg overflow-hidden cursor-pointer"
+        >
+          <Link href="/amc">
+            <div className="p-8 flex items-center h-full">
+              <div className="flex-1">
+                <h2 className="text-3xl font-bold text-[#010101] mb-4">
+                  Annual Maintenance Contract (AMC)
+                </h2>
+                <p className="text-[#010101] opacity-80 text-xl">
+                  Comprehensive care for commercial and large AC systems
+                </p>
               </div>
-            </Link>
-          </motion.div>
-        ))}
+              <Calendar className="w-24 h-24 text-[#010101] opacity-60" />
+            </div>
+          </Link>
+        </motion.div>
+
+        {/* Service Grid */}
+        <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-2 gap-4">
+          {services.map((service, index) => (
+            <motion.div
+              key={service.name}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 * (index + 1), duration: 0.5 }}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className={`${service.color} rounded-xl shadow-md overflow-hidden cursor-pointer`}
+            >
+              <Link href={service.link}>
+                <div className="p-6 flex flex-col items-center justify-center h-full w-full">
+                  <service.icon className="w-16 h-16 text-white mb-4" />
+                  <h3 className="text-xl font-semibold text-white text-center">
+                    {service.name}
+                  </h3>
+                </div>
+              </Link>
+            </motion.div>
+          ))}
+        </div>
       </div>
     </motion.div>
   );

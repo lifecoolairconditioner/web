@@ -1,173 +1,140 @@
 "use client";
 
-import React, { useState } from "react";
-import { Eye, EyeOff, ArrowRight, User } from "lucide-react";
+import { useState } from "react";
 import { motion } from "framer-motion";
-import { login } from "@/apis/auth"; // The login API function
-import { useRouter } from "next/navigation"; // Correct router for the app directory
+import { loginUser } from "@/apis/auth";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Loader2, User, Lock } from "lucide-react";
 
-export default function LoginPage() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
+export default function Login() {
+  const [formData, setFormData] = useState({
+    username: "",
+    password: "",
+  });
+
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
-  const router = useRouter(); // Correctly using router for app directory
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData({
+      ...formData,
+      [name]: value,
+    });
+  };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setError("");
     setIsLoading(true);
-    setError(null);
-
     try {
-      await login(email, password);
-      router.push("/admin-dash"); // Redirect to the dashboard after successful login
-    } catch (err) {
-      if (err instanceof Error) {
-        setError(err.message || "Login failed");
-      } else {
-        setError("Login failed");
+      const response = await loginUser(formData);
+      setSuccess("Login successful! Redirecting...");
+      localStorage.setItem("accessToken", response.data.accessToken);
+      if (response.data.user.role === "Technician") {
+        window.location.href = "/technician";
+      } else if (response.data.user.role === "Admin") {
+        window.location.href = "/admin-dash";
       }
+    } catch (error) {
+      setError("Login failed. Please check your credentials and try again.");
+      console.log(error);
     } finally {
       setIsLoading(false);
     }
   };
-  console.log(error);
 
   return (
-    <div className="min-h-screen bg-[#fafafa] flex items-center justify-center p-4">
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="w-full max-w-md"
-      >
-        <div className="bg-white shadow-xl rounded-2xl p-8">
-          <div className="flex justify-center mb-8">
-            <motion.div
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="w-16 h-16 bg-[#ffc300] rounded-full flex items-center justify-center"
-            >
-              <User className="w-8 h-8 text-[#010101]" />
-            </motion.div>
-          </div>
-          <h1 className="text-2xl font-bold text-center text-[#010101] mb-6">
-            Welcome Back
-          </h1>
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div>
-              <label
-                htmlFor="email"
-                className="block text-sm font-medium text-[#010101] mb-1"
-              >
-                Email
-              </label>
-              <input
-                id="email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-[#ffc300] focus:border-transparent"
-                required
-              />
-            </div>
-            <div>
-              <label
-                htmlFor="password"
-                className="block text-sm font-medium text-[#010101] mb-1"
-              >
-                Password
-              </label>
-              <div className="relative">
-                <input
-                  id="password"
-                  type={showPassword ? "text" : "password"}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-[#ffc300] focus:border-transparent"
-                  required
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600"
-                >
-                  {showPassword ? (
-                    <EyeOff className="h-5 w-5" />
-                  ) : (
-                    <Eye className="h-5 w-5" />
-                  )}
-                </button>
+    <motion.div
+      initial={{ opacity: 0, y: -20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: 20 }}
+      className="min-h-screen flex items-center justify-center bg-gray-100 px-4"
+    >
+      <Card className="w-full max-w-md">
+        <CardHeader>
+          <CardTitle className="text-2xl font-bold text-center text-yellow-500">
+            Login
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {error && (
+            <Alert variant="destructive" className="mb-4">
+              <AlertTitle>Error</AlertTitle>
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
+          {success && (
+            <Alert className="mb-4">
+              <AlertTitle>Success</AlertTitle>
+              <AlertDescription>{success}</AlertDescription>
+            </Alert>
+          )}
+          <form onSubmit={handleSubmit}>
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="username">Username</Label>
+                <div className="relative">
+                  <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                  <Input
+                    id="username"
+                    name="username"
+                    type="text"
+                    placeholder="Enter your username"
+                    value={formData.username}
+                    onChange={handleInputChange}
+                    required
+                    className="pl-10"
+                  />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="password">Password</Label>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                  <Input
+                    id="password"
+                    name="password"
+                    type="password"
+                    placeholder="Enter your password"
+                    value={formData.password}
+                    onChange={handleInputChange}
+                    required
+                    className="pl-10"
+                  />
+                </div>
               </div>
             </div>
-            <div className="flex items-center justify-between">
-              <div className="flex items-center">
-                <input
-                  id="remember-me"
-                  name="remember-me"
-                  type="checkbox"
-                  className="h-4 w-4 text-[#ffc300] focus:ring-[#ffc300] border-gray-300 rounded"
-                />
-                <label
-                  htmlFor="remember-me"
-                  className="ml-2 block text-sm text-[#010101]"
-                >
-                  Remember me
-                </label>
-              </div>
-              <div className="text-sm">
-                <a
-                  href="#"
-                  className="font-medium text-[#ffc300] hover:text-[#e6b000]"
-                >
-                  Forgot your password?
-                </a>
-              </div>
-            </div>
-            <div>
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
+            <CardFooter className="flex justify-center mt-6">
+              <Button
                 type="submit"
+                className="w-full bg-yellow-500 hover:bg-yellow-600 text-black"
                 disabled={isLoading}
-                className={`w-full flex justify-center items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-[#010101] bg-[#ffc300] hover:bg-[#e6b000] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#ffc300] ${
-                  isLoading ? "opacity-50 cursor-not-allowed" : ""
-                }`}
               >
                 {isLoading ? (
-                  <motion.div
-                    animate={{ rotate: 360 }}
-                    transition={{
-                      duration: 1,
-                      repeat: Infinity,
-                      ease: "linear",
-                    }}
-                    className="w-5 h-5 border-2 border-[#010101] border-t-transparent rounded-full"
-                  />
-                ) : (
                   <>
-                    Sign in
-                    <ArrowRight className="ml-2 h-4 w-4" />
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Please wait
                   </>
+                ) : (
+                  "Login"
                 )}
-              </motion.button>
-            </div>
+              </Button>
+            </CardFooter>
           </form>
-          <div className="mt-6">
-            <p className="text-center text-sm text-gray-600">
-              Don t have an account?{" "}
-              <a
-                href="#"
-                className="font-medium text-[#ffc300] hover:text-[#e6b000]"
-              >
-                Sign up
-              </a>
-            </p>
-          </div>
-        </div>
-      </motion.div>
-    </div>
+        </CardContent>
+      </Card>
+    </motion.div>
   );
 }
