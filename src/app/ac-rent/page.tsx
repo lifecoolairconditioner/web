@@ -20,8 +20,8 @@ interface ACType {
   imageUrl: string;
   availability: number; // Changed from boolean to number
   rentalRates: RentalRates;
+  rent: boolean; // Add the amc property here
 }
-
 export default function Component() {
   const [acTypes, setACTypes] = useState<ACType[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
@@ -46,7 +46,7 @@ export default function Component() {
   const handleBookClick = (id: string) => {
     console.log(`Navigating to AC Details Page for AC with id: ${id}`);
   };
-
+  const filteredACTypes = acTypes.filter((ac) => ac.rent);
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -116,7 +116,7 @@ export default function Component() {
             exit={{ opacity: 0 }}
             className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 overflow-y-auto max-h-[calc(100vh-120px)]"
           >
-            {acTypes.map((ac, index) => (
+            {filteredACTypes.map((ac, index) => (
               <motion.div
                 key={ac._id}
                 initial={{ opacity: 0, y: 20 }}

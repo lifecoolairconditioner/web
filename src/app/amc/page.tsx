@@ -27,7 +27,6 @@ export default function Component() {
   const [acTypes, setACTypes] = useState<ACType[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  console.log("acTypes", acTypes);
 
   useEffect(() => {
     const fetchACTypes = async () => {
