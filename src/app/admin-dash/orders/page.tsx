@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { motion } from "framer-motion";
 import {
   Table,
@@ -28,16 +28,24 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Eye, Clock, AlertTriangle } from "lucide-react";
+import { Eye, Calendar } from "lucide-react";
 import {
   getAllOrders,
   updateOrderStatus,
   AssignTechnician,
   updatePaymentStatus,
+  updateOrderExpiryDate,
 } from "@/apis/order";
 import { getAllTechnicians } from "@/apis/technician";
-import { toast } from "@/hooks/use-toast";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Calendar as CalendarComponent } from "@/components/ui/calendar";
+import { format } from "date-fns";
 
+// Interfaces remain the same as in the original code
 interface Service {
   _id: string;
   name: string;
@@ -64,6 +72,7 @@ interface Contact {
 
 interface Order {
   _id: string;
+  expiryDate: string;
   contact: Contact;
   rental?: string;
   service?: string;
@@ -79,40 +88,8 @@ interface Order {
     latitude: number;
     longitude: number;
   };
-  timeSlot?: string; // Add timeSlot if it's needed
+  timeSlot?: string;
 }
-
-const calculateRemainingTime = (startDate: string, duration?: string) => {
-  if (!duration) return { months: 0, days: 0 }; // Handle undefined duration
-  const start = new Date(startDate);
-  const durationInMonths = parseInt(duration, 10);
-  const expiryDate = new Date(start);
-  expiryDate.setMonth(expiryDate.getMonth() + durationInMonths);
-  const currentDate = new Date();
-  const timeDifference = expiryDate.getTime() - currentDate.getTime();
-  const remainingDays = Math.ceil(timeDifference / (1000 * 60 * 60 * 24));
-  const months = Math.floor(remainingDays / 30);
-  const days = remainingDays % 30;
-  return { months, days };
-};
-
-const getRentExpiryAlerts = (startDate: string, duration: string) => {
-  const { months, days } = calculateRemainingTime(startDate, duration);
-  if (months === 0) {
-    if (days === 3) {
-      return "Rent expires in 3 days!";
-    } else if (days === 2) {
-      return "Rent expires in 2 days!";
-    } else if (days === 1) {
-      return "Rent expires tomorrow!";
-    } else if (days === 0) {
-      return "Rent expires today!";
-    } else if (days < 0) {
-      return "Rent has expired!";
-    }
-  }
-  return null;
-};
 
 export default function OrderManagement() {
   const [orders, setOrders] = useState<Order[]>([]);
@@ -125,29 +102,20 @@ export default function OrderManagement() {
   }>({ key: "date", direction: "ascending" });
   const [filterStatus, setFilterStatus] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
-  console.log(setSortConfig);
 
   useEffect(() => {
     const fetchOrdersAndTechnicians = async () => {
       try {
-        const ordersData: Order[] = await getAllOrders();
-        const techniciansResponse = await getAllTechnicians();
-        const techniciansData: Technician[] = techniciansResponse.data;
-        setTechnicians(Array.isArray(techniciansData) ? techniciansData : []);
+        const [ordersData, techniciansResponse] = await Promise.all([
+          getAllOrders(),
+          getAllTechnicians(),
+        ]);
         setOrders(ordersData);
-
-        ordersData.forEach((order) => {
-          if (order.rental) {
-            const alert = getRentExpiryAlerts(order.date, order.duration);
-            if (alert) {
-              toast({
-                title: "Rent Expiry Alert",
-                description: `${alert} for order ${order._id}`,
-                variant: "destructive",
-              });
-            }
-          }
-        });
+        setTechnicians(
+          Array.isArray(techniciansResponse.data)
+            ? techniciansResponse.data
+            : []
+        );
       } catch (error) {
         console.error("Error fetching orders or technicians:", error);
       }
@@ -155,16 +123,27 @@ export default function OrderManagement() {
     fetchOrdersAndTechnicians();
   }, []);
 
-  const sortedOrders = React.useMemo(() => {
-    const sortableOrders = [...(orders || [])]; // Ensure orders is not undefined
+  const handleExpiryDateChange = async (date: Date, orderId: string) => {
+    try {
+      await updateOrderExpiryDate(orderId, date);
+      setOrders((prevOrders) =>
+        prevOrders.map((order) =>
+          order._id === orderId
+            ? { ...order, expiryDate: date.toISOString() }
+            : order
+        )
+      );
+    } catch (error) {
+      console.error("Error updating expiry date:", error);
+    }
+  };
 
-    // Check if sortConfig and sortConfig.key are defined
+  const sortedOrders = useMemo(() => {
+    const sortableOrders = [...orders];
     if (sortConfig?.key) {
       sortableOrders.sort((a, b) => {
-        // Safely access the sorting key, providing fallback for undefined cases
         const aValue = a[sortConfig.key] ?? "";
         const bValue = b[sortConfig.key] ?? "";
-
         if (aValue < bValue) {
           return sortConfig.direction === "ascending" ? -1 : 1;
         }
@@ -174,7 +153,6 @@ export default function OrderManagement() {
         return 0;
       });
     }
-
     return sortableOrders;
   }, [orders, sortConfig]);
 
@@ -235,6 +213,7 @@ export default function OrderManagement() {
       console.error("Error updating payment status:", error);
     }
   };
+  console.log(setSortConfig);
 
   const OrderTable = ({
     orders,
@@ -253,7 +232,7 @@ export default function OrderManagement() {
           {!isServiceOrder && (
             <>
               <TableHead>Rental Duration</TableHead>
-              <TableHead>Remaining Time</TableHead>
+              <TableHead>Expiry Date</TableHead>
             </>
           )}
           <TableHead>Technician</TableHead>
@@ -262,85 +241,110 @@ export default function OrderManagement() {
         </TableRow>
       </TableHeader>
       <TableBody>
-        {orders.map((order) => {
-          const expiryAlert = getRentExpiryAlerts(order.date, order.duration);
-          return (
-            <TableRow key={order._id}>
-              <TableCell>{order._id}</TableCell>
-              <TableCell>{order.contact?.name}</TableCell>{" "}
-              {/* Handle possible undefined contact */}
-              <TableCell>
-                <Select
-                  value={order.status}
-                  onValueChange={(value) =>
-                    handleUpdateOrderStatus(order._id, value)
-                  }
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent className="bg-white">
-                    <SelectItem value="Pending">Pending</SelectItem>
-                    <SelectItem value="Approved">Approved</SelectItem>
-                    <SelectItem value="Completed">Completed</SelectItem>
-                    <SelectItem value="Cancelled">Cancelled</SelectItem>
-                  </SelectContent>
-                </Select>
-              </TableCell>
-              <TableCell>{new Date(order.date).toLocaleDateString()}</TableCell>
-              {!isServiceOrder && (
-                <>
-                  <TableCell>{order.duration} Months</TableCell>
-                  <TableCell>
-                    {expiryAlert && (
-                      <div className="text-red-500 flex items-center">
-                        <AlertTriangle className="mr-2 h-4 w-4" />
-                        {expiryAlert}
-                      </div>
-                    )}
-                  </TableCell>
-                </>
-              )}
-              <TableCell>
-                <Select
-                  value={order.technician || ""}
-                  onValueChange={(value) =>
-                    handleAssignTechnician(order._id, value)
-                  }
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Assign" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-white">
-                    {technicians.map((tech) => (
-                      <SelectItem key={tech._id} value={tech._id}>
-                        {tech.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </TableCell>
-              <TableCell>
-                {order.location?.latitude}, {order.location?.longitude}
-              </TableCell>
-              <TableCell>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => {
-                    setSelectedOrder(order);
-                    setIsDetailsModalOpen(true);
-                  }}
-                >
-                  <Eye className="h-4 w-4" />
-                </Button>
-              </TableCell>
-            </TableRow>
-          );
-        })}
+        {orders.map((order) => (
+          <TableRow key={order._id}>
+            <TableCell>{order._id}</TableCell>
+            <TableCell>{order.contact?.name}</TableCell>
+            <TableCell>
+              <Select
+                value={order.status}
+                onValueChange={(value) =>
+                  handleUpdateOrderStatus(order._id, value)
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="bg-white">
+                  <SelectItem value="Pending">Pending</SelectItem>
+                  <SelectItem value="Approved">Approved</SelectItem>
+                  <SelectItem value="Completed">Completed</SelectItem>
+                  <SelectItem value="Cancelled">Cancelled</SelectItem>
+                </SelectContent>
+              </Select>
+            </TableCell>
+            <TableCell>{new Date(order.date).toLocaleDateString()}</TableCell>
+            {!isServiceOrder && (
+              <>
+                <TableCell>{order.duration} Months</TableCell>
+                <TableCell>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className={`w-[240px] justify-start text-left bg-white font-normal ${
+                          !order.expiryDate && "text-muted-foreground"
+                        }`}
+                      >
+                        <Calendar className="mr-2 h-4 w-4 bg-white" />
+                        {order.expiryDate ? (
+                          format(new Date(order.expiryDate), "PPP")
+                        ) : (
+                          <span>Pick a date</span>
+                        )}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent
+                      className="w-auto p-0 bg-white"
+                      align="start"
+                    >
+                      <CalendarComponent
+                        mode="single"
+                        selected={
+                          order.expiryDate
+                            ? new Date(order.expiryDate)
+                            : undefined
+                        }
+                        onSelect={(date) =>
+                          date && handleExpiryDateChange(date, order._id)
+                        }
+                        initialFocus
+                      />
+                    </PopoverContent>
+                  </Popover>
+                </TableCell>
+              </>
+            )}
+            <TableCell>
+              <Select
+                value={order.technician || ""}
+                onValueChange={(value) =>
+                  handleAssignTechnician(order._id, value)
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Assign" />
+                </SelectTrigger>
+                <SelectContent className="bg-white">
+                  {technicians.map((tech) => (
+                    <SelectItem key={tech._id} value={tech._id}>
+                      {tech.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </TableCell>
+            <TableCell>
+              {order.location?.latitude}, {order.location?.longitude}
+            </TableCell>
+            <TableCell>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => {
+                  setSelectedOrder(order);
+                  setIsDetailsModalOpen(true);
+                }}
+              >
+                <Eye className="h-4 w-4" />
+              </Button>
+            </TableCell>
+          </TableRow>
+        ))}
       </TableBody>
     </Table>
   );
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -452,32 +456,38 @@ export default function OrderManagement() {
                 <div>{new Date(selectedOrder.date).toLocaleDateString()}</div>
               </div>
               <div className="border rounded-xl p-4">
-                <Label>Rental Duration ⏳</Label>
-                <div>{selectedOrder.duration}</div>
-              </div>
-              <div className="border rounded-xl p-4">
-                <Label>Remaining Time ⏰</Label>
-                <div className="flex items-center">
-                  <Clock className="mr-2 h-4 w-4" />
-                  {(() => {
-                    const { months, days } = calculateRemainingTime(
-                      selectedOrder.date,
-                      selectedOrder.timeSlot
-                    );
-                    const isNearingEnd = months === 0 && days < 7;
-                    return (
-                      <span className={isNearingEnd ? "text-red-500" : ""}>
-                        {isNearingEnd && (
-                          <AlertTriangle className="mr-2 h-4 w-4" />
-                        )}
-                        {getRentExpiryAlerts(
-                          selectedOrder.date,
-                          selectedOrder.duration
-                        )}
-                      </span>
-                    );
-                  })()}
-                </div>
+                <Label>Expiry Date 📅</Label>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className={`w-[240px] justify-start text-left  font-normal ${
+                        !selectedOrder.expiryDate && "text-muted-foreground"
+                      }`}
+                    >
+                      <Calendar className="mr-2 h-4 w-4" />
+                      {selectedOrder.expiryDate ? (
+                        format(new Date(selectedOrder.expiryDate), "PPP")
+                      ) : (
+                        <span>Pick a date</span>
+                      )}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <CalendarComponent
+                      mode="single"
+                      selected={
+                        selectedOrder.expiryDate
+                          ? new Date(selectedOrder.expiryDate)
+                          : undefined
+                      }
+                      onSelect={(date) =>
+                        date && handleExpiryDateChange(date, selectedOrder._id)
+                      }
+                      initialFocus
+                    />
+                  </PopoverContent>
+                </Popover>
               </div>
               <div className="border rounded-xl p-4">
                 <Label>Payment Status 💳</Label>

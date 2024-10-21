@@ -88,3 +88,14 @@ export const updateOrderDateAndTimeSlot = async (id, date, timeSlot) => {
     throw error;
   }
 };
+
+// Example API call for updating expiry date
+export const updateOrderExpiryDate = async (orderId, newExpiryDate) => {
+  return await fetch(`${API_URL}/expiry/${orderId}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ newExpiryDate }),
+  });
+};
