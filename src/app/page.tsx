@@ -54,7 +54,7 @@ const services = [
 const MotionLink = motion(Link);
 
 export default function MainScreen() {
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const [carouselItems, setCarouselItems] = useState<CarouselItem[]>([]);
   const [currentSlide, setCurrentSlide] = useState(0);
   const { toast } = useToast();

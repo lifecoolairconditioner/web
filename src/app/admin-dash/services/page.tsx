@@ -37,8 +37,9 @@ interface Service {
   _id: string;
   name: string;
   description: string;
-  price: number;
-  imageUrl: string | File | null; // Allow both string and File types
+  offerPrice: number; // Add offer price
+  actualPrice: number; // Add actual price
+  imageUrl: string | File | null;
   category: string;
   imageDescription: string;
 }
@@ -46,8 +47,9 @@ interface Service {
 interface ServiceFormData {
   name: string;
   description: string;
-  price: number;
-  imageUrl: File | null; // Allow null for imageUrl
+  offerPrice: number; // Add offer price
+  actualPrice: number; // Add actual price
+  imageUrl: File | null;
   category: string;
   imageDescription: string;
 }
@@ -80,15 +82,13 @@ export default function ServiceManagement() {
     const formData = new FormData();
     formData.append("name", newService.name);
     formData.append("description", newService.description);
-    formData.append("price", String(newService.price));
+    formData.append("offerPrice", String(newService.offerPrice)); // Add offerPrice
+    formData.append("actualPrice", String(newService.actualPrice)); // Add actualPrice
     formData.append("category", newService.category);
     formData.append("imageDescription", newService.imageDescription);
 
     if (newService.imageUrl) {
-      formData.append("imageUrl", newService.imageUrl); // Append file
-    } else {
-      console.error("No image file selected.");
-      return;
+      formData.append("imageUrl", newService.imageUrl);
     }
 
     try {
@@ -102,16 +102,10 @@ export default function ServiceManagement() {
         }
       );
 
-      console.log("Response:", response.data);
-
       setServices((prevServices) => [...prevServices, response.data]);
       setIsAddDialogOpen(false);
     } catch (error) {
       console.error("Error adding service:", error);
-      if (axios.isAxiosError(error)) {
-        // Axios specific error handling
-        console.error("Axios error response:", error.response?.data);
-      }
     }
   };
 
@@ -119,12 +113,13 @@ export default function ServiceManagement() {
     const formData = new FormData();
     formData.append("name", updatedService.name);
     formData.append("description", updatedService.description);
-    formData.append("price", String(updatedService.price));
+    formData.append("offerPrice", String(updatedService.offerPrice)); // Add offerPrice
+    formData.append("actualPrice", String(updatedService.actualPrice)); // Add actualPrice
     formData.append("category", updatedService.category);
     formData.append("imageDescription", updatedService.imageDescription);
 
     if (updatedService.imageUrl) {
-      formData.append("imageUrl", updatedService.imageUrl); // Append file
+      formData.append("imageUrl", updatedService.imageUrl);
     }
 
     try {
@@ -252,7 +247,8 @@ export default function ServiceManagement() {
               <TableRow>
                 <TableHead>Name 📛</TableHead>
                 <TableHead>Category 🏷️</TableHead>
-                <TableHead>Price 💰</TableHead>
+                <TableHead>Actual Price 💰</TableHead>
+                <TableHead>Offer Price 💰</TableHead>
                 <TableHead>Description 📝</TableHead>
                 <TableHead>Actions 🔧</TableHead>
               </TableRow>
@@ -262,7 +258,8 @@ export default function ServiceManagement() {
                 <TableRow key={service._id}>
                   <TableCell>{service.name}</TableCell>
                   <TableCell>{service.category}</TableCell>
-                  <TableCell>₹{service.price}</TableCell>
+                  <TableCell>₹{service.actualPrice}</TableCell>
+                  <TableCell>₹{service.offerPrice}</TableCell>
                   <TableCell>{service.description}</TableCell>
                   <TableCell className="flex space-x-2">
                     <Button
@@ -303,7 +300,8 @@ export default function ServiceManagement() {
               initialData={{
                 name: selectedService.name,
                 description: selectedService.description,
-                price: selectedService.price,
+                offerPrice: selectedService.offerPrice, // Add offerPrice
+                actualPrice: selectedService.actualPrice, // Add actualPrice
                 category: selectedService.category,
                 imageDescription: selectedService.imageDescription,
                 imageUrl: null, // Optional, handle file upload separately
@@ -351,16 +349,15 @@ const ServiceForm: React.FC<ServiceFormProps> = ({ onSubmit, initialData }) => {
   const [formData, setFormData] = useState<ServiceFormData>({
     name: initialData?.name || "",
     description: initialData?.description || "",
-    price: initialData?.price || 0,
+    offerPrice: initialData?.offerPrice || 0, // Initialize offerPrice
+    actualPrice: initialData?.actualPrice || 0, // Initialize actualPrice
     imageUrl: null,
     category: initialData?.category || "",
     imageDescription: initialData?.imageDescription || "",
   });
 
   const handleChange = (
-    e: React.ChangeEvent<
-      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-    >
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -394,14 +391,13 @@ const ServiceForm: React.FC<ServiceFormProps> = ({ onSubmit, initialData }) => {
           name="category"
           value={formData.category}
           onValueChange={(value) =>
-            setFormData({ ...formData, category: value })
+            setFormData((prev) => ({ ...prev, category: value }))
           }
         >
           <SelectTrigger>
             <SelectValue placeholder="Select category" />
           </SelectTrigger>
           <SelectContent className="bg-white">
-            <SelectItem value="all">All Categories 📋</SelectItem>
             <SelectItem value="fridge">Fridge 🔧</SelectItem>
             <SelectItem value="washingmachine">Washing Machine 🔨</SelectItem>
             <SelectItem value="oven">Oven 🔌</SelectItem>
@@ -410,12 +406,23 @@ const ServiceForm: React.FC<ServiceFormProps> = ({ onSubmit, initialData }) => {
         </Select>
       </div>
       <div>
-        <Label htmlFor="price">Price</Label>
+        <Label htmlFor="offerPrice">Offer Price</Label>
         <Input
-          id="price"
-          name="price"
+          id="offerPrice"
+          name="offerPrice"
           type="number"
-          value={formData.price}
+          value={formData.offerPrice}
+          onChange={handleChange}
+          required
+        />
+      </div>
+      <div>
+        <Label htmlFor="actualPrice">Actual Price</Label>
+        <Input
+          id="actualPrice"
+          name="actualPrice"
+          type="number"
+          value={formData.actualPrice}
           onChange={handleChange}
           required
         />

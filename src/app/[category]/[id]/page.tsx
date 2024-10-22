@@ -12,7 +12,8 @@ interface ServiceDetails {
   name: string;
   rating: number;
   reviews: number;
-  price: string;
+  actualPrice: number;
+  offerPrice: number;
   duration: string;
   imageUrl: string;
   description: string;
@@ -186,9 +187,13 @@ export default function ServiceDetailsPage({
       >
         <div className="flex items-center justify-between max-w-3xl mx-auto">
           <div>
-            <span className="text-2xl font-bold text-[#010101]">
-              {serviceDetails.price}
+            <span className="text-[#000] font-bold line-through ">
+              ₹{serviceDetails.offerPrice.toLocaleString("en-IN")}
             </span>
+            <span className="text-[#ffc300] font-bold text-3xl">
+              ₹ {serviceDetails.actualPrice.toLocaleString("en-IN")}
+            </span>
+
             <span className="text-gray-500 ml-2">onwards</span>
           </div>
           <Link href={`./${id}/book`}>

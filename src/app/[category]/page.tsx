@@ -11,7 +11,8 @@ import { motion, AnimatePresence } from "framer-motion";
 interface Service {
   _id: string;
   name: string;
-  price: number;
+  actualPrice: number;
+  offerPrice: number;
   imageUrl: string;
 }
 
@@ -162,7 +163,10 @@ export default function ServiceListingPage({
                     </h2>
                     <div className="flex items-center justify-between">
                       <span className="text-[#ffc300] font-bold">
-                        ₹{service.price.toLocaleString("en-IN")}
+                        ₹{service.offerPrice.toLocaleString("en-IN")}
+                      </span>
+                      <span className="text-[#ffc300] font-bold line-through">
+                        ₹ {service.actualPrice.toLocaleString("en-IN")}
                       </span>
                       <ChevronRight className="w-5 h-5 text-gray-400" />
                     </div>
