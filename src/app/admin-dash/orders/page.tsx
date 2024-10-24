@@ -203,12 +203,8 @@ export default function OrderManagement() {
     paymentStatus: string
   ) => {
     try {
-      await updatePaymentStatus(orderId, paymentStatus);
-      setOrders((prevOrders) =>
-        prevOrders.map((order) =>
-          order._id === orderId ? { ...order, paymentStatus } : order
-        )
-      );
+      const updatedData = await updatePaymentStatus(orderId, paymentStatus);
+      setOrders(updatedData);
     } catch (error) {
       console.error("Error updating payment status:", error);
     }
