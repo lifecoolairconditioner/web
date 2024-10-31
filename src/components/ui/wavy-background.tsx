@@ -18,7 +18,7 @@ export const WavyBackground = ({
   waveWidth,
   backgroundFill,
   blur = 10,
-  speed = "fast",
+  speed = "slow",
   waveOpacity = 0.5,
   ...props
 }: {
@@ -41,7 +41,7 @@ export const WavyBackground = ({
   const nt = useRef<number>(0);
 
   const waveColors = useMemo(() => {
-    return colors ?? ["#38bdf8", "#818cf8", "#c084fc", "#e879f9", "#22d3ee"];
+    return colors ?? ["#ffffff", "#e0f2fe", "#bae6fd", "#7dd3fc", "#38bdf8", "#0284c7"];
   }, [colors]);
 
   const getSpeed = useCallback(() => {
