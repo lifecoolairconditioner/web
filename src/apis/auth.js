@@ -20,7 +20,6 @@ export const loginUser = async (credentials) => {
 
     // Assuming the response contains accessToken
     const accessToken = response.data.data.accessToken;
-    console.log(accessToken);
 
     // Store the accessToken in localStorage only on the client-side
     if (typeof window !== "undefined") {

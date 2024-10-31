@@ -24,7 +24,8 @@ const menuItems = [
   { name: "Technician", icon: Users, href: "/admin-dash/technician" },
   { name: "AC rent", icon: AirVent, href: "/admin-dash/ac-rent" },
   { name: "Payment", icon: CreditCard, href: "/admin-dash/payment" },
-  { name: "Carousel", icon: ImageIcon, href: "/admin-dash/carousel" },
+  { name: "Carousel1", icon: ImageIcon, href: "/admin-dash/carousel" },
+  { name: "Carousel2", icon: ImageIcon, href: "/admin-dash/carousel2" },
 ];
 
 export default function Navbar() {
