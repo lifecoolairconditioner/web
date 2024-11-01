@@ -94,7 +94,7 @@ const faqItems = [
   {
     question: "How often should I service my AC?",
     answer:
-      "It's recommended to service your AC at least once a year, preferably before the start of the summer season. Regular maintenance helps ensure efficient operation and can prevent costly breakdowns.",
+      "Its recommended to service your AC at least once a year, preferably before the start of the summer season. Regular maintenance helps ensure efficient operation and can prevent costly breakdowns.",
   },
   {
     question: "What are signs that my AC needs repair?",
@@ -107,7 +107,7 @@ const faqItems = [
       "A standard AC installation usually takes between 4-8 hours, depending on the complexity of the job and the type of system being installed. However, some installations may take a full day or more.",
   },
   {
-    question: "What's the average lifespan of an AC unit?",
+    question: "Whats the average lifespan of an AC unit?",
     answer:
       "With proper maintenance, most AC units last between 15-20 years. However, efficiency may decrease as the unit ages, and you might consider replacement after 10-15 years for better energy savings.",
   },
