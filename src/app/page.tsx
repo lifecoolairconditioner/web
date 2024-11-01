@@ -562,7 +562,7 @@ function EmergencyServices() {
               24/7 Emergency Services
             </h3>
             <p className="text-center mb-6">
-              We're here for you around the clock. Don't let AC problems disrupt
+              We re here for you around the clock. Don't let AC problems disrupt
               your life.
             </p>
             <Button
