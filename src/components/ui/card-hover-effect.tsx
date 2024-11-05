@@ -25,7 +25,7 @@ export const HoverEffect = ({
     >
       {items.map((item, idx) => (
         <Link
-          href={item.link} // Removed optional chaining since item.link should always exist in the items array
+          href={item.link || "/"} // Removed optional chaining since item.link should always exist in the items array
           key={item.link}
           className="relative group block p-2 h-full w-full"
           onMouseEnter={() => setHoveredIndex(idx)}
