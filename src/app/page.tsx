@@ -14,7 +14,7 @@ import {
 import { BentoGrid, BentoGridItem } from "@/components/ui/bento-grid";
 import { TextGenerateEffect } from "@/components/ui/text-generate-effect";
 import { HoverEffect } from "@/components/ui/card-hover-effect";
-import { FloatingNav } from "@/components/ui/floating-navbar";
+import { FixedNav } from "@/components/ui/floating-navbar";
 import {
   PhoneCall,
   Mail,
@@ -25,7 +25,7 @@ import {
   ThermometerSun,
   Search,
 } from "lucide-react";
-import { SparklesCore } from "@/components/ui/sparkles";
+import { SnowfallBackground } from "@/components/ui/sparkles";
 import { ContainerScroll } from "@/components/ui/container-scroll-animation";
 import { TypewriterEffect } from "@/components/ui/typewriter-effect";
 import {
@@ -47,15 +47,7 @@ import {
 } from "@/components/ui/hover-card";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { InfiniteMovingCards } from "@/components/ui/infinite-moving-cards";
-import { StarIcon } from "@heroicons/react/20/solid";
 import { Input } from "@/components/ui/input";
-
-type CardItem = {
-  title: string;
-  name: string;
-  rating: number;
-  image: string;
-} & ({ quote: string; comment?: never } | { comment: string; quote?: never });
 
 const menuItems = [
   { name: "Home", link: "#home" },
@@ -66,15 +58,13 @@ const menuItems = [
   { name: "Gallery", link: "#gallery" },
   { name: "Testimonials", link: "#testimonials" },
   { name: "FAQ", link: "#faq" },
-  { name: "Pricing", link: "#pricing" },
-  { name: "Team", link: "#team" },
   { name: "Contact", link: "#contact" },
 ];
 
 export default function AirConditioningService() {
   return (
     <div className="flex flex-col min-h-screen bg-white text-black">
-      <FloatingNav navItems={menuItems} />
+      <FixedNav navItems={menuItems} />
       <div className="flex-grow">
         <Hero />
         <WeRepair />
@@ -98,15 +88,16 @@ function Hero() {
       id="home"
       className="relative h-screen w-full flex flex-col items-center justify-center overflow-hidden bg-black"
     >
-      <SparklesCore
-        id="tsparticlesfullpage"
-        background="transparent"
-        minSize={0.6}
-        maxSize={1.4}
-        particleDensity={100}
-        className="w-full h-full absolute"
-        particleColor="#FFFFFF"
-      />
+      <div className="absolute inset-0 w-full h-full">
+        <SnowfallBackground
+          background="#87CEEB"
+          particleColor="#e0f7ff"
+          minSize={2}
+          maxSize={6}
+          speed={0.5}
+          particleDensity={150}
+        />
+      </div>
 
       <div className="relative z-20 text-center px-4">
         <motion.h1
@@ -165,9 +156,8 @@ function WeRepair() {
   return (
     <section
       id="we-repair"
-      className="relative min-h-screen overflow-hidden bg-black text-white"
+      className="relative min-h-screen overflow-hidden text-white"
     >
-
       <div className="container mx-auto px-4 py-20 relative z-10">
         <h2 className="text-4xl md:text-5xl font-bold text-center mb-12">
           We Repair...
@@ -175,7 +165,7 @@ function WeRepair() {
 
         <ContainerScroll
           titleComponent={
-            <div className="text-2xl md:text-4xl font-bold text-center mb-10">
+            <div className="text-2xl md:text-4xl text-black font-bold text-center mb-10">
               Comprehensive Repair Services
             </div>
           }
@@ -290,21 +280,25 @@ function WhyChooseUs() {
       title: "Expert Technicians",
       description: "Highly trained and certified professionals",
       icon: <IconTool className="w-6 h-6 text-yellow-500" />,
+      imageSrc: "/amc.jpg",
     },
     {
       title: "24/7 Service",
       description: "Round-the-clock emergency repairs",
       icon: <IconBolt className="w-6 h-6 text-yellow-500" />,
+      imageSrc: "/amc.jpg",
     },
     {
       title: "Affordable Pricing",
       description: "Competitive rates without compromising quality",
       icon: <IconBuildingStore className="w-6 h-6 text-yellow-500" />,
+      imageSrc: "/amc.jpg",
     },
     {
       title: "Guaranteed Satisfaction",
       description: "Were not happy until youre happy",
       icon: <IconThumbUp className="w-6 h-6 text-yellow-500" />,
+      imageSrc: "/amc.jpg",
     },
   ];
 
@@ -325,7 +319,15 @@ function WhyChooseUs() {
               key={i}
               title={item.title}
               description={item.description}
-              header={item.icon}
+              header={
+                <Image
+                  src={item.imageSrc}
+                  alt={item.title}
+                  width={600}
+                  height={400}
+                  className="object-cover w-full h-48 rounded-t-lg"
+                />
+              }
               className="border border-gray-200 hover:border-yellow-500 transition-colors duration-300"
               icon={
                 <div className="p-4 bg-yellow-100 rounded-full">
@@ -398,7 +400,7 @@ function About() {
             transition={{ duration: 0.5, delay: 0.2 }}
           >
             <Image
-              src="/placeholder.svg"
+              src="/logo.png"
               alt="About Life Cool Air Conditioner"
               width={600}
               height={400}
@@ -456,7 +458,7 @@ function Gallery() {
       title: "AC Installation",
       description: "Professional installation of a new air conditioning system",
       icon: <IconAirConditioning className="h-6 w-6 text-blue-500" />,
-      imageSrc: "/placeholder.svg?height=400&width=600",
+      imageSrc: "/ac-install.jpg",
       className: "md:col-span-2",
     },
     {
@@ -464,21 +466,21 @@ function Gallery() {
       description:
         "Fixing and optimizing air duct systems for improved efficiency",
       icon: <IconToolsKitchen2 className="h-6 w-6 text-green-500" />,
-      imageSrc: "/placeholder.svg?height=400&width=600",
+      imageSrc: "/duct.jpg",
       className: "md:col-span-1",
     },
     {
-      title: "Thermostat Upgrade",
-      description: "Installing smart thermostats for better climate control",
+      title: "AMC",
+      description: "Installing Anual maintainance contract",
       icon: <IconThermometer className="h-6 w-6 text-red-500" />,
-      imageSrc: "/placeholder.svg?height=400&width=600",
+      imageSrc: "/amc.jpg",
       className: "md:col-span-1",
     },
     {
-      title: "Commercial HVAC",
+      title: "AC rent",
       description: "Large-scale air conditioning solutions for businesses",
       icon: <IconAirConditioning className="h-6 w-6 text-purple-500" />,
-      imageSrc: "/placeholder.svg?height=400&width=600",
+      imageSrc: "/ac-rent.jpg",
       className: "md:col-span-2",
     },
   ];
@@ -543,48 +545,50 @@ function Gallery() {
 function Testimonials() {
   const testimonials = [
     {
-      title: "John Doe",
-      name: "",
       quote: "Excellent service! They fixed my AC in no time.",
-      rating: 5,
-      image: "/placeholder.svg?height=100&width=100",
+      name: "",
+      title: "John Doe",
     },
     {
       title: "Jane Smith",
       name: "",
-      comment: "Very professional and knowledgeable team. Highly recommended!",
-      rating: 5,
-      image: "/placeholder.svg?height=100&width=100",
+      quote: "Very professional and knowledgeable team. Highly recommended!",
     },
     {
       title: "Mike Johnson",
       name: "",
       quote: "Fair pricing and great customer service. Will use again!",
-      rating: 4,
-      image: "/placeholder.svg?height=100&width=100",
     },
     {
       title: "Emily Brown",
       name: "",
       quote:
         "They went above and beyond to ensure our AC was working perfectly.",
-      rating: 5,
-      image: "/placeholder.svg?height=100&width=100",
     },
     {
       title: "David Wilson",
       name: "",
       quote: "Prompt, efficient, and friendly. Couldnt ask for better service.",
-      rating: 5,
-      image: "/placeholder.svg?height=100&width=100",
+    },
+    {
+      title: "David Wilson",
+      name: "",
+      quote: "Prompt, efficient, and friendly. Couldnt ask for better service.",
+    },
+    {
+      title: "David Wilson",
+      name: "",
+      quote: "Prompt, efficient, and friendly. Couldnt ask for better service.",
+    },
+    {
+      title: "David Wilson",
+      name: "",
+      quote: "Prompt, efficient, and friendly. Couldnt ask for better service.",
     },
   ];
 
   return (
-    <section
-      id="testimonials"
-      className="bg-gradient-to-b from-gray-50 to-white py-20"
-    >
+    <section id="testimonials" className="">
       <div className="container mx-auto px-4">
         <motion.h2
           className="text-4xl md:text-5xl font-bold text-center text-gray-800 mb-12"
@@ -594,47 +598,12 @@ function Testimonials() {
         >
           What Our Customers Say
         </motion.h2>
-        <div className="max-w-5xl mx-auto">
+        <div className="h-[40rem] rounded-md text-black flex flex-col antialiased bg-white dark:bg-black dark:bg-grid-white/[0.05] items-center justify-center relative overflow-hidden">
           <InfiniteMovingCards
             items={testimonials}
             direction="right"
             speed="slow"
-            className="your-custom-class"
-          >
-            {(testimonial: CardItem) => (
-              <div className="bg-white p-6 rounded-lg shadow-lg max-w-sm mx-4">
-                <div className="flex items-center mb-4">
-                  <Image
-                    src={testimonial.image}
-                    alt={testimonial.name}
-                    className="w-12 h-12 rounded-full mr-4"
-                    width={48}
-                    height={48}
-                  />
-                  <div>
-                    <h3 className="font-semibold text-black text-lg">
-                      {testimonial.name}
-                    </h3>
-                    <div className="flex">
-                      {[...Array(5)].map((_, i) => (
-                        <StarIcon
-                          key={i}
-                          className={`h-5 w-5 ${
-                            i < testimonial.rating
-                              ? "text-yellow-400"
-                              : "text-gray-300"
-                          }`}
-                        />
-                      ))}
-                    </div>
-                  </div>
-                </div>
-                <p className="text-gray-600">
-                  {testimonial.quote || testimonial.comment}
-                </p>
-              </div>
-            )}
-          </InfiniteMovingCards>
+          />
         </div>
       </div>
     </section>
@@ -845,12 +814,12 @@ function Footer() {
           <div>
             <h3 className="text-xl font-semibold mb-4">Location</h3>
             <div className="relative w-full h-48">
-              <Image
-                src="/map.jpg"
-                alt="Map"
-                fill
-                className="rounded-lg object-cover"
-              />
+              <iframe
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3784.463725560107!2d73.87673507519024!3d18.46264258261976!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bc2eaf2cd486d8b%3A0xb2ae810e77ee6756!2sLife%20Cool%20Air%20Conditioner!5e0!3m2!1sen!2sin!4v1730839448929!5m2!1sen!2sin"
+                width="600"
+                height="450"
+                loading="lazy"
+              ></iframe>
             </div>
           </div>
         </div>
