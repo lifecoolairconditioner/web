@@ -25,7 +25,6 @@ import {
   ThermometerSun,
   Search,
 } from "lucide-react";
-import { SnowfallBackground } from "@/components/ui/sparkles";
 import { ContainerScroll } from "@/components/ui/container-scroll-animation";
 import { TypewriterEffect } from "@/components/ui/typewriter-effect";
 import {
@@ -48,6 +47,7 @@ import {
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { InfiniteMovingCards } from "@/components/ui/infinite-moving-cards";
 import { Input } from "@/components/ui/input";
+import { ThermometerSnowflake, Phone } from "lucide-react";
 
 const menuItems = [
   { name: "Home", link: "#home" },
@@ -60,10 +60,9 @@ const menuItems = [
   { name: "FAQ", link: "#faq" },
   { name: "Contact", link: "#contact" },
 ];
-
 export default function AirConditioningService() {
   return (
-    <div className="flex flex-col min-h-screen bg-white text-black">
+    <div className="flex flex-col min-h-screen bg-white max-w-[100vw] text-black">
       <FixedNav navItems={menuItems} />
       <div className="flex-grow">
         <Hero />
@@ -84,42 +83,110 @@ export default function AirConditioningService() {
 
 function Hero() {
   return (
-    <section
-      id="home"
-      className="relative h-screen w-full flex flex-col items-center justify-center overflow-hidden bg-black"
-    >
-      <div className="absolute inset-0 w-full h-full">
-        <SnowfallBackground
-          background="#87CEEB"
-          particleColor="#e0f7ff"
-          minSize={2}
-          maxSize={6}
-          speed={0.5}
-          particleDensity={150}
-        />
+    <section className="grid lg:grid-cols-2 min-h-screen bg-gradient-to-br from-blue-50 to-blue-100">
+      {/* Left Panel */}
+      <div className="relative p-8 lg:p-12 flex flex-col justify-center">
+        <div className="max-w-[520px] mx-auto w-full">
+          <div className="mb-2">
+            <ThermometerSnowflake className="h-12 w-12 text-blue-600" />
+          </div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+          >
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-6 text-blue-900">
+              Stay Cool with
+              <br />
+              Expert AC Services
+              <br />
+              <span className="text-blue-600">& Rentals</span>
+            </h1>
+          </motion.div>
+
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+            className="text-xl text-blue-800 mb-8"
+          >
+            Professional repairs, maintenance, and short-term AC rentals for all
+            your cooling needs
+          </motion.p>
+
+          <div className="space-y-4 mb-8">
+            <div className="flex items-center gap-2">
+              <div className="flex -space-x-2">
+                {[1, 2, 3].map((i) => (
+                  <div
+                    key={i}
+                    className="h-8 w-8 rounded-full border-2 border-white bg-blue-200"
+                  />
+                ))}
+              </div>
+              <span className="text-sm text-blue-800">
+                Join 10,000+ satisfied customers
+              </span>
+            </div>
+          </div>
+        </div>
       </div>
 
-      <div className="relative z-20 text-center px-4">
-        <motion.h1
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-          className="text-4xl md:text-6xl lg:text-7xl font-bold text-white mb-6"
-        >
-          Stay Cool with Expert AC Services
-        </motion.h1>
-
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.2 }}
-          className="mb-8"
-        >
-          <TextGenerateEffect
-            words="Professional repairs, maintenance, and installations for all your cooling needs"
-            className="text-xl md:text-2xl text-white"
+      {/* Right Panel */}
+      <div className="relative hidden lg:block">
+        <div className="absolute inset-0">
+          <Image
+            src="/expert-technicians.jpg"
+            alt="Air conditioner installation"
+            className="h-full w-full object-cover"
           />
-        </motion.div>
+          <div className="absolute inset-0 bg-blue-900/20" />
+        </div>
+
+        {/* Interactive Elements */}
+        <div className="absolute inset-0 p-12">
+          <div className="relative h-full">
+            {/* Service Highlights */}
+            {[
+              { icon: <Snowflake />, label: "24/7 Emergency Service" },
+              { icon: <Wind />, label: "Energy-Efficient Solutions" },
+              { icon: <ThermometerSnowflake />, label: "AC Rental Options" },
+            ].map((service, i) => (
+              <motion.div
+                key={i}
+                className="absolute"
+                style={{
+                  top: `${25 + i * 25}%`,
+                  left: `${20 + i * 25}%`,
+                }}
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ delay: i * 0.2 }}
+              >
+                <div className="flex items-center gap-2 bg-white/90 p-3 rounded-full shadow-lg">
+                  {service.icon}
+                  <span className="text-sm font-medium text-blue-900">
+                    {service.label}
+                  </span>
+                </div>
+              </motion.div>
+            ))}
+
+            {/* Contact Info */}
+            <div className="absolute bottom-0 left-0 right-0">
+              <div className="bg-white/90 p-4 rounded-lg shadow-lg">
+                <p className="text-blue-900 font-medium mb-2">
+                  Need immediate assistance?
+                </p>
+                <div className="flex items-center gap-2 text-blue-600">
+                  <Phone className="h-5 w-5" />
+                  <span className="text-lg font-bold">1-800-COOL-NOW</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </section>
   );
@@ -156,16 +223,12 @@ function WeRepair() {
   return (
     <section
       id="we-repair"
-      className="relative min-h-screen overflow-hidden text-white"
+      className="min-h-screen overflow-hidden p-4 bg-gradient-to-br from-blue-50 to-blue-100 text-black"
     >
-      <div className="container mx-auto px-4 py-20 relative z-10">
-        <h2 className="text-4xl md:text-5xl font-bold text-center mb-12">
-          We Repair...
-        </h2>
-
+      <div className="container mx-auto px-4 relative z-10">
         <ContainerScroll
           titleComponent={
-            <div className="text-2xl md:text-4xl text-black font-bold text-center mb-10">
+            <div className="text-2xl md:text-4xl text-black font-bold text-center ">
               Comprehensive Repair Services
             </div>
           }
@@ -184,12 +247,12 @@ function WeRepair() {
         </ContainerScroll>
 
         <div className="mt-12 text-center">
-          <Link href="/services">
+          <Link href="/book-service" passHref>
             <Button
               size="lg"
-              className="bg-blue-600 text-3xl m-12 text-white hover:bg-blue-700"
+              className="bg-yellow-500 text-white hover:bg-yellow-600 transition-colors duration-300 text-lg px-8 py-3 rounded-full shadow-lg hover:shadow-xl"
             >
-              Book Service
+              Book Service Now
             </Button>
           </Link>
         </div>
@@ -231,7 +294,10 @@ function Services() {
   ];
 
   return (
-    <section id="services" className="relative overflow-hidden py-20">
+    <section
+      id="services"
+      className="relative bg-gradient-to-br from-blue-50 to-blue-100 overflow-hidden py-20"
+    >
       <div className="container mx-auto px-4 relative z-10">
         <div className="mb-12">
           <TypewriterEffect
@@ -246,12 +312,12 @@ function Services() {
         </div>
         <HoverEffect items={services} />
         <div className="mt-12 text-center">
-          <Link href="/ac-rent">
+          <Link href="/book-service" passHref>
             <Button
               size="lg"
-              className="bg-blue-600 text-white hover:bg-blue-700"
+              className="bg-yellow-500 text-white hover:bg-yellow-600 transition-colors duration-300 text-lg px-8 py-3 rounded-full shadow-lg hover:shadow-xl"
             >
-              Book Service
+              Book Service Now
             </Button>
           </Link>
         </div>
@@ -303,7 +369,10 @@ function WhyChooseUs() {
   ];
 
   return (
-    <section id="why-us" className="py-20 bg-gray-50">
+    <section
+      id="why-us"
+      className="py-20 bg-gradient-to-br from-blue-50 to-blue-100"
+    >
       <div className="container mx-auto px-4">
         <motion.h2
           className="text-4xl md:text-5xl font-bold text-center text-gray-800 mb-12"
@@ -313,7 +382,7 @@ function WhyChooseUs() {
         >
           Why Choose Us?
         </motion.h2>
-        <BentoGrid className="max-w-5xl mx-auto">
+        <BentoGrid className="max-w-5xl mx-auto ">
           {reasons.map((item, i) => (
             <BentoGridItem
               key={i}
@@ -325,7 +394,7 @@ function WhyChooseUs() {
                   alt={item.title}
                   width={600}
                   height={400}
-                  className="object-cover w-full h-48 rounded-t-lg"
+                  className="object-cover w-full h-52 rounded-t-lg"
                 />
               }
               className="border border-gray-200 hover:border-yellow-500 transition-colors duration-300"
@@ -381,7 +450,7 @@ function About() {
   return (
     <section
       id="about"
-      className="bg-gradient-to-b from-gray-50 to-white py-20"
+      className="bg-gradient-to-br from-blue-50 to-blue-100 py-20"
     >
       <div className="container mx-auto px-4">
         <motion.h2
@@ -410,7 +479,7 @@ function About() {
           <div className="lg:w-1/2">
             <TextGenerateEffect
               words={aboutText}
-              className="text-lg text-gray-600 mb-6"
+              className="text-sm text-gray-600 mb-6"
             />
             <div className="grid grid-cols-3 gap-4 mb-6">
               {stats.map((stat, index) => (
@@ -488,7 +557,7 @@ function Gallery() {
   return (
     <section
       id="gallery"
-      className="py-20 bg-gradient-to-b from-white to-gray-50"
+      className="py-20 bg-gradient-to-br from-blue-50 to-blue-100"
     >
       <div className="container mx-auto px-4">
         <motion.h2
@@ -588,7 +657,10 @@ function Testimonials() {
   ];
 
   return (
-    <section id="testimonials" className="">
+    <section
+      id="testimonials"
+      className="bg-gradient-to-br from-blue-50 to-blue-100"
+    >
       <div className="container mx-auto px-4">
         <motion.h2
           className="text-4xl md:text-5xl font-bold text-center text-gray-800 mb-12"
@@ -598,7 +670,7 @@ function Testimonials() {
         >
           What Our Customers Say
         </motion.h2>
-        <div className="h-[40rem] rounded-md text-black flex flex-col antialiased bg-white dark:bg-black dark:bg-grid-white/[0.05] items-center justify-center relative overflow-hidden">
+        <div className="h-[40rem] rounded-md text-black flex flex-col antialiased bg-gradient-to-br from-blue-50 to-blue-100 dark:bg-black dark:bg-grid-white/[0.05] items-center justify-center relative overflow-hidden">
           <InfiniteMovingCards
             items={testimonials}
             direction="right"
@@ -643,7 +715,10 @@ function FAQ() {
   const [searchTerm, setSearchTerm] = useState("");
 
   return (
-    <section id="faq" className="py-20 bg-gradient-to-b from-white to-gray-50">
+    <section
+      id="faq"
+      className="py-20 bg-gradient-to-br from-blue-50 to-blue-100"
+    >
       <div className="container mx-auto px-4">
         <motion.h2
           className="text-4xl md:text-5xl font-bold text-center text-gray-800 mb-12"
@@ -696,7 +771,10 @@ function FAQ() {
 
 function Awards() {
   return (
-    <section id="awards" className="py-20">
+    <section
+      id="awards"
+      className="py-20 bg-gradient-to-br from-blue-50 to-blue-100"
+    >
       <div className="container mx-auto px-4">
         <h2 className="text-3xl md:text-4xl font-bold text-center text-[#000000] mb-12">
           Our Awards & Certifications
@@ -727,7 +805,10 @@ function Awards() {
 
 function Contact() {
   return (
-    <section id="contact" className="py-20">
+    <section
+      id="contact"
+      className="py-20 bg-gradient-to-br from-blue-50 to-blue-100"
+    >
       <div className="container mx-auto px-4">
         <h2 className="text-3xl md:text-4xl font-bold text-center text-[#000000] mb-12">
           Contact Us
@@ -813,11 +894,9 @@ function Footer() {
           </div>
           <div>
             <h3 className="text-xl font-semibold mb-4">Location</h3>
-            <div className="relative w-full h-48">
+            <div className="relative w-[50vh] h-[50vh]">
               <iframe
                 src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3784.463725560107!2d73.87673507519024!3d18.46264258261976!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bc2eaf2cd486d8b%3A0xb2ae810e77ee6756!2sLife%20Cool%20Air%20Conditioner!5e0!3m2!1sen!2sin!4v1730839448929!5m2!1sen!2sin"
-                width="600"
-                height="450"
                 loading="lazy"
               ></iframe>
             </div>
