@@ -1,16 +1,17 @@
-import type { Metadata } from "next";
 import "./globals.css";
-import "./manifest"
+import { Metadata } from "next";
+import PWAInstallButton from "@/components/PWAInstallButton";
+
 export const metadata: Metadata = {
-  title: "Cool Air",
-  description: "App designed and developed by Md. Azam",
+  title: "life cool air conditioner",
+  description: "lifecoolairconditioner",
 };
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
     <html lang="en">
       <head>
@@ -18,7 +19,10 @@ export default function RootLayout({
         <link rel="apple-touch-icon" href="/placeholder.svg" />
         <meta name="theme-color" content="#000000" />
       </head>
-      <body>{children}</body>
+      <body>
+        {children}
+        <PWAInstallButton /> {/* PWA install logic in client component */}
+      </body>
     </html>
   );
 }

@@ -22,10 +22,8 @@ import {
   MapPin,
   Snowflake,
   Wind,
-  ThermometerSun,
   Search,
 } from "lucide-react";
-import { ContainerScroll } from "@/components/ui/container-scroll-animation";
 import { TypewriterEffect } from "@/components/ui/typewriter-effect";
 import {
   IconBolt,
@@ -38,6 +36,7 @@ import {
   IconAirConditioning,
   IconToolsKitchen2,
   IconThermometer,
+  IconBrandWhatsapp,
 } from "@tabler/icons-react";
 import {
   HoverCard,
@@ -60,22 +59,21 @@ const menuItems = [
   { name: "FAQ", link: "#faq" },
   { name: "Contact", link: "#contact" },
 ];
+
 export default function AirConditioningService() {
   return (
-    <div className="flex flex-col min-h-screen bg-white max-w-[100vw] text-black">
+    <div className="flex flex-col min-h-screen bg-white w-[100vw] text-black">
       <FixedNav navItems={menuItems} />
-      <div className="flex-grow">
-        <Hero />
-        <WeRepair />
-        <Services />
-        <WhyChooseUs />
-        <About />
-        <Gallery />
-        <Testimonials />
-        <FAQ />
-        <Awards />
-        <Contact />
-      </div>
+      <Hero />
+      <Services />
+      <WhyChooseUs />
+      <About />
+      <Gallery />
+      <Testimonials />
+      <FAQ />
+      <Awards />
+      <Contact />
+
       <Footer />
     </div>
   );
@@ -86,7 +84,7 @@ function Hero() {
     <section className="grid lg:grid-cols-2 min-h-screen bg-gradient-to-br from-blue-50 to-blue-100">
       {/* Left Panel */}
       <div className="relative p-8 lg:p-12 flex flex-col justify-center">
-        <div className="max-w-[520px] mx-auto w-full">
+        <div className="mx-auto w-full">
           <div className="mb-2">
             <ThermometerSnowflake className="h-12 w-12 text-blue-600" />
           </div>
@@ -119,9 +117,13 @@ function Hero() {
             <div className="flex items-center gap-2">
               <div className="flex -space-x-2">
                 {[1, 2, 3].map((i) => (
-                  <div
+                  <Image
                     key={i}
-                    className="h-8 w-8 rounded-full border-2 border-white bg-blue-200"
+                    src={`/customer-avatar-${i}.jpg`}
+                    alt={`Customer ${i}`}
+                    width={32}
+                    height={32}
+                    className="h-8 w-8 rounded-full border-2 border-white object-cover"
                   />
                 ))}
               </div>
@@ -138,8 +140,10 @@ function Hero() {
         <div className="absolute inset-0">
           <Image
             src="/expert-technicians.jpg"
-            alt="Air conditioner installation"
-            className="h-full w-full object-cover"
+            alt="Expert AC technician at work"
+            layout="fill"
+            objectFit="cover"
+            quality={100}
           />
           <div className="absolute inset-0 bg-blue-900/20" />
         </div>
@@ -187,88 +191,6 @@ function Hero() {
             </div>
           </div>
         </div>
-      </div>
-    </section>
-  );
-}
-
-function WeRepair() {
-  const repairItems = [
-    {
-      icon: Snowflake,
-      title: "Air Conditioners",
-      imageSrc: "/ac-repair.jpg",
-      description: "",
-    },
-    {
-      icon: Wind,
-      title: "Refrigerators",
-      imageSrc: "/fridge-repair.jpg",
-      description: "",
-    },
-    {
-      icon: ThermometerSun,
-      title: "Freezers",
-      imageSrc: "/freezer-repair.jpg",
-      description: "",
-    },
-    {
-      icon: ThermometerSun,
-      title: "Washing Machines",
-      imageSrc: "/washing-machine-repair.jpg",
-      description: "",
-    },
-  ];
-
-  return (
-    <section
-      id="we-repair"
-      className="min-h-screen overflow-hidden p-4 bg-gradient-to-br from-blue-50 to-blue-100 text-black"
-    >
-      <div className="container mx-auto px-4 relative z-10">
-        <ContainerScroll
-          titleComponent={
-            <div className="text-2xl md:text-4xl text-black font-bold text-center ">
-              Comprehensive Repair Services
-            </div>
-          }
-        >
-          {repairItems.map((item, index) => (
-            <div key={index} className="flex flex-col items-center p-4">
-              <item.icon className="w-16 h-16 mb-4 text-blue-400" />
-              <h3 className="font-semibold text-3xl text-black mb-2">
-                {item.title}
-              </h3>
-              <p className="text-center text-3xl text-black">
-                {item.description}
-              </p>
-            </div>
-          ))}
-        </ContainerScroll>
-
-        <div className="mt-12 text-center">
-          <Link href="/book-service" passHref>
-            <Button
-              size="lg"
-              className="bg-yellow-500 text-white hover:bg-yellow-600 transition-colors duration-300 text-lg px-8 py-3 rounded-full shadow-lg hover:shadow-xl"
-            >
-              Book Service Now
-            </Button>
-          </Link>
-        </div>
-      </div>
-
-      {/* Accessibility enhancement for screen readers */}
-      <div className="sr-only">
-        <h2>Our Repair Services</h2>
-        <ul>
-          {repairItems.map((item, index) => (
-            <li key={index}>
-              {item.title}: {item.description}
-            </li>
-          ))}
-        </ul>
-        <p>Book our expert repair services now.</p>
       </div>
     </section>
   );
@@ -339,7 +261,6 @@ function Services() {
     </section>
   );
 }
-
 function WhyChooseUs() {
   const reasons = [
     {
@@ -362,7 +283,7 @@ function WhyChooseUs() {
     },
     {
       title: "Guaranteed Satisfaction",
-      description: "Were not happy until youre happy",
+      description: "We're not happy until you're happy",
       icon: <IconThumbUp className="w-6 h-6 text-yellow-500" />,
       imageSrc: "/amc.jpg",
     },
@@ -373,7 +294,7 @@ function WhyChooseUs() {
       id="why-us"
       className="py-20 bg-gradient-to-br from-blue-50 to-blue-100"
     >
-      <div className="container mx-auto px-4">
+      <div className="container mx-auto ">
         <motion.h2
           className="text-4xl md:text-5xl font-bold text-center text-gray-800 mb-12"
           initial={{ opacity: 0, y: -20 }}
@@ -397,10 +318,16 @@ function WhyChooseUs() {
                   className="object-cover w-full h-52 rounded-t-lg"
                 />
               }
-              className="border border-gray-200 hover:border-yellow-500 transition-colors duration-300"
+              className="border h-full border-gray-200 hover:border-yellow-500 transition-colors duration-300"
               icon={
-                <div className="p-4 bg-yellow-100 rounded-full">
+                <div className="">
                   {item.icon}
+                  <div className="font-sans font-bold text-neutral-600 dark:text-neutral-200">
+                    {item.title}
+                  </div>
+                  <div className="font-sans font-normal text-neutral-600 text-xs dark:text-neutral-300">
+                    {item.description}
+                  </div>
                 </div>
               }
             />
@@ -427,7 +354,7 @@ function WhyChooseUs() {
 }
 
 function About() {
-  const aboutText = `Life Cool Air Conditioner has been providing top-notch AC repair and maintenance services for over a decade. Our team of expert technicians is dedicated to ensuring your comfort in any weather. We pride ourselves on our quick response times, quality workmanship, and customer satisfaction. Whether its a simple repair or a complex installation, we have the skills and experience to get the job done right.`;
+  const aboutText = `Life Cool Air Conditioner has been providing top-notch AC repair and maintenance services for over a decade. Our team of expert technicians is dedicated to ensuring your comfort in any weather. We pride ourselves on our quick response times, quality workmanship, and customer satisfaction. Whether it's a simple repair or a complex installation, we have the skills and experience to get the job done right.`;
 
   const stats = [
     {
@@ -454,7 +381,7 @@ function About() {
     >
       <div className="container mx-auto px-4">
         <motion.h2
-          className="text-4xl md:text-5xl font-bold text-center text-gray-800 mb-12"
+          className="text-4xl md:text-5xl text-center text-gray-800 mb-12"
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
@@ -479,7 +406,7 @@ function About() {
           <div className="lg:w-1/2">
             <TextGenerateEffect
               words={aboutText}
-              className="text-sm text-gray-600 mb-6"
+              className="text-3xl text-gray-600 mb-6"
             />
             <div className="grid grid-cols-3 gap-4 mb-6">
               {stats.map((stat, index) => (
@@ -487,10 +414,10 @@ function About() {
                   <HoverCardTrigger>
                     <div className="flex flex-col items-center p-4 bg-white rounded-lg shadow-md transition-all duration-300 hover:shadow-lg">
                       {stat.icon}
-                      <span className="text-2xl font-bold text-yellow-500 mt-2">
+                      <span className="text-xl font-bold text-yellow-500 mt-2">
                         {stat.value}
                       </span>
-                      <span className="text-sm text-gray-500">
+                      <span className="text-xl text-gray-500">
                         {stat.label}
                       </span>
                     </div>
@@ -504,16 +431,6 @@ function About() {
                 </HoverCard>
               ))}
             </div>
-            <motion.div
-              className="mt-6"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.4 }}
-            >
-              <Button className="bg-yellow-500 text-white hover:bg-yellow-600 transition-colors duration-300 text-lg px-6 py-3 rounded-full shadow-lg hover:shadow-xl">
-                Learn More About Us
-              </Button>
-            </motion.div>
           </div>
         </div>
       </div>
@@ -540,7 +457,7 @@ function Gallery() {
     },
     {
       title: "AMC",
-      description: "Installing Anual maintainance contract",
+      description: "Installing Annual maintenance contract",
       icon: <IconThermometer className="h-6 w-6 text-red-500" />,
       imageSrc: "/amc.jpg",
       className: "md:col-span-1",
@@ -663,14 +580,14 @@ function Testimonials() {
     >
       <div className="container mx-auto px-4">
         <motion.h2
-          className="text-4xl md:text-5xl font-bold text-center text-gray-800 mb-12"
+          className="text-4xl md:text-5xl font-bold text-center p-5 text-gray-800"
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
           What Our Customers Say
         </motion.h2>
-        <div className="h-[40rem] rounded-md text-black flex flex-col antialiased bg-gradient-to-br from-blue-50 to-blue-100 dark:bg-black dark:bg-grid-white/[0.05] items-center justify-center relative overflow-hidden">
+        <div className="h-[30rem] rounded-md text-black flex flex-col antialiased bg-gradient-to-br from-blue-50 to-blue-100 dark:bg-black dark:bg-grid-white/[0.05] items-center justify-center relative overflow-hidden">
           <InfiniteMovingCards
             items={testimonials}
             direction="right"
@@ -687,12 +604,12 @@ function FAQ() {
     {
       question: "How often should I service my AC?",
       answer:
-        "Its recommended to service your AC at least once a year, preferably before the start of the summer season. Regular maintenance helps ensure optimal performance and can prevent costly breakdowns.",
+        "It's recommended to service your AC at least once a year, preferably before the start of the summer season. Regular maintenance helps ensure optimal performance and can prevent costly breakdowns.",
     },
     {
       question: "What are signs that my AC needs repair?",
       answer:
-        "Some common signs include weak airflow, warm air coming from vents, strange noises, frequent cycling, and unexplained increases in energy bills. If you notice any of these, its best to call a professional.",
+        "Some common signs include weak airflow, warm air coming from vents, strange noises, frequent cycling, and unexplained increases in energy bills. If you notice any of these, it's best to call a professional.",
     },
     {
       question: "How long does an AC installation typically take?",
@@ -702,7 +619,7 @@ function FAQ() {
     {
       question: "Do you offer emergency AC repair services?",
       answer:
-        "Yes, we offer 24/7 emergency AC repair services. We understand that AC issues can occur at any time, and were always ready to help restore your comfort as quickly as possible.",
+        "Yes, we offer 24/7 emergency AC repair services. We understand that AC issues can occur at any time, and we're always ready to help restore your comfort as quickly as possible.",
     },
     {
       question: "What types of AC systems do you work with?",
@@ -819,11 +736,29 @@ function Contact() {
             <ul className="space-y-4">
               <li className="flex items-center">
                 <PhoneCall className="mr-2 text-[#ffc300]" />
-                <span>+91-9975551431</span>
+                <a href="tel:+919975551431" className="hover:text-[#ffc300]">
+                  +91-9975551431
+                </a>
               </li>
               <li className="flex items-center">
                 <Mail className="mr-2 text-[#ffc300]" />
-                <span>suhailsayyed2408@gmail.com</span>
+                <a
+                  href="mailto:suhailsayyed2408@gmail.com"
+                  className="hover:text-[#ffc300]"
+                >
+                  suhailsayyed2408@gmail.com
+                </a>
+              </li>
+              <li className="flex items-center">
+                <IconBrandWhatsapp className="mr-2 text-[#ffc300]" />
+                <a
+                  href="https://wa.me/919975551431"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-[#ffc300]"
+                >
+                  WhatsApp Us
+                </a>
               </li>
               <li className="flex items-center">
                 <Clock className="mr-2 text-[#ffc300]" />
@@ -866,16 +801,31 @@ function Contact() {
     </section>
   );
 }
+
 function Footer() {
   return (
-    <footer className="bg-gray-100 text-black py-8">
-      <div className="container mx-auto px-4">
+    <footer className="bg-gray-100 text-black py-8 w-[100vw]">
+      <div className="container mx-auto ">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div>
             <h2 className="text-2xl font-bold mb-4">
               Life Cool Air Conditioner
             </h2>
             <p>Your trusted partner for all air conditioning needs.</p>
+            <div className="mt-4">
+              <Link
+                href="/privacy-policy"
+                className="text-sm text-gray-600 hover:text-[#ffc300]"
+              >
+                Privacy Policy
+              </Link>
+              <Link
+                href="/terms-and-conditions"
+                className="text-sm text-gray-600 hover:text-[#ffc300]"
+              >
+                Terms and Conditions
+              </Link>
+            </div>
           </div>
           <div>
             <h3 className="text-xl font-semibold mb-4">Quick Links</h3>
@@ -894,7 +844,7 @@ function Footer() {
           </div>
           <div>
             <h3 className="text-xl font-semibold mb-4">Location</h3>
-            <div className="relative w-[50vh] h-[50vh]">
+            <div className="relative">
               <iframe
                 src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3784.463725560107!2d73.87673507519024!3d18.46264258261976!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bc2eaf2cd486d8b%3A0xb2ae810e77ee6756!2sLife%20Cool%20Air%20Conditioner!5e0!3m2!1sen!2sin!4v1730839448929!5m2!1sen!2sin"
                 loading="lazy"
@@ -902,7 +852,7 @@ function Footer() {
             </div>
           </div>
         </div>
-        <div className="mt-8 text-center">
+        <div className="text-center">
           <p>&copy; 2024 Life Cool Air Conditioner. All rights reserved.</p>
         </div>
       </div>
