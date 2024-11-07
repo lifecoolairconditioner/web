@@ -161,7 +161,7 @@ export default function MainScreen() {
         items={carouselItems}
         currentSlide={currentSlide1}
         setCurrentSlide={setCurrentSlide1}
-        title="ABC AC services"
+        title="Life cool air services"
       />
       <ACRentalService />
       <FeaturedServices services={services} />
@@ -291,7 +291,13 @@ function ACRentalService() {
                 Cool comfort, delivered to your doorstep
               </p>
             </div>
-            <Wind className="w-24 h-24 text-black opacity-60" />
+            <Image
+              src={"/acservices.png"}
+              alt="acservices"
+              width={200}
+              height={200}
+              className="mb-4"
+            />
           </div>
         </Link>
       </motion.div>
@@ -369,7 +375,13 @@ function AMCService() {
                 Comprehensive care for commercial and large AC systems
               </p>
             </div>
-            <Calendar className="w-24 h-24 text-black opacity-60" />
+            <Image
+              src={"/amc.png"}
+              alt="amc"
+              width={200}
+              height={200}
+              className="mb-4"
+            />
           </div>
         </Link>
       </motion.div>

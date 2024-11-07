@@ -69,9 +69,16 @@ export const FixedNav = ({
               </button>
             </div>
           </div>
+          <div className="flex-shrink-0">
+            <Link
+              href="/auth/login"
+              className="text-black hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium"
+            >
+              Login
+            </Link>
+          </div>
         </div>
       </div>
-
       {isMenuOpen && (
         <div className="md:hidden">
           <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-gray-800 rounded-lg mt-2">

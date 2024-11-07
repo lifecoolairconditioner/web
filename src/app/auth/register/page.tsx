@@ -23,7 +23,7 @@ import {
 } from "@/components/ui/select";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Loader2, User, Mail, Lock, UserCircle, Hash } from "lucide-react";
-
+import Link from "next/link";
 export default function Register() {
   const router = useRouter();
 
@@ -101,7 +101,7 @@ export default function Register() {
               <AlertDescription>{success}</AlertDescription>
             </Alert>
           )}
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-4 mb-10">
             <div className="space-y-2">
               <Label htmlFor="fullName">Full Name</Label>
               <div className="relative">
@@ -213,6 +213,13 @@ export default function Register() {
               </Button>
             </CardFooter>
           </form>
+          <Link
+            href="/auth/login"
+            className="text-black mt-10 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium"
+          >
+            login..
+            <span className="text-[red]">"only for Technician"</span>
+          </Link>
         </CardContent>
       </Card>
     </motion.div>

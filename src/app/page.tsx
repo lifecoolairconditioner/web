@@ -138,7 +138,7 @@ function Hero() {
             <Link href="/home" className="mt-10">
               <Button
                 size="lg"
-                className="bg-yellow-500 text-white hover:bg-yellow-600 transition-colors duration-300 mt-10 text-lg px-8 py-3 rounded-full shadow-lg hover:shadow-xl"
+                className="bg-blue-900 text-white hover:bg-yellow-600 transition-colors duration-300 mt-10 text-lg px-8 py-3 rounded-full shadow-lg hover:shadow-xl"
               >
                 Book Services Now
               </Button>
@@ -198,7 +198,7 @@ function Hero() {
                 <div className="flex items-center gap-2 text-blue-600">
                   <Phone className="h-5 w-5" />
                   <span className="text-lg font-bold">
-                    +91 9975551431 COOL-NOW
+                    +91 9975551431
                   </span>
                 </div>
               </div>
@@ -251,7 +251,7 @@ function Services() {
           <Link href="/home" passHref>
             <Button
               size="lg"
-              className="bg-yellow-500 text-white hover:bg-yellow-600 transition-colors duration-300 text-lg px-8 py-3 rounded-full shadow-lg hover:shadow-xl  p-8 "
+              className="bg-blue-900 text-white hover:bg-yellow-600 transition-colors duration-300 text-lg px-8 py-3 rounded-full shadow-lg hover:shadow-xl  p-8 "
             >
               Book Services Now
             </Button>
@@ -357,7 +357,7 @@ function WhyChooseUs() {
           <Link href="/home" passHref>
             <Button
               size="lg"
-              className="bg-yellow-500 text-white hover:bg-yellow-600 transition-colors duration-300 text-lg px-8 py-3 rounded-full shadow-lg hover:shadow-xl  p-8 "
+              className="bg-blue-900 text-white hover:bg-yellow-600 transition-colors duration-300 text-lg px-8 py-3 rounded-full shadow-lg hover:shadow-xl  p-8 "
             >
               Book Services Now
             </Button>
@@ -547,7 +547,7 @@ function Testimonials() {
   const testimonials = [
     {
       quote:
-        "Looking for reliable and efficient home utility and repair services? Look no further than Life Cool AIR Conditioner! With their 5-star rated service, you can rest assured that your appliances are in good hands. Their fast workers use sanitised equipment to provide excellent service that is both value for money and satisfactory. Whether you need a repair or installation, Life Cool AIR Conditioner is your go-to choice. Plus, their reasonably priced services won`t break the bank. Trust me, you won`t be disappointed with their top-notch work!",
+        "Looking for reliable and efficient home utility and repair services? Look no further than Life Cool AIR Conditioner! With their 5-star rated service, you can rest assured that your appliances are in good hands.  Trust me, you won`t be disappointed with their top-notch work!",
       name: "",
       title: "abrar",
     },

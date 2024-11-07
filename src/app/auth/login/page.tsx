@@ -15,7 +15,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Loader2, User, Lock } from "lucide-react";
-
+import Link from "next/link";
 export default function Login() {
   const [formData, setFormData] = useState({
     username: "",
@@ -133,6 +133,15 @@ export default function Login() {
               </Button>
             </CardFooter>
           </form>
+          <Link
+            href="/auth/register"
+            className="text-black hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium"
+          >
+            Register..
+            <span className="text-[red]">
+              "only for Technician"
+            </span>
+          </Link>
         </CardContent>
       </Card>
     </motion.div>

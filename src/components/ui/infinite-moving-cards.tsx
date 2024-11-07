@@ -2,7 +2,7 @@
 
 import { cn } from "@/lib/utils";
 import React, { useEffect, useRef, useState } from "react";
-
+import { User } from "lucide-react";
 export const InfiniteMovingCards = ({
   items,
   direction = "left",
@@ -75,15 +75,17 @@ export const InfiniteMovingCards = ({
                 aria-hidden="true"
                 className="pointer-events-none absolute "
               ></div>
-              <span className="relative z-20 text-sm leading-[1.6] text-black font-normal">
-                {item.quote}
-              </span>
+
               <div className="relative z-20 mt-6 flex flex-row items-center">
                 <span className="flex flex-col gap-1">
                   <span className="text-sm leading-[1.6] text-black font-normal">
                     {item.name}
                   </span>
+                  <span className="relative z-20 text-sm leading-[1.6] text-black font-normal">
+                    {item.quote}
+                  </span>
                   <span className="text-sm leading-[1.6] text-black font-normal">
+                    <User className="w-16 h-16 ml-2 text-gray-400" />
                     {item.title}
                   </span>
                 </span>
