@@ -139,7 +139,7 @@ export default function Login() {
           >
             Register..
             <span className="text-[red]">
-              "only for Technician"
+              only for Technician
             </span>
           </Link>
         </CardContent>
