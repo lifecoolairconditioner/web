@@ -177,7 +177,6 @@ export default function Register() {
                   <SelectValue placeholder="Select your role" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="Client">Client</SelectItem>
                   <SelectItem value="Technician">Technician</SelectItem>
                 </SelectContent>
               </Select>

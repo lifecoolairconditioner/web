@@ -73,7 +73,7 @@ export default function AirConditioningService() {
         <Contact />
         <Footer />
       </div>
-      <div className="bg-[#2affe6] hover:bg-green-600 text-black rounded-full px-4 py-6 shadow-lg transition-all duration-300 ease-in-out hover:scale-110 focus:outline-none ">
+      <div className="rounded-full px-4 py-6 shadow-lg transition-all duration-300 ease-in-out hover:scale-110 focus:outline-none ">
         <WhatsAppFloat
           phoneNumber="9975551431"
           message="I'd like to inquire about your services"
@@ -140,7 +140,7 @@ function Hero() {
                 size="lg"
                 className="bg-yellow-500 text-white hover:bg-yellow-600 transition-colors duration-300 mt-10 text-lg px-8 py-3 rounded-full shadow-lg hover:shadow-xl"
               >
-                Book Service Now
+                Book Services Now
               </Button>
             </Link>
           </div>
@@ -232,7 +232,7 @@ function Services() {
   return (
     <section
       id="services"
-      className="relative bg-gradient-to-br from-blue-50 to-blue-100 overflow-hidden py-20"
+      className="relative bg-gradient-to-br from-blue-50 to-blue-100 overflow-hidden py-10"
     >
       <div className="container mx-auto px-4 relative z-10">
         <div className="mb-12">
@@ -251,9 +251,9 @@ function Services() {
           <Link href="/book-service" passHref>
             <Button
               size="lg"
-              className="bg-yellow-500 text-white hover:bg-yellow-600 transition-colors duration-300 text-lg px-8 py-3 rounded-full shadow-lg hover:shadow-xl"
+              className="bg-yellow-500 text-white hover:bg-yellow-600 transition-colors duration-300 text-lg px-8 py-3 rounded-full shadow-lg hover:shadow-xl  p-8 "
             >
-              Book Service Now
+              Book Services Now
             </Button>
           </Link>
         </div>
@@ -267,6 +267,7 @@ function Services() {
             <li key={index}>
               <h3>{service.title}</h3>
               <p>{service.description}</p>
+              <IconTools className="w-6 h-6 text-white" />
             </li>
           ))}
         </ul>
@@ -306,7 +307,7 @@ function WhyChooseUs() {
   return (
     <section
       id="why-us"
-      className="py-20 bg-gradient-to-br from-blue-50 to-blue-100"
+      className="py-10 bg-gradient-to-br from-blue-50 to-blue-100"
     >
       <div className="container mx-auto ">
         <motion.h2
@@ -356,9 +357,9 @@ function WhyChooseUs() {
           <Link href="/book-service" passHref>
             <Button
               size="lg"
-              className="bg-yellow-500 text-white hover:bg-yellow-600 transition-colors duration-300 text-lg px-8 py-3 rounded-full shadow-lg hover:shadow-xl"
+              className="bg-yellow-500 text-white hover:bg-yellow-600 transition-colors duration-300 text-lg px-8 py-3 rounded-full shadow-lg hover:shadow-xl  p-8 "
             >
-              Book Service Now
+              Book Services Now
             </Button>
           </Link>
         </motion.div>
@@ -420,7 +421,7 @@ function About() {
           <div className="lg:w-1/2">
             <TextGenerateEffect
               words={aboutText}
-              className="text-3xl text-gray-600 mb-6"
+              className="text-sm text-gray-600 mb-6"
             />
             <div className="grid grid-cols-3 gap-4 mb-6">
               {stats.map((stat, index) => (
@@ -545,45 +546,36 @@ function Gallery() {
 function Testimonials() {
   const testimonials = [
     {
-      quote: "Excellent service! They fixed my AC in no time.",
+      quote:
+        "Looking for reliable and efficient home utility and repair services? Look no further than Life Cool AIR Conditioner! With their 5-star rated service, you can rest assured that your appliances are in good hands. Their fast workers use sanitised equipment to provide excellent service that is both value for money and satisfactory. Whether you need a repair or installation, Life Cool AIR Conditioner is your go-to choice. Plus, their reasonably priced services won`t break the bank. Trust me, you won`t be disappointed with their top-notch work!",
       name: "",
-      title: "John Doe",
+      title: "abrar",
     },
     {
-      title: "Jane Smith",
-      name: "",
-      quote: "Very professional and knowledgeable team. Highly recommended!",
-    },
-    {
-      title: "Mike Johnson",
-      name: "",
-      quote: "Fair pricing and great customer service. Will use again!",
-    },
-    {
-      title: "Emily Brown",
+      title: "Kuber Patel",
       name: "",
       quote:
-        "They went above and beyond to ensure our AC was working perfectly.",
+        "Life Cool AIR Conditioner provided excellent service. The worker was fast and helpful, and the AC is working satisfactorily.",
     },
     {
-      title: "David Wilson",
+      title: "Sujita",
       name: "",
-      quote: "Prompt, efficient, and friendly. Couldnt ask for better service.",
+      quote: "Very fast worker, very helpful and polite.",
     },
     {
-      title: "David Wilson",
+      title: "Roushan",
       name: "",
-      quote: "Prompt, efficient, and friendly. Couldnt ask for better service.",
+      quote: "Service staff attended on time and well behaved",
     },
     {
-      title: "David Wilson",
+      title: "Manasvi advita",
       name: "",
-      quote: "Prompt, efficient, and friendly. Couldnt ask for better service.",
+      quote: "Great service. Highly recommended",
     },
     {
-      title: "David Wilson",
+      title: "Nisar",
       name: "",
-      quote: "Prompt, efficient, and friendly. Couldnt ask for better service.",
+      quote: "Nice service & excellent experience",
     },
   ];
 
