@@ -2,13 +2,23 @@
 
 import { useEffect, useState } from "react";
 
+// Define a type for the BeforeInstallPromptEvent interface
+interface BeforeInstallPromptEvent extends Event {
+  prompt: () => Promise<void>;
+  userChoice: Promise<{ outcome: "accepted" | "dismissed"; platform: string }>;
+}
+
 export default function PWAInstallButton() {
-  const [deferredPrompt, setDeferredPrompt] = useState<Event | null>(null);
+  const [deferredPrompt, setDeferredPrompt] =
+    useState<BeforeInstallPromptEvent | null>(null);
 
   useEffect(() => {
     const handleBeforeInstallPrompt = (event: Event) => {
-      event.preventDefault();
-      setDeferredPrompt(event);
+      // Check if the event has the expected properties for a BeforeInstallPromptEvent
+      if ("prompt" in event && "userChoice" in event) {
+        event.preventDefault();
+        setDeferredPrompt(event as BeforeInstallPromptEvent);
+      }
     };
 
     window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
@@ -24,9 +34,9 @@ export default function PWAInstallButton() {
   useEffect(() => {
     if (deferredPrompt) {
       const timer = setTimeout(() => {
-        (deferredPrompt as any).prompt();
+        deferredPrompt.prompt();
 
-        (deferredPrompt as any).userChoice.then((choiceResult: any) => {
+        deferredPrompt.userChoice.then((choiceResult) => {
           if (choiceResult.outcome === "accepted") {
             console.log("User accepted the install prompt");
           } else {
