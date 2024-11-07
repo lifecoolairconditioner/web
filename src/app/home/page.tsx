@@ -278,7 +278,7 @@ function ACRentalService() {
           boxShadow: "0 10px 20px rgba(0,0,0,0.1)",
         }}
         whileTap={{ scale: 0.98 }}
-        className="bg-[#ffc300] rounded-3xl shadow-lg overflow-hidden cursor-pointer"
+        className="bg-blue-300 rounded-3xl shadow-lg overflow-hidden cursor-pointer"
       >
         <Link href="/ac-rent">
           <div className="p-8 flex items-center h-full">
@@ -286,9 +286,6 @@ function ACRentalService() {
               <h2 className="text-3xl font-bold text-black mb-4">
                 AC Rental Service
               </h2>
-              <p className="text-black text-xl">
-                Cool comfort, delivered to your doorstep
-              </p>
             </div>
             <Image
               src={"/acservices.png"}
@@ -342,7 +339,7 @@ function FeaturedServices({ services }: FeaturedServicesProps) {
                 {service.name}
               </h3>
               <motion.div
-                className="absolute inset-0 bg-[#ffc300] opacity-0"
+                className="absolute inset-0 bg-blue-300 opacity-0"
                 whileHover={{ opacity: 0.1 }}
               />
             </div>
@@ -362,7 +359,7 @@ function AMCService() {
           boxShadow: "0 10px 20px rgba(0,0,0,0.1)",
         }}
         whileTap={{ scale: 0.98 }}
-        className="bg-[#ffc300] rounded-3xl shadow-lg overflow-hidden cursor-pointer"
+        className="bg-blue-300 rounded-3xl shadow-lg overflow-hidden cursor-pointer"
       >
         <Link href="/amc">
           <div className="p-8 flex items-center h-full">
@@ -370,9 +367,6 @@ function AMCService() {
               <h2 className="text-3xl font-bold text-black mb-4">
                 Annual Maintenance Contract (AMC)
               </h2>
-              <p className="text-black text-xl">
-                Comprehensive care for commercial and large AC systems
-              </p>
             </div>
             <Image
               src={"/amc.png"}

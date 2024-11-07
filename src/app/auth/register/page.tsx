@@ -199,7 +199,7 @@ export default function Register() {
             <CardFooter className="flex justify-center mt-6 p-0">
               <Button
                 type="submit"
-                className="w-full bg-yellow-500 hover:bg-yellow-600 text-black"
+                className="w-full bg-blue-300 hover:bg-yellow-600 text-black"
                 disabled={isLoading}
               >
                 {isLoading ? (

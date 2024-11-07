@@ -134,7 +134,7 @@ export default function ACDetailsPage({ params }: ACDetailsPageProps) {
             <motion.button
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
-              className="mr-4 bg-[#ffc300] text-[#010101] p-2 rounded-full"
+              className="mr-4 bg-blue-300 text-[#010101] p-2 rounded-full"
               aria-label="Go back"
             >
               <ChevronLeft className="w-6 h-6" />
@@ -215,7 +215,7 @@ export default function ACDetailsPage({ params }: ACDetailsPageProps) {
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.9 }}
                   onClick={decrementQuantity}
-                  className="p-2 bg-[#ffc300] text-[#010101] rounded-full"
+                  className="p-2 bg-blue-300 text-[#010101] rounded-full"
                 >
                   <Minus className="w-4 h-4" />
                 </motion.button>
@@ -232,7 +232,7 @@ export default function ACDetailsPage({ params }: ACDetailsPageProps) {
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.9 }}
                   onClick={incrementQuantity}
-                  className="p-2 bg-[#ffc300] text-[#010101] rounded-full"
+                  className="p-2 bg-blue-300 text-[#010101] rounded-full"
                 >
                   <Plus className="w-4 h-4" />
                 </motion.button>
@@ -276,7 +276,7 @@ export default function ACDetailsPage({ params }: ACDetailsPageProps) {
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                     onClick={() => handlePlanSelection(duration)}
-                    className="w-full py-2 px-4 bg-[#ffc300] text-[#010101] rounded-lg font-semibold hover:bg-[#e6b000] transition-colors duration-300 focus:outline-none focus:ring-4 focus:ring-yellow-300"
+                    className="w-full py-2 px-4 bg-blue-300 text-[#010101] rounded-lg font-semibold hover:bg-[#e6b000] transition-colors duration-300 focus:outline-none focus:ring-4 focus:ring-yellow-300"
                   >
                     Select Plan
                   </motion.button>

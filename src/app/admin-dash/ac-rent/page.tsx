@@ -398,7 +398,7 @@ export default function ACRentalDashboard() {
       </motion.h1>
 
       <Tabs defaultValue="rentals" className="space-y-4">
-        <TabsList className="bg-[#ffc300] p-1 rounded-full">
+        <TabsList className="bg-blue-300 p-1 rounded-full">
           <TabsTrigger
             value="rentals"
             className="rounded-full px-4 py-2 data-[state=active]:bg-[#010101] data-[state=active]:text-[#fafafa]"
@@ -446,7 +446,7 @@ export default function ACRentalDashboard() {
                           <TableCell>
                             <Button
                               onClick={() => handleRentalSelect(rental._id)}
-                              className="mr-2 bg-[#ffc300] text-[#010101] hover:bg-[#ffc300]/80"
+                              className="mr-2 bg-blue-300 text-[#010101] hover:bg-blue-300/80"
                             >
                               <Edit className="w-4 h-4 mr-1" /> Edit
                             </Button>
@@ -612,7 +612,7 @@ export default function ACRentalDashboard() {
                       <Button
                         type="button"
                         onClick={addRentalRate}
-                        className="mt-2 bg-[#ffc300] text-[#010101] hover:bg-[#ffc300]/80"
+                        className="mt-2 bg-blue-300 text-[#010101] hover:bg-blue-300/80"
                       >
                         <Plus className="w-4 h-4 mr-1" /> Add Rate
                       </Button>
@@ -677,7 +677,7 @@ export default function ACRentalDashboard() {
                           <TableCell>
                             <Button
                               onClick={() => handleTypeSelect(type._id)}
-                              className="mr-2 bg-[#ffc300] text-[#010101] hover:bg-[#ffc300]/80"
+                              className="mr-2 bg-blue-300 text-[#010101] hover:bg-blue-300/80"
                             >
                               <Edit className="w-4 h-4 mr-1" /> Edit
                             </Button>
@@ -751,7 +751,7 @@ export default function ACRentalDashboard() {
                       <Button
                         type="button"
                         onClick={addTypeFeature}
-                        className="mt-2 bg-[#ffc300] text-[#010101] hover:bg-[#ffc300]/80"
+                        className="mt-2 bg-blue-300 text-[#010101] hover:bg-blue-300/80"
                       >
                         <Plus className="w-4 h-4 mr-1" /> Add Feature
                       </Button>

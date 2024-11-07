@@ -163,7 +163,7 @@ export default function Component() {
                       }
                       className={`w-full py-2 px-4 rounded-lg text-white font-semibold transition-colors duration-300 ${
                         ac.availability > 0
-                          ? "bg-[#ffc300] hover:bg-[#e6b000] focus:ring-4 focus:ring-yellow-300"
+                          ? "bg-blue-300 hover:bg-[#e6b000] focus:ring-4 focus:ring-yellow-300"
                           : "bg-gray-300 cursor-not-allowed"
                       }`}
                       disabled={ac.availability === 0}

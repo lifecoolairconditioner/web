@@ -73,12 +73,7 @@ export default function AirConditioningService() {
         <Contact />
         <Footer />
       </div>
-      <div className="rounded-full px-4 py-6 shadow-lg transition-all duration-300 ease-in-out hover:scale-110 focus:outline-none ">
-        <WhatsAppFloat
-          phoneNumber="9975551431"
-          message="I'd like to inquire about your services"
-        />
-      </div>
+      <WhatsAppFloat phoneNumber="919975551431" />
     </div>
   );
 }
@@ -197,9 +192,7 @@ function Hero() {
                 </p>
                 <div className="flex items-center gap-2 text-blue-600">
                   <Phone className="h-5 w-5" />
-                  <span className="text-lg font-bold">
-                    +91 9975551431
-                  </span>
+                  <span className="text-lg font-bold">+91 9975551431</span>
                 </div>
               </div>
             </div>
@@ -762,7 +755,7 @@ function Contact() {
               ></textarea>
               <Button
                 type="submit"
-                className="bg-[#ffc300] text-black hover:bg-[#ffc300]/90"
+                className="bg-blue-300 text-black hover:bg-blue-300/90"
               >
                 Send Message
               </Button>

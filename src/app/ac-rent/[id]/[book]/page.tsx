@@ -237,7 +237,7 @@ export default function SlotBookingScreen({ params }: Booking) {
               whileTap={{ scale: 0.95 }}
               className={`flex flex-col items-center justify-center w-16 h-20 mr-2 rounded-lg ${
                 selectedDate?.toDateString() === date.toDateString()
-                  ? "bg-[#ffc300] text-[#010101]"
+                  ? "bg-blue-300 text-[#010101]"
                   : "bg-white text-[#010101]"
               } shadow-sm transition-colors duration-200`}
             >
@@ -268,7 +268,7 @@ export default function SlotBookingScreen({ params }: Booking) {
               whileTap={{ scale: 0.95 }}
               className={`py-2 px-4 rounded-lg ${
                 selectedTime === time
-                  ? "bg-[#ffc300] text-[#010101]"
+                  ? "bg-blue-300 text-[#010101]"
                   : "bg-white text-[#010101]"
               } shadow-sm transition-colors duration-200`}
             >
@@ -287,7 +287,7 @@ export default function SlotBookingScreen({ params }: Booking) {
           disabled={!selectedDate || !selectedTime}
           className={`w-full py-3 px-4 rounded-lg text-white font-semibold transition-colors duration-300 ${
             selectedDate && selectedTime
-              ? "bg-[#ffc300] hover:bg-[#e6b000]"
+              ? "bg-blue-300 hover:bg-[#e6b000]"
               : "bg-gray-300 cursor-not-allowed"
           } focus:outline-none focus:ring-4 focus:ring-yellow-300`}
         >
@@ -360,7 +360,7 @@ export default function SlotBookingScreen({ params }: Booking) {
                 </div>
                 <Button
                   type="submit"
-                  className="w-full bg-[#ffc300] text-[#010101] hover:bg-[#e6b000]"
+                  className="w-full bg-blue-300 text-[#010101] hover:bg-[#e6b000]"
                   disabled={isLoading}
                 >
                   {isLoading ? "Processing..." : "Confirm Booking"}

@@ -306,7 +306,7 @@ export default function PaymentPage({ params }: PaymentDetail) {
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
           onClick={handlePaymentConfirmation}
-          className="w-full py-3 px-4 bg-[#ffc300] text-[#010101] rounded-lg font-semibold hover:bg-[#e6b000] transition-colors focus:outline-none focus:ring-4 focus:ring-[#ffc300] focus:ring-opacity-50"
+          className="w-full py-3 px-4 bg-blue-300 text-[#010101] rounded-lg font-semibold hover:bg-[#e6b000] transition-colors focus:outline-none focus:ring-4 focus:ring-[#ffc300] focus:ring-opacity-50"
         >
           Confirm Payment
         </motion.button>

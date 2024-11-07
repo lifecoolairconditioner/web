@@ -253,7 +253,7 @@ export default function ServiceSchedulingPage({
                   onClick={() => handleDateClick(calendarDate)}
                   className={`flex flex-col items-center justify-center w-16 h-20 mr-2 rounded-lg ${
                     date.startsWith(calendarDate.toISOString().split("T")[0])
-                      ? "bg-[#ffc300] text-[#010101]"
+                      ? "bg-blue-300 text-[#010101]"
                       : "bg-white text-[#010101]"
                   } shadow-sm transition-colors duration-200 flex-shrink-0`}
                   whileHover={{ scale: 1.05 }}
@@ -294,7 +294,7 @@ export default function ServiceSchedulingPage({
                   onClick={() => handleTimeClick(slot)}
                   className={`py-2 px-4 rounded-lg ${
                     timeSlot === slot.toISOString()
-                      ? "bg-[#ffc300] text-[#010101]"
+                      ? "bg-blue-300 text-[#010101]"
                       : "bg-white text-[#010101]"
                   } shadow-sm transition-colors duration-200`}
                   whileHover={{ scale: 1.05 }}
@@ -326,7 +326,7 @@ export default function ServiceSchedulingPage({
           disabled={!date || !timeSlot}
           className={`w-full py-3 px-4 rounded-lg text-[#010101] font-semibold transition-colors duration-300 ${
             date && timeSlot
-              ? "bg-[#ffc300] hover:bg-[#e6b000]"
+              ? "bg-blue-300 hover:bg-[#e6b000]"
               : "bg-gray-300 cursor-not-allowed"
           } focus:outline-none focus:ring-4 focus:ring-[#ffc300] focus:ring-opacity-50`}
         >
@@ -421,7 +421,7 @@ export default function ServiceSchedulingPage({
                 <DialogFooter>
                   <Button
                     type="submit"
-                    className="bg-[#ffc300] text-[#010101] hover:bg-[#e6b000]"
+                    className="bg-blue-300 text-[#010101] hover:bg-[#e6b000]"
                     disabled={loading}
                   >
                     {loading ? "Placing Order..." : "Complete Booking"}

@@ -530,7 +530,7 @@ export default function OrderManagement() {
           )}
           <DialogFooter>
             <Button
-              className="bg-[#ffc300] text-[#010101] hover:bg-[#ffc300]/90"
+              className="bg-blue-300 text-[#010101] hover:bg-blue-300/90"
               onClick={() => setIsDetailsModalOpen(false)}
             >
               Close

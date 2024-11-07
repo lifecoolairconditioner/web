@@ -288,13 +288,13 @@ export default function OrderTrackingPage() {
           <Button
             type="submit"
             disabled={isLoading}
-            className="w-full py-2 px-4 bg-[#ffc300] text-[#010101] rounded-lg font-semibold hover:bg-[#e6b000] transition-colors focus:outline-none focus:ring-4 focus:ring-[#ffc300] focus:ring-opacity-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full py-2 px-4 bg-blue-300 text-[#010101] rounded-lg font-semibold hover:bg-[#e6b000] transition-colors focus:outline-none focus:ring-4 focus:ring-[#ffc300] focus:ring-opacity-50 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isLoading ? "Fetching..." : "Track Orders"}
           </Button>
 
           <Link href="/review" passHref>
-            <Button className="w-full mt-5 py-2 px-4 bg-[#ffc300] text-[#010101] rounded-lg font-semibold hover:bg-[#e6b000] transition-colors focus:outline-none focus:ring-4 focus:ring-[#ffc300] focus:ring-opacity-50">
+            <Button className="w-full mt-5 py-2 px-4 bg-blue-300 text-[#010101] rounded-lg font-semibold hover:bg-[#e6b000] transition-colors focus:outline-none focus:ring-4 focus:ring-[#ffc300] focus:ring-opacity-50">
               Review
             </Button>
           </Link>
@@ -432,7 +432,7 @@ export default function OrderTrackingPage() {
                 <Button
                   onClick={handleRefresh}
                   disabled={isRefreshing}
-                  className="flex-1 py-2 px-4 bg-[#ffc300] text-[#010101] rounded-lg font-semibold hover:bg-[#e6b000] transition-colors focus:outline-none focus:ring-4 focus:ring-[#ffc300] focus:ring-opacity-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex-1 py-2 px-4 bg-blue-300 text-[#010101] rounded-lg font-semibold hover:bg-[#e6b000] transition-colors focus:outline-none focus:ring-4 focus:ring-[#ffc300] focus:ring-opacity-50 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isRefreshing ? (
                     <>
@@ -501,7 +501,7 @@ export default function OrderTrackingPage() {
           <DialogFooter>
             <Button
               onClick={handleUpdateOrder}
-              className="bg-[#ffc300] text-[#010101] hover:bg-[#e6b000]"
+              className="bg-blue-300 text-[#010101] hover:bg-[#e6b000]"
             >
               Update Order
             </Button>
@@ -525,7 +525,7 @@ export default function OrderTrackingPage() {
               </AlertDescription>
               <Button
                 onClick={() => setShowRentalAlert(false)}
-                className="mt-4 bg-[#ffc300] text-[#010101] hover:bg-[#e6b000]"
+                className="mt-4 bg-blue-300 text-[#010101] hover:bg-[#e6b000]"
               >
                 Close
               </Button>

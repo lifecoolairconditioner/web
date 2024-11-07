@@ -185,7 +185,7 @@ export default function PaymentDetailsCMS() {
                   height={200}
                   className="w-full max-w-[200px] h-auto mx-auto mb-4 object-cover rounded-lg"
                 />
-                <label className="cursor-pointer bg-[#ffc300] text-[#010101] py-2 px-4 rounded-lg hover:bg-[#e6b000] transition duration-300">
+                <label className="cursor-pointer bg-blue-300 text-[#010101] py-2 px-4 rounded-lg hover:bg-[#e6b000] transition duration-300">
                   <Upload className="w-5 h-5 inline-block mr-2" />
                   Upload New Image
                   <input
@@ -328,7 +328,7 @@ export default function PaymentDetailsCMS() {
 
             <button
               type="submit"
-              className="w-full py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-[#010101] bg-[#ffc300] hover:bg-[#e6b000] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#ffc300]"
+              className="w-full py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-[#010101] bg-blue-300 hover:bg-[#e6b000] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#ffc300]"
             >
               <Save className="w-5 h-5 inline-block mr-2" />
               Save Changes

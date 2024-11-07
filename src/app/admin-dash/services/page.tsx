@@ -219,7 +219,7 @@ export default function ServiceManagement() {
 
         <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
           <DialogTrigger asChild>
-            <Button className="bg-[#ffc300] text-[#010101] hover:bg-[#ffc300]/90">
+            <Button className="bg-blue-300 text-[#010101] hover:bg-blue-300/90">
               <Plus className="mr-2 h-4 w-4" /> Add New Service
             </Button>
           </DialogTrigger>
