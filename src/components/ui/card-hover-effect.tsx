@@ -2,7 +2,7 @@ import { cn } from "@/lib/utils";
 import { AnimatePresence, motion } from "framer-motion";
 import Link from "next/link";
 import { useState } from "react";
-
+import { IconTools } from "@tabler/icons-react";
 export const HoverEffect = ({
   items,
   className,
@@ -49,6 +49,7 @@ export const HoverEffect = ({
             )}
           </AnimatePresence>
           <Card>
+            <IconTools className="w-6 h-6 text-white " />
             <CardTitle>{item.title}</CardTitle>
             <CardDescription>{item.description}</CardDescription>
           </Card>

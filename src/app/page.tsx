@@ -260,7 +260,6 @@ function Services() {
             <li key={index}>
               <h3>{service.title}</h3>
               <p>{service.description}</p>
-              <IconTools className="w-6 h-6 text-white" />
             </li>
           ))}
         </ul>
@@ -311,24 +310,21 @@ function WhyChooseUs() {
         >
           Why Choose Us?
         </motion.h2>
-        <BentoGrid className="max-w-5xl mx-auto ">
+        <BentoGrid className="max-w-5xl mx-auto  ">
           {reasons.map((item, i) => (
             <BentoGridItem
               key={i}
               title={item.title}
               description={item.description}
               header={
-                <Image
-                  src={item.imageSrc}
-                  alt={item.title}
-                  width={600}
-                  height={400}
-                  className="object-cover w-full h-52 rounded-t-lg"
-                />
-              }
-              className="border h-full border-gray-200 hover:border-yellow-500 transition-colors duration-300"
-              icon={
-                <div className="">
+                <div className="p-3">
+                  <Image
+                    src={item.imageSrc}
+                    alt={item.title}
+                    width={600}
+                    height={400}
+                    className="object-cover w-full h-52 rounded-t-lg"
+                  />
                   {item.icon}
                   <div className="font-sans font-bold text-neutral-600 dark:text-neutral-200">
                     {item.title}
@@ -338,6 +334,7 @@ function WhyChooseUs() {
                   </div>
                 </div>
               }
+              className="border h-full border-gray-200 hover:border-yellow-500 transition-colors duration-300"
             />
           ))}
         </BentoGrid>
@@ -422,10 +419,10 @@ function About() {
                   <HoverCardTrigger>
                     <div className="flex flex-col items-center p-4 bg-white rounded-lg shadow-md transition-all duration-300 hover:shadow-lg">
                       {stat.icon}
-                      <span className="text-xl font-bold text-yellow-500 mt-2">
+                      <span className="text-sm font-bold text-yellow-500 mt-2">
                         {stat.value}
                       </span>
-                      <span className="text-xl text-gray-500">
+                      <span className="text-sm text-gray-500">
                         {stat.label}
                       </span>
                     </div>
