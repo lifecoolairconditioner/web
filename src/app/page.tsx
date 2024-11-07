@@ -118,7 +118,7 @@ function Hero() {
           </motion.p>
 
           <div className="space-y-4 mb-8">
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 mb-10">
               <div className="flex -space-x-2">
                 {[1, 2, 3].map((i) => (
                   <Image
@@ -135,6 +135,14 @@ function Hero() {
                 Join 10,000+ satisfied customers
               </span>
             </div>
+            <Link href="/book-service" className="mt-10">
+              <Button
+                size="lg"
+                className="bg-yellow-500 text-white hover:bg-yellow-600 transition-colors duration-300 mt-10 text-lg px-8 py-3 rounded-full shadow-lg hover:shadow-xl"
+              >
+                Book Service Now
+              </Button>
+            </Link>
           </div>
         </div>
       </div>
@@ -189,7 +197,9 @@ function Hero() {
                 </p>
                 <div className="flex items-center gap-2 text-blue-600">
                   <Phone className="h-5 w-5" />
-                  <span className="text-lg font-bold">1-800-COOL-NOW</span>
+                  <span className="text-lg font-bold">
+                    +91 9975551431 COOL-NOW
+                  </span>
                 </div>
               </div>
             </div>
