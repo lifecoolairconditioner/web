@@ -135,7 +135,7 @@ function Hero() {
                 Join 10,000+ satisfied customers
               </span>
             </div>
-            <Link href="/book-service" className="mt-10">
+            <Link href="/home" className="mt-10">
               <Button
                 size="lg"
                 className="bg-yellow-500 text-white hover:bg-yellow-600 transition-colors duration-300 mt-10 text-lg px-8 py-3 rounded-full shadow-lg hover:shadow-xl"
@@ -248,7 +248,7 @@ function Services() {
         </div>
         <HoverEffect items={services} />
         <div className="mt-12 text-center">
-          <Link href="/book-service" passHref>
+          <Link href="/home" passHref>
             <Button
               size="lg"
               className="bg-yellow-500 text-white hover:bg-yellow-600 transition-colors duration-300 text-lg px-8 py-3 rounded-full shadow-lg hover:shadow-xl  p-8 "
@@ -354,7 +354,7 @@ function WhyChooseUs() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.2 }}
         >
-          <Link href="/book-service" passHref>
+          <Link href="/home" passHref>
             <Button
               size="lg"
               className="bg-yellow-500 text-white hover:bg-yellow-600 transition-colors duration-300 text-lg px-8 py-3 rounded-full shadow-lg hover:shadow-xl  p-8 "
