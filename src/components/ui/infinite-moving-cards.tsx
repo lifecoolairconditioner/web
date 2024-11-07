@@ -78,15 +78,12 @@ export const InfiniteMovingCards = ({
 
               <div className="relative z-20 mt-6 flex flex-row items-center">
                 <span className="flex flex-col gap-1">
-                  <span className="text-sm leading-[1.6] text-black font-normal">
-                    {item.name}
+                  <span className="text-xl leading-[1.6] text-black">
+                    <User className="w-16 h-16 text-gray-400" />
+                    {item.title}
                   </span>
                   <span className="relative z-20 text-sm leading-[1.6] text-black font-normal">
                     {item.quote}
-                  </span>
-                  <span className="text-sm leading-[1.6] text-black font-normal">
-                    <User className="w-16 h-16 ml-2 text-gray-400" />
-                    {item.title}
                   </span>
                 </span>
               </div>

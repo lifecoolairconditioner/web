@@ -547,7 +547,7 @@ function Testimonials() {
   const testimonials = [
     {
       quote:
-        "Looking for reliable and efficient home utility and repair services? Look no further than Life Cool AIR Conditioner! With their 5-star rated service, you can rest assured that your appliances are in good hands.  Trust me, you won`t be disappointed with their top-notch work!",
+        "Looking for reliable and efficient home utility and repair services? Look no further than Life Cool AIR Conditioner! Trust me, you won`t be disappointed with their top-notch work!",
       name: "",
       title: "abrar",
     },
