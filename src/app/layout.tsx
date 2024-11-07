@@ -16,7 +16,8 @@ export default function RootLayout({
     <html lang="en">
       <head>
         <link rel="manifest" href="/manifest.json" />
-        <link rel="apple-touch-icon" href="/logo.png" />
+        <link rel="apple-touch-icon" href="/logosmall-t.png" />
+        <link rel="shortcut icon" href="/logosmall-t.png" type="image/x-icon" />
         <meta name="theme-color" content="#000000" />
       </head>
       <body>

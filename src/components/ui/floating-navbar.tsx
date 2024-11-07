@@ -32,7 +32,7 @@ export const FixedNav = ({
             <div className="flex-shrink-0">
               <Link href="/">
                 <Image
-                  src="/logo.png" // Replace with your actual logo path
+                  src="/logosmall.png" // Replace with your actual logo path
                   alt="Company Logo"
                   width={40}
                   height={40}
