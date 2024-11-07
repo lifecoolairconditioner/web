@@ -58,7 +58,6 @@ const menuItems = [
   { name: "FAQ", link: "#faq" },
   { name: "Contact", link: "#contact" },
 ];
-
 export default function AirConditioningService() {
   return (
     <div className="relative">
