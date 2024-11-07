@@ -5,13 +5,13 @@
     {
       "purpose": "maskable",
       "sizes": "512x512",
-      "src": "icon512_maskable.png",
+      "src": "logo.png",
       "type": "image/png"
     },
     {
       "purpose": "any",
       "sizes": "512x512",
-      "src": "icon512_rounded.png",
+      "src": "logo.png",
       "type": "image/png"
     }
   ],
@@ -19,6 +19,6 @@
   "display": "standalone",
   "dir": "auto",
   "lang": "en",
-  "name": "ac rental app",
+  "name": "Life cool Air conditioner",
   "short_name": "arp"
 }

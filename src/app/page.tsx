@@ -23,6 +23,8 @@ import {
   Snowflake,
   Wind,
   Search,
+  Wrench,
+  ClipboardCheck,
 } from "lucide-react";
 import { TypewriterEffect } from "@/components/ui/typewriter-effect";
 import {
@@ -33,9 +35,6 @@ import {
   IconClock,
   IconTools,
   IconUsers,
-  IconAirConditioning,
-  IconToolsKitchen2,
-  IconThermometer,
   IconBrandWhatsapp,
 } from "@tabler/icons-react";
 import {
@@ -47,7 +46,7 @@ import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { InfiniteMovingCards } from "@/components/ui/infinite-moving-cards";
 import { Input } from "@/components/ui/input";
 import { ThermometerSnowflake, Phone } from "lucide-react";
-
+import WhatsAppFloat from "@/components/whatsapp";
 const menuItems = [
   { name: "Home", link: "#home" },
   { name: "We Repair", link: "#we-repair" },
@@ -62,19 +61,25 @@ const menuItems = [
 
 export default function AirConditioningService() {
   return (
-    <div className="flex flex-col min-h-screen bg-white w-[100vw] text-black">
-      <FixedNav navItems={menuItems} />
-      <Hero />
-      <Services />
-      <WhyChooseUs />
-      <About />
-      <Gallery />
-      <Testimonials />
-      <FAQ />
-      <Awards />
-      <Contact />
-
-      <Footer />
+    <div className="relative">
+      <div className="flex flex-col min-h-screen bg-white w-full text-black">
+        <FixedNav navItems={menuItems} />
+        <Hero />
+        <Services />
+        <WhyChooseUs />
+        <About />
+        <Gallery />
+        <Testimonials />
+        <FAQ />
+        <Contact />
+        <Footer />
+      </div>
+      <div className="bg-[#2affe6] hover:bg-green-600 text-black rounded-full px-4 py-6 shadow-lg transition-all duration-300 ease-in-out hover:scale-110 focus:outline-none ">
+        <WhatsAppFloat
+          phoneNumber="9975551431"
+          message="I'd like to inquire about your services"
+        />
+      </div>
     </div>
   );
 }
@@ -267,25 +272,25 @@ function WhyChooseUs() {
       title: "Expert Technicians",
       description: "Highly trained and certified professionals",
       icon: <IconTool className="w-6 h-6 text-yellow-500" />,
-      imageSrc: "/amc.jpg",
+      imageSrc: "/image.png",
     },
     {
       title: "24/7 Service",
       description: "Round-the-clock emergency repairs",
       icon: <IconBolt className="w-6 h-6 text-yellow-500" />,
-      imageSrc: "/amc.jpg",
+      imageSrc: "/image4.png",
     },
     {
       title: "Affordable Pricing",
       description: "Competitive rates without compromising quality",
       icon: <IconBuildingStore className="w-6 h-6 text-yellow-500" />,
-      imageSrc: "/amc.jpg",
+      imageSrc: "/image2.png",
     },
     {
       title: "Guaranteed Satisfaction",
       description: "We're not happy until you're happy",
       icon: <IconThumbUp className="w-6 h-6 text-yellow-500" />,
-      imageSrc: "/amc.jpg",
+      imageSrc: "/image3.png",
     },
   ];
 
@@ -443,7 +448,7 @@ function Gallery() {
     {
       title: "AC Installation",
       description: "Professional installation of a new air conditioning system",
-      icon: <IconAirConditioning className="h-6 w-6 text-blue-500" />,
+      icon: <Snowflake className="h-6 w-6 text-blue-500" />,
       imageSrc: "/ac-install.jpg",
       className: "md:col-span-2",
     },
@@ -451,21 +456,21 @@ function Gallery() {
       title: "Ductwork Repair",
       description:
         "Fixing and optimizing air duct systems for improved efficiency",
-      icon: <IconToolsKitchen2 className="h-6 w-6 text-green-500" />,
+      icon: <Wind className="h-6 w-6 text-green-500" />,
       imageSrc: "/duct.jpg",
       className: "md:col-span-1",
     },
     {
       title: "AMC",
-      description: "Installing Annual maintenance contract",
-      icon: <IconThermometer className="h-6 w-6 text-red-500" />,
+      description: "Annual Maintenance Contract for your AC systems",
+      icon: <ClipboardCheck className="h-6 w-6 text-red-500" />,
       imageSrc: "/amc.jpg",
       className: "md:col-span-1",
     },
     {
-      title: "AC rent",
+      title: "AC Rental",
       description: "Large-scale air conditioning solutions for businesses",
-      icon: <IconAirConditioning className="h-6 w-6 text-purple-500" />,
+      icon: <Wrench className="h-6 w-6 text-purple-500" />,
       imageSrc: "/ac-rent.jpg",
       className: "md:col-span-2",
     },
@@ -681,40 +686,6 @@ function FAQ() {
             No matching questions found. Please try a different search term.
           </p>
         )}
-      </div>
-    </section>
-  );
-}
-
-function Awards() {
-  return (
-    <section
-      id="awards"
-      className="py-20 bg-gradient-to-br from-blue-50 to-blue-100"
-    >
-      <div className="container mx-auto px-4">
-        <h2 className="text-3xl md:text-4xl font-bold text-center text-[#000000] mb-12">
-          Our Awards & Certifications
-        </h2>
-        <HoverEffect
-          items={[
-            {
-              title: "Best HVAC Service 2023",
-              description: "Awarded by the National HVAC Association",
-              link: "/",
-            },
-            {
-              title: "Energy Star Partner",
-              description: "Recognized for promoting energy-efficient products",
-              link: "/",
-            },
-            {
-              title: "Customer Satisfaction Award",
-              description: "5-star rating on major review platforms",
-              link: "/",
-            },
-          ]}
-        />
       </div>
     </section>
   );
