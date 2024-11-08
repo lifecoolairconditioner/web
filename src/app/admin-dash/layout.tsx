@@ -28,6 +28,8 @@ export default function DashLayout({
 
   return (
     <html lang="en">
+      <link rel="apple-touch-icon" href="/logosmall-t.png" />
+      <link rel="shortcut icon" href="/logosmall-t.png" type="image/x-icon" />
       <body className="antialiased">
         <Navbar />
         {children}

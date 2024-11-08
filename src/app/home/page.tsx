@@ -184,14 +184,6 @@ function Carousel({
   return (
     <div className="py-6">
       <div className="container mx-auto px-4">
-        <motion.h2
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-          className="text-3xl font-bold text-black mb-8"
-        >
-          {title}
-        </motion.h2>
         <motion.div
           className="relative rounded-3xl overflow-hidden shadow-lg aspect-[16/9]"
           whileHover={{ scale: 1.02 }}
@@ -219,14 +211,6 @@ function Carousel({
                   objectFit="cover"
                   priority={index === currentSlide}
                 />
-                <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center flex-col p-4">
-                  <h3 className="text-white text-xl md:text-3xl font-bold mb-2 text-center">
-                    {item.title}
-                  </h3>
-                  <p className="text-white text-sm md:text-xl text-center">
-                    {item.description}
-                  </p>
-                </div>
               </motion.div>
             ))}
           </AnimatePresence>
