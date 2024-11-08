@@ -179,7 +179,6 @@ function Carousel({
   items,
   currentSlide,
   setCurrentSlide,
-  title,
 }: CarouselProps) {
   return (
     <div className="py-6">
