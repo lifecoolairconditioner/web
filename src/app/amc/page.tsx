@@ -59,7 +59,7 @@ export default function Component() {
       className="min-h-screen bg-[#fafafa] p-4 sm:p-6 lg:p-8"
     >
       <header className="flex items-center mb-6">
-        <Link href="./">
+        <Link href="./home">
           <motion.button
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
