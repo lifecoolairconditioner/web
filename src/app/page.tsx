@@ -43,10 +43,11 @@ import {
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
-import { InfiniteMovingCards } from "@/components/ui/infinite-moving-cards";
+import InfiniteMovingCards from "@/components/ui/infinite-moving-cards";
 import { Input } from "@/components/ui/input";
 import { ThermometerSnowflake, Phone } from "lucide-react";
 import WhatsAppFloat from "@/components/whatsapp";
+
 const menuItems = [
   { name: "Home", link: "#home" },
   { name: "We Repair", link: "#we-repair" },
@@ -58,6 +59,7 @@ const menuItems = [
   { name: "FAQ", link: "#faq" },
   { name: "Contact", link: "#contact" },
 ];
+
 export default function AirConditioningService() {
   return (
     <div className="relative">
@@ -133,7 +135,7 @@ function Hero() {
             <Link href="/home" className="mt-10">
               <Button
                 size="lg"
-                className="bg-blue-900 text-white hover:bg-yellow-600 transition-colors duration-300 mt-10 text-lg px-8 py-3 rounded-full shadow-lg hover:shadow-xl"
+                className="bg-blue-900 text-white hover:bg-blue-500 transition-colors duration-300 mt-10 text-lg px-8 py-3 rounded-full shadow-lg hover:shadow-xl"
               >
                 Book Services Now
               </Button>
@@ -244,7 +246,7 @@ function Services() {
           <Link href="/home" passHref>
             <Button
               size="lg"
-              className="bg-blue-900 text-white hover:bg-yellow-600 transition-colors duration-300 text-lg px-8 py-3 rounded-full shadow-lg hover:shadow-xl  p-8 "
+              className="bg-blue-900 text-white hover:bg-blue-500 transition-colors duration-300 text-lg px-8 py-3 rounded-full shadow-lg hover:shadow-xl  p-8 "
             >
               Book Services Now
             </Button>
@@ -347,7 +349,7 @@ function WhyChooseUs() {
           <Link href="/home" passHref>
             <Button
               size="lg"
-              className="bg-blue-900 text-white hover:bg-yellow-600 transition-colors duration-300 text-lg px-8 py-3 rounded-full shadow-lg hover:shadow-xl  p-8 "
+              className="bg-blue-900 text-white hover:bg-blue-500 transition-colors duration-300 text-lg px-8 py-3 rounded-full shadow-lg hover:shadow-xl  p-8 "
             >
               Book Services Now
             </Button>

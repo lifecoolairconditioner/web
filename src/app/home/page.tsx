@@ -232,7 +232,7 @@ function CarouselNavigation({
     <>
       <Button
         variant="outline"
-        size="icon"
+        size="sm"
         className="absolute top-1/2 left-4 transform -translate-y-1/2 z-20 bg-white/80 hover:bg-white rounded-full"
         onClick={() =>
           setCurrentSlide((prev) => (prev - 1 + itemsLength) % itemsLength)
@@ -242,7 +242,7 @@ function CarouselNavigation({
       </Button>
       <Button
         variant="outline"
-        size="icon"
+        size="sm"
         className="absolute top-1/2 right-4 transform -translate-y-1/2 z-20 bg-white/80 hover:bg-white rounded-full"
         onClick={() => setCurrentSlide((prev) => (prev + 1) % itemsLength)}
       >
