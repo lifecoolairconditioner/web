@@ -15,8 +15,10 @@ export const getAllACRentals = async () => {
 
 // Get a single AC rental by ID
 export const getACRentalById = async (id) => {
+  console.log("id", id);
   try {
     const response = await axios.get(`${AC_RENTAL_API_URL}/${id}`);
+    console.log("response", response);
     return response.data;
   } catch (error) {
     console.error(`Error fetching AC rental by ID (${id}):`, error);

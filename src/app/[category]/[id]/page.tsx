@@ -190,7 +190,7 @@ export default function ServiceDetailsPage({
             <span className="text-[#000] font-bold line-through ">
               ₹{serviceDetails.offerPrice.toLocaleString("en-IN")}
             </span>
-            <span className="text-[#ffc300] font-bold text-3xl">
+            <span className="text-blue-500 font-bold text-3xl">
               ₹ {serviceDetails.actualPrice.toLocaleString("en-IN")}
             </span>
 
@@ -201,7 +201,7 @@ export default function ServiceDetailsPage({
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={handleBookService}
-              className="bg-blue-300 text-[#010101] px-6 py-3 rounded-lg font-semibold hover:bg-[#e6b000] transition-colors duration-300 focus:outline-none focus:ring-4 focus:ring-[#ffc300] focus:ring-opacity-50"
+              className="bg-blue-300 text-[#010101] px-6 py-3 rounded-lg font-semibold hover:bg-[#e6b000] transition-colors duration-300 focus:outline-none focus:ring-4 focus:ring-blue-300 focus:ring-opacity-50"
             >
               Book Service
             </motion.button>

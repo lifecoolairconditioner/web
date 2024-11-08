@@ -26,6 +26,8 @@ import {
 } from "@/components/ui/dialog";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { toast } from "@/hooks/use-toast";
+import { getACRentalById } from "@/apis/acrent";
+import { getServiceById } from "@/apis/service";
 
 type OrderStatus = "Pending" | "Approved" | "Rejected";
 
@@ -58,6 +60,8 @@ interface OrderDetails {
   paymentStatus: string;
   totalPrice: number;
   technician?: Technician;
+  rental?: string; // Add this if rental is a string or change the type as needed
+  duration?: number; // Add this if duration is a number or change the type as needed
 }
 
 const fetchOrderByPhone = async (phone: string): Promise<OrderDetails[]> => {
@@ -99,7 +103,7 @@ export default function OrderTrackingPage() {
   const [updatedDate, setUpdatedDate] = useState("");
   const [updatedTimeSlot, setUpdatedTimeSlot] = useState("");
   const [showRentalAlert, setShowRentalAlert] = useState(false);
-
+  console.log(orderDetails);
   useEffect(() => {
     document.body.style.backgroundColor = "#fafafa";
     return () => {
@@ -116,28 +120,67 @@ export default function OrderTrackingPage() {
     setIsLoading(true);
     try {
       const details = await fetchOrderByPhone(mobileNumber);
+
       const updatedDetails = await Promise.all(
         details.map(async (order) => {
-          if (order.technician && order.technician._id) {
+          // Create a copy of the order to progressively add new details
+          let updatedOrder = { ...order };
+
+          // Check if order.technician is a string (technician ID)
+          if (typeof order.technician === "string") {
             try {
               const technicianDetails = await fetchTechnicianById(
-                order.technician._id
+                order.technician
               );
-              return { ...order, technician: technicianDetails };
+              updatedOrder = { ...updatedOrder, technician: technicianDetails }; // Update technician with full details
             } catch (error) {
               console.log(error);
               console.warn(
                 `Failed to fetch technician details for order ${order._id}`
               );
-              return order;
             }
           }
-          return order;
+
+          // Check if rental exists and fetch rental details
+          if (order.rental) {
+            try {
+              const rentalDetails = await getACRentalById(order.rental);
+              console.log("rentalDetails", rentalDetails); // Log the rental details
+              updatedOrder = { ...updatedOrder, rental: rentalDetails.name }; // Update with name
+            } catch (error) {
+              console.error(
+                `Failed to fetch rental details for order ${order._id}`,
+                error
+              );
+              // If rental details fail, keep the original rental ID or fallback
+              updatedOrder = { ...updatedOrder, rental: order.rental };
+            }
+          }
+
+          // Check if service exists and fetch service details
+          if (order.service) {
+            try {
+              const serviceDetails = await getServiceById(order.service);
+              console.log(serviceDetails); // Log the service details
+              updatedOrder = { ...updatedOrder, service: serviceDetails.name }; // Update with name
+            } catch (error) {
+              console.error(
+                `Failed to fetch service details for order ${order._id}`,
+                error
+              );
+              // If service details fail, keep the original service ID or fallback
+              updatedOrder = { ...updatedOrder, service: order.service };
+            }
+          }
+
+          // Return the fully updated order object after processing all details
+          return updatedOrder;
         })
       );
-      setOrderDetails(updatedDetails);
+
+      setOrderDetails(updatedDetails); // Update state with the updated orders
     } catch (error) {
-      console.error("Error fetching order details:", error);
+      console.log(error);
       toast({
         title: "Error",
         description: "Failed to fetch order details. Please try again.",
@@ -198,7 +241,7 @@ export default function OrderTrackingPage() {
         await fetchOrderDetails();
       }
     } catch (error) {
-      console.error("Error updating order:", error);
+      console.log(error);
       toast({
         title: "Error",
         description: "Failed to update order. Please try again.",
@@ -230,6 +273,8 @@ export default function OrderTrackingPage() {
         return <XCircle className="w-16 h-16 text-red-500" />;
       case "Pending":
         return <Clock className="w-16 h-16 text-[#ffc300]" />;
+      default:
+        return null;
     }
   };
 
@@ -374,16 +419,22 @@ export default function OrderTrackingPage() {
                       <strong>Total Price:</strong> ₹ {order.totalPrice}
                     </p>
                     <p>
-                      <strong>Service:</strong> {order.service}
+                      <strong>
+                        {order.service
+                          ? `Service: ${order.service}`
+                          : `Rental: ${order.rental}`}
+                      </strong>
                     </p>
+
                     <p>
                       <strong>Date:</strong>{" "}
                       {new Date(order.date).toLocaleDateString()}
                     </p>
-                    <p>
-                      <strong>Time Slot:</strong>{" "}
-                      {new Date(order.timeSlot).toLocaleTimeString()}
-                    </p>
+                    {order.duration && (
+                      <p>
+                        <strong>Time Slot:</strong> {order.duration} months
+                      </p>
+                    )}
                   </motion.div>
 
                   {order.technician ? (

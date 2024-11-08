@@ -403,7 +403,7 @@ function About() {
             transition={{ duration: 0.5, delay: 0.2 }}
           >
             <Image
-              src="/logo.png"
+              src="/logosmall-t.png"
               alt="About Life Cool Air Conditioner"
               width={600}
               height={400}

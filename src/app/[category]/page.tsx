@@ -105,7 +105,7 @@ export default function ServiceListingPage({
         <motion.button
           whileHover={{ scale: 1.1 }}
           whileTap={{ scale: 0.9 }}
-          className="text-[#ffc300] hover:text-[#e6b000] transition-colors"
+          className="text-blue-300 hover:text-[#e6b000] transition-colors"
           aria-label="Filter services"
         >
           <Filter className="w-6 h-6" />
@@ -148,7 +148,7 @@ export default function ServiceListingPage({
                 onClick={() => handleServiceClick(service._id)}
               >
                 <Link href={`/${category}/${service._id}`}>
-                  <div className="relative h-40">
+                  <div className="relative h-52">
                     <Image
                       src={service.imageUrl}
                       alt={service.name}
@@ -162,10 +162,10 @@ export default function ServiceListingPage({
                       {service.name}
                     </h2>
                     <div className="flex items-center justify-between">
-                      <span className="text-[#ffc300] font-bold">
+                      <span className="text-blue-300 font-bold">
                         ₹{service.offerPrice.toLocaleString("en-IN")}
                       </span>
-                      <span className="text-[#ffc300] font-bold line-through">
+                      <span className="text-blue-300 font-bold line-through">
                         ₹ {service.actualPrice.toLocaleString("en-IN")}
                       </span>
                       <ChevronRight className="w-5 h-5 text-gray-400" />
