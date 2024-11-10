@@ -33,7 +33,6 @@ import {
   getAllOrders,
   updateOrderStatus,
   AssignTechnician,
-  updatePaymentStatus,
   updateOrderExpiryDate,
 } from "@/apis/order";
 import { getAllTechnicians } from "@/apis/technician";
@@ -102,7 +101,7 @@ export default function OrderManagement() {
   }>({ key: "date", direction: "ascending" });
   const [filterStatus, setFilterStatus] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
-
+  console.log(setSortConfig);
   useEffect(() => {
     const fetchOrdersAndTechnicians = async () => {
       try {
@@ -122,6 +121,15 @@ export default function OrderManagement() {
     };
     fetchOrdersAndTechnicians();
   }, []);
+
+  useEffect(() => {
+    if (selectedOrder) {
+      const updatedOrder = orders.find(
+        (order) => order._id === selectedOrder._id
+      );
+      if (updatedOrder) setSelectedOrder(updatedOrder);
+    }
+  }, [orders, selectedOrder]);
 
   const handleExpiryDateChange = async (date: Date, orderId: string) => {
     try {
@@ -198,18 +206,22 @@ export default function OrderManagement() {
     }
   };
 
-  const handleUpdatePaymentStatus = async (
+  // Update the main orders list and selectedOrder in one function.
+  const handleUpdatePaymentStatus = (
     orderId: string,
     paymentStatus: string
   ) => {
-    try {
-      const updatedData = await updatePaymentStatus(orderId, paymentStatus);
-      setOrders(updatedData);
-    } catch (error) {
-      console.error("Error updating payment status:", error);
-    }
+    setOrders((prevOrders) =>
+      prevOrders.map((order) =>
+        order._id === orderId ? { ...order, paymentStatus } : order
+      )
+    );
+    setSelectedOrder((prevOrder) =>
+      prevOrder && prevOrder._id === orderId
+        ? { ...prevOrder, paymentStatus }
+        : prevOrder
+    );
   };
-  console.log(setSortConfig);
 
   const OrderTable = ({
     orders,
