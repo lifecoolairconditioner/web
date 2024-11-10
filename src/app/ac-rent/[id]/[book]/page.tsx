@@ -165,7 +165,7 @@ export default function SlotBookingScreen({ params }: Booking) {
   const generateCalendar = () => {
     const today = new Date();
     const calendar = [];
-    for (let i = 0; i < 14; i++) {
+    for (let i = 0; i < 28; i++) {
       const date = new Date(today);
       date.setDate(today.getDate() + i);
       calendar.push(date);
