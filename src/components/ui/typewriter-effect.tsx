@@ -16,7 +16,7 @@ export const TypewriterEffect = ({
   className?: string;
   cursorClassName?: string;
 }) => {
-  const wordsArray = words.map((word) => {
+  const wordsArray = words?.map((word) => {
     return {
       ...word,
       text: word.text.split(""),
@@ -46,10 +46,10 @@ export const TypewriterEffect = ({
   const renderWords = () => {
     return (
       <motion.div ref={scope} className="inline">
-        {wordsArray.map((word, idx) => {
+        {wordsArray?.map((word, idx) => {
           return (
             <div key={`word-${idx}`} className="inline-block">
-              {word.text.map((char, index) => (
+              {word.text?.map((char, index) => (
                 <motion.span
                   initial={{}}
                   key={`char-${index}`}
@@ -109,7 +109,7 @@ export const TypewriterEffectSmooth = ({
   className?: string;
   cursorClassName?: string;
 }) => {
-  const wordsArray = words.map((word) => {
+  const wordsArray = words?.map((word) => {
     return {
       ...word,
       text: word.text.split(""),

@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 
-// Define a type for the BeforeInstallPromptEvent interface
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
   userChoice: Promise<{ outcome: "accepted" | "dismissed"; platform: string }>;
@@ -11,10 +11,10 @@ interface BeforeInstallPromptEvent extends Event {
 export default function PWAInstallButton() {
   const [deferredPrompt, setDeferredPrompt] =
     useState<BeforeInstallPromptEvent | null>(null);
+  const pathname = usePathname();
 
   useEffect(() => {
     const handleBeforeInstallPrompt = (event: Event) => {
-      // Check if the event has the expected properties for a BeforeInstallPromptEvent
       if ("prompt" in event && "userChoice" in event) {
         event.preventDefault();
         setDeferredPrompt(event as BeforeInstallPromptEvent);
@@ -49,6 +49,10 @@ export default function PWAInstallButton() {
       return () => clearTimeout(timer);
     }
   }, [deferredPrompt]);
+
+  if (pathname !== "/") {
+    return null;
+  }
 
   return null;
 }

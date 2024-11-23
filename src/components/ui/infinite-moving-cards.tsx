@@ -1,8 +1,12 @@
-"use client";
-
 import { cn } from "@/lib/utils";
 import React, { useEffect, useRef, useState } from "react";
 import { User } from "lucide-react";
+
+interface CardItem {
+  quote: React.ReactNode;
+  name: string;
+  title?: string; // Made title optional
+}
 
 export default function InfiniteMovingCards({
   items = [
@@ -15,11 +19,7 @@ export default function InfiniteMovingCards({
   pauseOnHover = true,
   className = "",
 }: {
-  items?: {
-    quote: string;
-    name: string;
-    title: string;
-  }[];
+  items?: CardItem[];
   direction?: "left" | "right";
   speed?: "fast" | "normal" | "slow";
   pauseOnHover?: boolean;
@@ -79,11 +79,13 @@ export default function InfiniteMovingCards({
 
               <div className="relative z-20 mt-6 flex flex-col gap-2">
                 <div className="flex items-center justify-between">
-                  <span className="text-xl leading-[1.6] text-gray-200 font-semibold flex items-center gap-2">
+                  <span className="text-xl leading-[1.6] text-black font-semibold flex items-center gap-2">
                     {item.name}
-                    <User className="w-6 h-6 text-gray-400" />
+                    <User className="w-6 h-6 text-black" />
                   </span>
-                  <span className="text-sm text-gray-400">{item.title}</span>
+                  {item.title && (
+                    <span className="text-sm text-black">{item.title}</span>
+                  )}
                 </div>
                 <span className="relative z-20 text-sm leading-[1.6] text-gray-300 font-normal">
                   {item.quote}

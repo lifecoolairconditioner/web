@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Star, MapPin } from "lucide-react";
+import { Star } from "lucide-react";
 
 // Define an interface for a review to ensure type consistency
 interface Review {
@@ -37,7 +37,9 @@ export default function ReviewsPage() {
   useEffect(() => {
     const fetchReviews = async () => {
       try {
-        const response = await fetch("http://192.168.43.177:8000/api/reviews/");
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/api/reviews`
+        );
         if (!response.ok) {
           throw new Error("Failed to fetch reviews");
         }
@@ -77,11 +79,13 @@ export default function ReviewsPage() {
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
+    console.log("pressed");
+
     e.preventDefault();
     if (validateForm()) {
       try {
         const response = await fetch(
-          "http://192.168.43.177:8000/api/reviews/",
+          `${process.env.NEXT_PUBLIC_API_URL}/api/reviews`,
           {
             method: "POST",
             headers: {
@@ -101,7 +105,7 @@ export default function ReviewsPage() {
         // Reset form data
         setFormData({ name: "", email: "", rating: 0, text: "" });
         const googleMapsUrl =
-          "https://search.google.com/local/writereview?placeid=ChIJQ7WZKe7PxTsRnbmWlG0W0Bg";
+          "";
         window.open(googleMapsUrl, "_blank");
       } catch (error) {
         console.error("Error submitting review:", error);
@@ -114,9 +118,14 @@ export default function ReviewsPage() {
       <h1 className="text-3xl font-bold mb-6">Business Reviews</h1>
 
       {/* Google Map Placeholder */}
-      <div className="mb-6 bg-gray-200 h-64 flex items-center justify-center rounded-lg">
-        <MapPin className="w-8 h-8 text-gray-400" />
-        <span className="ml-2 text-gray-600">Google Map would go here</span>
+      <div className="mb-6 bg-gray-200 h-64 flex items-center justify-center rounded-lg overflow-hidden">
+        <iframe
+          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3784.463725560107!2d73.87673507519024!3d18.46264258261976!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bc2eaf2cd486d8b%3A0xb2ae810e77ee6756!2sLife%20Cool%20Air%20Conditioner!5e0!3m2!1sen!2sin!4v1730839448929!5m2!1sen!2sin"
+          loading="lazy"
+          className="w-full h-full border-0"
+          style={{ filter: "grayscale(1) contrast(1.2) opacity(0.8)" }}
+          allowFullScreen
+        ></iframe>
       </div>
 
       {/* Review Form */}

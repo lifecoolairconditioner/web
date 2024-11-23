@@ -35,7 +35,7 @@ export default function Navbar() {
             <div className="flex-shrink-0 flex items-center">
               <Image
                 className="h-8 w-auto"
-                src="/logo.png"
+                src="/logosmall-t.png"
                 height={32}
                 width={100}
                 alt="Logo"

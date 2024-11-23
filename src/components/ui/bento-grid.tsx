@@ -11,7 +11,7 @@ export const BentoGrid = ({
   return (
     <div
       className={cn(
-        "grid md:auto-rows-[18rem] grid-cols-1 md:grid-cols-3 gap-4 max-w-7xl mx-auto",
+        "grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 max-w-7xl mx-auto",
         className
       )}
     >
@@ -25,37 +25,46 @@ export const BentoGridItem = ({
   title,
   description,
   header,
-  icon,
   image,
 }: {
   className?: string;
   title?: string | React.ReactNode;
   description?: string | React.ReactNode;
   header?: React.ReactNode;
-  icon?: React.ReactNode;
-  image?: string; // Added image prop for optional image support
+  image?: string;
 }) => {
   return (
     <div
       className={cn(
-        "row-span-1 rounded-xl group/bento hover:shadow-xl transition duration-200 shadow-input dark:shadow-none  dark:bg-black dark:border-white/[0.2] bg-white border border-transparent justify-between flex flex-col space-y-4",
+        "group relative flex flex-col justify-between space-y-4 rounded-xl bg-white p-6 shadow-md transition-all duration-300 hover:shadow-xl dark:bg-gray-800",
         className
       )}
-      role="article" // Added role for semantic meaning
-      aria-labelledby={title ? "bento-item-title" : undefined} // Optional ARIA attributes
+      role="article"
+      aria-labelledby={title ? "bento-item-title" : undefined}
       aria-describedby={description ? "bento-item-description" : undefined}
     >
-      {header}
-      <div className="">{icon}</div>
-      {image && (
-        <Image
-          width={100}
-          height={100}
-          src={image}
-          alt={title ? `${title} image` : "Bento item image"} // Accessible alt text
-          className="rounded-md h-full" // Styling for the image
-        />
+      {header && <div className="mb-4">{header}</div>}
+      {title && (
+        <h3 id="bento-item-title" className="text-lg font-semibold">
+          {title}
+        </h3>
       )}
+      {description && (
+        <p id="bento-item-description" className="text-muted-foreground">
+          {description}
+        </p>
+      )}
+      {image && (
+        <div className="relative h-40 w-full overflow-hidden rounded-md">
+          <Image
+            fill
+            src={image}
+            alt={title ? `${title} image` : "Bento item image"}
+            className="object-cover transition-transform duration-300 group-hover:scale-105"
+          />
+        </div>
+      )}
+      <div className="absolute inset-0 rounded-xl bg-primary/10 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
     </div>
   );
 };

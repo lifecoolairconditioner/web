@@ -4,7 +4,7 @@ import PWAInstallButton from "@/components/PWAInstallButton";
 
 export const metadata: Metadata = {
   title: "life cool air conditioner",
-  description: "lifecoolairconditioner",
+  description: "Book AC on rent & maintainance services",
 };
 
 export default function RootLayout({
@@ -18,7 +18,7 @@ export default function RootLayout({
         <link rel="manifest" href="/manifest.json" />
         <link rel="apple-touch-icon" href="/logosmall-t.png" />
         <link rel="shortcut icon" href="/logosmall-t.png" type="image/x-icon" />
-        <meta name="theme-color" content="#000000" />
+        <meta name="theme-color" content="#3b82f6" />
       </head>
       <body>
         {children}
