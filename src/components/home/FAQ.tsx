@@ -25,7 +25,9 @@ export function FAQ() {
   useEffect(() => {
     const fetchFAQItems = async () => {
       try {
-        const response = await fetch("http://localhost:8001/api/cms/faq");
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/api/cms/faq`
+        );
         if (!response.ok) {
           throw new Error("Failed to fetch FAQ items");
         }
