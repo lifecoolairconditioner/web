@@ -1,5 +1,5 @@
 import { useState } from "react";
-import axios from "axios"; // Import axios
+import axios from "axios";
 import { GalleryItem } from "@/components/types";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -17,9 +17,8 @@ export default function GallerySection({ data }: GallerySectionProps) {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
 
-    // POST request to add the gallery item
-    const url = `${process.env.NEXT_PUBLIC_API_URL}/api/cms/gallery`; // Create new item
-    const method = "post"; // Always POST to create a new item
+    const url = `${process.env.NEXT_PUBLIC_API_URL}/api/cms/gallery`;
+    const method = "post";
 
     try {
       const response = await axios({
@@ -30,7 +29,7 @@ export default function GallerySection({ data }: GallerySectionProps) {
 
       if (response.status === 200 || response.status === 201) {
         const newItem = response.data;
-        // Add new item to galleryItems state
+
         setGalleryItems([...galleryItems, newItem]);
       } else {
         console.error("Error saving gallery item");
@@ -89,20 +88,6 @@ export default function GallerySection({ data }: GallerySectionProps) {
         </div>
         <div>
           <label
-            htmlFor="icon"
-            className="block text-sm font-medium text-gray-700"
-          >
-            Icon
-          </label>
-          <Input
-            type="text"
-            id="icon"
-            name="icon"
-            className="mt-1 block w-full"
-          />
-        </div>
-        <div>
-          <label
             htmlFor="image"
             className="block text-sm font-medium text-gray-700"
           >
@@ -116,20 +101,6 @@ export default function GallerySection({ data }: GallerySectionProps) {
             className="mt-1 block w-full"
           />
         </div>
-        <div>
-          <label
-            htmlFor="className"
-            className="block text-sm font-medium text-gray-700"
-          >
-            CSS Class
-          </label>
-          <Input
-            type="text"
-            id="className"
-            name="className"
-            className="mt-1 block w-full"
-          />
-        </div>
         <Button type="submit">Add Gallery Item</Button>
       </form>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -140,8 +111,6 @@ export default function GallerySection({ data }: GallerySectionProps) {
             </CardHeader>
             <CardContent>
               <p>{item.description}</p>
-              <p>Icon: {item.icon}</p>
-              <p>Class: {item.className}</p>
               <div className="mt-4 space-x-2">
                 <Button
                   variant="destructive"

@@ -47,13 +47,8 @@ export default function ReasonsSection({ data, onSubmit }: ReasonsProps) {
   const validateForm = (formData: FormData) => {
     const title = formData.get("title")?.toString().trim();
     const description = formData.get("description")?.toString().trim();
-    const icon = formData.get("icon")?.toString().trim();
 
-    if (!title || !description || !icon) {
-      throw new Error("Please fill in all required fields");
-    }
-
-    return { title, description, icon };
+    return { title, description };
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -280,7 +275,6 @@ export default function ReasonsSection({ data, onSubmit }: ReasonsProps) {
             <AccordionContent>
               <div className="space-y-2">
                 <p className="text-sm text-gray-700">{reason.description}</p>
-                <p className="text-sm text-gray-600">Icon: {reason.icon}</p>
                 {reason.imageSrc && (
                   <Image
                     src={reason.imageSrc}
