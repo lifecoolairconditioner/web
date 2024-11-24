@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import HeroSection from "@/components/hero-section";
-import ServicesSection from "@/components/services-section";
 import ReasonsSection from "@/components/reasons-section";
 import GallerySection from "@/components/gallery-section";
 import FAQSection from "@/components/faq-section";
@@ -90,6 +89,7 @@ export default function ConsolidatedCMS() {
     }
   };
 
+  if (loading) return <div>loading...</div>;
   if (error) return <div>Error: {error}</div>;
 
   return (

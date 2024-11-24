@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { IconTool, IconBuildingStore, IconThumbUp } from "@tabler/icons-react";
 import { BentoGrid, BentoGridItem } from "@/components/ui/bento-grid";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
@@ -22,7 +21,9 @@ export function WhyChooseUs() {
   useEffect(() => {
     const fetchReasons = async () => {
       try {
-        const response = await fetch("http://localhost:8001/api/cms/reasons");
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/api/cms/reasons`
+        );
         if (!response.ok) {
           throw new Error("Failed to fetch reasons");
         }
@@ -35,19 +36,6 @@ export function WhyChooseUs() {
 
     fetchReasons();
   }, []);
-
-  const getIcon = (iconPath: string) => {
-    switch (iconPath) {
-      case "/icons/technician.png":
-        return <IconTool className="w-6 h-6 text-yellow-500" />;
-      case "/icons/price.png":
-        return <IconBuildingStore className="w-6 h-6 text-yellow-500" />;
-      case "/icons/satisfaction.png":
-        return <IconThumbUp className="w-6 h-6 text-yellow-500" />;
-      default:
-        return null;
-    }
-  };
 
   return (
     <section
