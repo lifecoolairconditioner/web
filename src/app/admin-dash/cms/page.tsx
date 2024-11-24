@@ -80,6 +80,9 @@ export default function ConsolidatedCMS() {
           body: formData,
         }
       );
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
       const updatedData = await response.json();
       setData((prevData) => ({ ...prevData, [section]: updatedData }));
     } catch (err) {
@@ -87,7 +90,6 @@ export default function ConsolidatedCMS() {
     }
   };
 
-  if (loading) return <div>Loading...</div>;
   if (error) return <div>Error: {error}</div>;
 
   return (
