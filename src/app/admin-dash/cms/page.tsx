@@ -101,26 +101,21 @@ export default function ConsolidatedCMS() {
           <CardContent>
             <nav>
               <ul className="space-y-2">
-                {[
-                  "hero",
-                  "services",
-                  "reasons",
-                  "gallery",
-                  "testimonials",
-                  "faq",
-                ].map((section) => (
-                  <li key={section}>
-                    <Button
-                      variant={
-                        activeSection === section ? "default" : "outline"
-                      }
-                      className="w-full justify-start"
-                      onClick={() => setActiveSection(section)}
-                    >
-                      {section.charAt(0).toUpperCase() + section.slice(1)}
-                    </Button>
-                  </li>
-                ))}
+                {["hero", "reasons", "gallery", "testimonials", "faq"].map(
+                  (section) => (
+                    <li key={section}>
+                      <Button
+                        variant={
+                          activeSection === section ? "default" : "outline"
+                        }
+                        className="w-full justify-start"
+                        onClick={() => setActiveSection(section)}
+                      >
+                        {section.charAt(0).toUpperCase() + section.slice(1)}
+                      </Button>
+                    </li>
+                  )
+                )}
               </ul>
             </nav>
           </CardContent>
@@ -139,12 +134,7 @@ export default function ConsolidatedCMS() {
                 onSubmit={(formData) => handleSubmit("hero", formData)}
               />
             )}
-            {activeSection === "services" && (
-              <ServicesSection
-                data={data.services}
-                onSubmit={(formData) => handleSubmit("services", formData)}
-              />
-            )}
+
             {activeSection === "reasons" && (
               <ReasonsSection
                 data={data.reasons}

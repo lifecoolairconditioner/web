@@ -78,13 +78,6 @@ export function WhyChooseUs() {
                     height={400}
                     className="object-cover w-full h-52 rounded-t-lg"
                   />
-                  {getIcon(item.icon)}
-                  <div className="font-sans font-bold text-neutral-600 dark:text-neutral-200">
-                    {item.title}
-                  </div>
-                  <div className="font-sans font-normal text-neutral-600 text-xs dark:text-neutral-300">
-                    {item.description}
-                  </div>
                 </div>
               }
               className="border h-full border-gray-200 hover:border-yellow-500 transition-colors duration-300"

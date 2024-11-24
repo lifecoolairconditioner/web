@@ -10,26 +10,32 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { useToast } from "@/hooks/use-toast";
+import axios from "axios";
+import Image from "next/image";
 
 interface ReasonsProps {
   data: Reason[];
   onSubmit?: (formData: FormData) => void;
 }
 
-import axios from "axios";
-import Image from "next/image";
-
-export async function uploadReasonData(formData: FormData, id: string) {
+// Dynamic function to handle POST and PUT
+export async function uploadReasonData(formData: FormData, id?: string) {
   try {
-    const response = await axios.put(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/cms/reasons/${id}`,
-      formData,
-      {
-        headers: {
-          "Content-Type": "multipart/form-data", // important for file uploads
-        },
-      }
-    );
+    const url = id
+      ? `${process.env.NEXT_PUBLIC_API_URL}/api/cms/reasons/${id}`
+      : `${process.env.NEXT_PUBLIC_API_URL}/api/cms/reasons`;
+
+    const method = id ? "PUT" : "POST";
+
+    const response = await axios({
+      method,
+      url,
+      data: formData,
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+
     return response.data;
   } catch (error) {
     console.error("Error uploading reason data:", error);
@@ -44,11 +50,19 @@ export default function ReasonsSection({ data, onSubmit }: ReasonsProps) {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const { toast } = useToast();
 
-  const validateForm = (formData: FormData) => {
+  const validateForm = (formData: FormData): boolean => {
     const title = formData.get("title")?.toString().trim();
     const description = formData.get("description")?.toString().trim();
 
-    return { title, description };
+    if (!title || !description) {
+      toast({
+        title: "Error",
+        description: "Title and description are required fields.",
+        variant: "destructive",
+      });
+      return false;
+    }
+    return true;
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -89,7 +103,10 @@ export default function ReasonsSection({ data, onSubmit }: ReasonsProps) {
       const form = e.currentTarget;
       const formData = new FormData(form);
 
-      validateForm(formData);
+      if (!validateForm(formData)) {
+        setIsSubmitting(false);
+        return;
+      }
 
       if (selectedFile) {
         formData.set("image", selectedFile);
@@ -97,7 +114,7 @@ export default function ReasonsSection({ data, onSubmit }: ReasonsProps) {
         formData.append("imageSrc", editingReason.imageSrc);
       }
 
-      const id = editingReason?._id || "new";
+      const id = editingReason?._id || undefined;
 
       toast({
         title: "Uploading",
@@ -145,9 +162,11 @@ export default function ReasonsSection({ data, onSubmit }: ReasonsProps) {
     }
   };
 
-  const handleEdit = (reason: Reason) => {
-    setEditingReason(reason);
+  const handleCancelEdit = () => {
+    setEditingReason(null);
     setSelectedFile(null);
+    const fileInput = document.getElementById("image") as HTMLInputElement;
+    if (fileInput) fileInput.value = ""; // Reset file input
   };
 
   const handleDelete = async (id: string) => {
@@ -254,14 +273,7 @@ export default function ReasonsSection({ data, onSubmit }: ReasonsProps) {
               : "Add Reason"}
           </Button>
           {editingReason && (
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => {
-                setEditingReason(null);
-                setSelectedFile(null);
-              }}
-            >
+            <Button type="button" variant="outline" onClick={handleCancelEdit}>
               Cancel Edit
             </Button>
           )}
@@ -287,7 +299,7 @@ export default function ReasonsSection({ data, onSubmit }: ReasonsProps) {
                 <div className="flex gap-2 mt-4">
                   <Button
                     variant="secondary"
-                    onClick={() => handleEdit(reason)}
+                    onClick={() => setEditingReason(reason)}
                   >
                     Edit
                   </Button>
