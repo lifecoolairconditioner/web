@@ -187,10 +187,10 @@ export default function ServiceDetailsPage({
       >
         <div className="flex items-center justify-between max-w-3xl mx-auto">
           <div>
-            <span className="text-[#000] font-bold line-through ">
+            <span className="text-[#000] font-bold  ">
               ₹{serviceDetails.offerPrice.toLocaleString("en-IN")}
             </span>
-            <span className="text-blue-500 font-bold text-3xl">
+            <span className="text-blue-500 font-bold line-through text-3xl">
               ₹ {serviceDetails.actualPrice.toLocaleString("en-IN")}
             </span>
 
