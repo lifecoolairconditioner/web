@@ -102,14 +102,6 @@ export default function ServiceListingPage({
             {category.charAt(0).toUpperCase() + category.slice(1)} Services
           </motion.h1>
         </div>
-        <motion.button
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.9 }}
-          className="text-blue-300 hover:text-[#e6b000] transition-colors"
-          aria-label="Filter services"
-        >
-          <Filter className="w-6 h-6" />
-        </motion.button>
       </header>
 
       <AnimatePresence>

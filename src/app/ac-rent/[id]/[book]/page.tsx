@@ -151,9 +151,7 @@ export default function SlotBookingScreen({ params }: Booking) {
     try {
       const response = await createOrder(bookingData);
       setIsModalOpen(false);
-      router.push(
-        `./${rentalPeriod}/${response._id}`
-      );
+      router.push(`./${rentalPeriod}/${response._id}`);
     } catch (error) {
       console.error("Error creating booking:", error);
       alert("Failed to create booking. Please try again.");
@@ -225,29 +223,32 @@ export default function SlotBookingScreen({ params }: Booking) {
           <Calendar className="w-5 h-5 mr-2" />
           Select Date
         </h2>
-        <motion.div
-          className="flex overflow-x-auto pb-4"
-          whileTap={{ cursor: "grabbing" }}
-        >
-          {calendar.map((date, index) => (
-            <motion.button
-              key={index}
-              onClick={() => handleDateClick(date)}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className={`flex flex-col items-center justify-center w-16 h-20 mr-2 rounded-lg ${
-                selectedDate?.toDateString() === date.toDateString()
-                  ? "bg-blue-300 text-[#010101]"
-                  : "bg-white text-[#010101]"
-              } shadow-sm transition-colors duration-200`}
-            >
-              <span className="text-sm">
-                {date.toLocaleDateString("en-US", { weekday: "short" })}
-              </span>
-              <span className="text-lg font-bold">{date.getDate()}</span>
-            </motion.button>
-          ))}
-        </motion.div>
+        <div className="flex overflow-x-auto pb-4 -mx-4 px-4 sm:mx-0 sm:px-0">
+          <AnimatePresence>
+            {calendar.map((date, index) => (
+              <motion.button
+                key={index}
+                onClick={() => handleDateClick(date)}
+                className={`flex flex-col items-center justify-center w-16 h-20 mr-2 rounded-lg ${
+                  selectedDate?.toDateString() === date.toDateString()
+                    ? "bg-blue-300 text-[#010101]"
+                    : "bg-white text-[#010101]"
+                } shadow-sm transition-colors duration-200 flex-shrink-0`}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ delay: index * 0.05 }}
+              >
+                <span className="text-sm">
+                  {date.toLocaleDateString("en-US", { weekday: "short" })}
+                </span>
+                <span className="text-lg font-bold">{date.getDate()}</span>
+              </motion.button>
+            ))}
+          </AnimatePresence>
+        </div>
       </motion.section>
       <motion.section
         initial={{ y: 20, opacity: 0 }}
