@@ -60,8 +60,8 @@ interface OrderDetails {
   paymentStatus: string;
   totalPrice: number;
   technician?: Technician;
-  rental?: string; // Add this if rental is a string or change the type as needed
-  duration?: number; // Add this if duration is a number or change the type as needed
+  rental?: string;
+  duration?: number;
 }
 
 const fetchOrderByPhone = async (phone: string): Promise<OrderDetails[]> => {
@@ -123,62 +123,42 @@ export default function OrderTrackingPage() {
 
       const updatedDetails = await Promise.all(
         details.map(async (order) => {
-          // Create a copy of the order to progressively add new details
           let updatedOrder = { ...order };
 
-          // Check if order.technician is a string (technician ID)
           if (typeof order.technician === "string") {
             try {
               const technicianDetails = await fetchTechnicianById(
                 order.technician
               );
-              updatedOrder = { ...updatedOrder, technician: technicianDetails }; // Update technician with full details
+              updatedOrder = { ...updatedOrder, technician: technicianDetails };
             } catch (error) {
               console.log(error);
-              console.warn(
-                `Failed to fetch technician details for order ${order._id}`
-              );
             }
           }
 
-          // Check if rental exists and fetch rental details
           if (order.rental) {
             try {
               const rentalDetails = await getACRentalById(order.rental);
-              console.log("rentalDetails", rentalDetails); // Log the rental details
-              updatedOrder = { ...updatedOrder, rental: rentalDetails.name }; // Update with name
+              updatedOrder = { ...updatedOrder, rental: rentalDetails.name };
             } catch (error) {
-              console.error(
-                `Failed to fetch rental details for order ${order._id}`,
-                error
-              );
-              // If rental details fail, keep the original rental ID or fallback
-              updatedOrder = { ...updatedOrder, rental: order.rental };
+              console.error(error);
             }
           }
 
-          // Check if service exists and fetch service details
           if (order.service) {
             try {
               const serviceDetails = await getServiceById(order.service);
-              console.log(serviceDetails); // Log the service details
-              updatedOrder = { ...updatedOrder, service: serviceDetails.name }; // Update with name
+              updatedOrder = { ...updatedOrder, service: serviceDetails.name };
             } catch (error) {
-              console.error(
-                `Failed to fetch service details for order ${order._id}`,
-                error
-              );
-              // If service details fail, keep the original service ID or fallback
-              updatedOrder = { ...updatedOrder, service: order.service };
+              console.error(error);
             }
           }
 
-          // Return the fully updated order object after processing all details
           return updatedOrder;
         })
       );
 
-      setOrderDetails(updatedDetails); // Update state with the updated orders
+      setOrderDetails(updatedDetails.reverse());
     } catch (error) {
       console.log(error);
       toast({
@@ -272,7 +252,7 @@ export default function OrderTrackingPage() {
       case "Rejected":
         return <XCircle className="w-16 h-16 text-red-500" />;
       case "Pending":
-        return <Clock className="w-16 h-16 text-[#ffc300]" />;
+        return <Clock className="w-16 h-16 text-blue-300" />;
       default:
         return null;
     }
@@ -327,19 +307,19 @@ export default function OrderTrackingPage() {
               onChange={(e) => setMobileNumber(e.target.value)}
               placeholder="e.g., 9876543210"
               required
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-[#ffc300] focus:border-transparent transition-all duration-300"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-transparent transition-all duration-300"
             />
           </div>
           <Button
             type="submit"
             disabled={isLoading}
-            className="w-full py-2 px-4 bg-blue-300 text-[#010101] rounded-lg font-semibold hover:bg-[#e6b000] transition-colors focus:outline-none focus:ring-4 focus:ring-[#ffc300] focus:ring-opacity-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full py-2 px-4 bg-blue-300 text-[#010101] rounded-lg font-semibold hover:bg-blue-300 transition-colors focus:outline-none focus:ring-4 focus:ring-blue-300 focus:ring-opacity-50 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isLoading ? "Fetching..." : "Track Orders"}
           </Button>
 
           <Link href="/review" passHref>
-            <Button className="w-full mt-5 py-2 px-4 bg-blue-300 text-[#010101] rounded-lg font-semibold hover:bg-[#e6b000] transition-colors focus:outline-none focus:ring-4 focus:ring-[#ffc300] focus:ring-opacity-50">
+            <Button className="w-full mt-5 py-2 px-4 bg-blue-300 text-[#010101] rounded-lg font-semibold hover:bg-blue-300 transition-colors focus:outline-none focus:ring-4 focus:ring-blue-300 focus:ring-opacity-50">
               Review
             </Button>
           </Link>
@@ -483,7 +463,7 @@ export default function OrderTrackingPage() {
                 <Button
                   onClick={handleRefresh}
                   disabled={isRefreshing}
-                  className="flex-1 py-2 px-4 bg-blue-300 text-[#010101] rounded-lg font-semibold hover:bg-[#e6b000] transition-colors focus:outline-none focus:ring-4 focus:ring-[#ffc300] focus:ring-opacity-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex-1 py-2 px-4 bg-blue-300 text-[#010101] rounded-lg font-semibold hover:bg-blue-300 transition-colors focus:outline-none focus:ring-4 focus:ring-blue-300 focus:ring-opacity-50 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isRefreshing ? (
                     <>
@@ -552,7 +532,7 @@ export default function OrderTrackingPage() {
           <DialogFooter>
             <Button
               onClick={handleUpdateOrder}
-              className="bg-blue-300 text-[#010101] hover:bg-[#e6b000]"
+              className="bg-blue-300 text-[#010101] hover:bg-blue-300"
             >
               Update Order
             </Button>
@@ -576,7 +556,7 @@ export default function OrderTrackingPage() {
               </AlertDescription>
               <Button
                 onClick={() => setShowRentalAlert(false)}
-                className="mt-4 bg-blue-300 text-[#010101] hover:bg-[#e6b000]"
+                className="mt-4 bg-blue-300 text-[#010101] hover:bg-blue-300"
               >
                 Close
               </Button>
