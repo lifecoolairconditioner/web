@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { ChevronLeft, ChevronRight, Filter } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { getServiceBycategory } from "../../apis/service";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
