@@ -84,7 +84,7 @@ export default function ServiceDetailsPage({
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 0.8 }}
-          className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-[#ffc300]"
+          className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-blue-300"
         ></motion.div>
       </div>
     );
@@ -201,7 +201,7 @@ export default function ServiceDetailsPage({
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={handleBookService}
-              className="bg-blue-300 text-[#010101] px-6 py-3 rounded-lg font-semibold hover:bg-[#e6b000] transition-colors duration-300 focus:outline-none focus:ring-4 focus:ring-blue-300 focus:ring-opacity-50"
+              className="bg-blue-300 text-[#010101] px-6 py-3 rounded-lg font-semibold hover:bg-blue-300 transition-colors duration-300 focus:outline-none focus:ring-4 focus:ring-blue-300 focus:ring-opacity-50"
             >
               Book Service
             </motion.button>

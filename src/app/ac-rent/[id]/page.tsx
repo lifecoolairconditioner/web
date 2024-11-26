@@ -88,7 +88,7 @@ export default function ACDetailsPage({ params }: ACDetailsPageProps) {
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.5 }}
         >
-          <Loader2 className="w-12 h-12 text-[#ffc300] animate-spin" />
+          <Loader2 className="w-12 h-12 text-blue-300 animate-spin" />
         </motion.div>
       </div>
     );
@@ -226,7 +226,7 @@ export default function ACDetailsPage({ params }: ACDetailsPageProps) {
                   onChange={(e) =>
                     setQuantity(Math.max(1, Number(e.target.value)))
                   }
-                  className="w-20 p-2 border border-[#ffc300] rounded-md focus:outline-none focus:ring-2 focus:ring-[#ffc300] text-center text-[#010101]"
+                  className="w-20 p-2 border border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-300 text-center text-[#010101]"
                 />
                 <motion.button
                   whileHover={{ scale: 1.1 }}
@@ -266,17 +266,17 @@ export default function ACDetailsPage({ params }: ACDetailsPageProps) {
                     {duration} month{Number(duration) > 1 ? "s" : ""}
                     {/* Pluralization */}
                   </h3>
-                  <p className="text-2xl line-through font-bold text-[#ffc300] mb-4">
+                  <p className="text-2xl line-through font-bold text-blue-300 mb-4">
                     ₹{actualPrice} {/* Ensure you're using actualPrice */}
                   </p>
-                  <p className="text-2xl font-bold text-[#ffc300] mb-4">
+                  <p className="text-2xl font-bold text-blue-300 mb-4">
                     ₹{offerPrice} {/* Ensure you're using offerPrice */}
                   </p>
                   <motion.button
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                     onClick={() => handlePlanSelection(duration)}
-                    className="w-full py-2 px-4 bg-blue-300 text-[#010101] rounded-lg font-semibold hover:bg-[#e6b000] transition-colors duration-300 focus:outline-none focus:ring-4 focus:ring-yellow-300"
+                    className="w-full py-2 px-4 bg-blue-300 text-[#010101] rounded-lg font-semibold hover:bg-blue-300 transition-colors duration-300 focus:outline-none focus:ring-4 focus:ring-blue-4000"
                   >
                     Select Plan
                   </motion.button>

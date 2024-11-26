@@ -326,9 +326,9 @@ export default function ServiceSchedulingPage({
           disabled={!date || !timeSlot}
           className={`w-full py-3 px-4 rounded-lg text-[#010101] font-semibold transition-colors duration-300 ${
             date && timeSlot
-              ? "bg-blue-300 hover:bg-[#e6b000]"
+              ? "bg-blue-300 hover:bg-blue-300"
               : "bg-gray-300 cursor-not-allowed"
-          } focus:outline-none focus:ring-4 focus:ring-[#ffc300] focus:ring-opacity-50`}
+          } focus:outline-none focus:ring-4 focus:ring-blue-300 focus:ring-opacity-50`}
         >
           Proceed
         </Button>
@@ -421,7 +421,7 @@ export default function ServiceSchedulingPage({
                 <DialogFooter>
                   <Button
                     type="submit"
-                    className="bg-blue-300 text-[#010101] hover:bg-[#e6b000]"
+                    className="bg-blue-300 text-[#010101] hover:bg-blue-300"
                     disabled={loading}
                   >
                     {loading ? "Placing Order..." : "Complete Booking"}

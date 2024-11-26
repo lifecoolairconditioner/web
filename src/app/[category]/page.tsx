@@ -112,7 +112,7 @@ export default function ServiceListingPage({
             exit={{ opacity: 0 }}
             className="flex justify-center items-center h-64"
           >
-            <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-[#ffc300]"></div>
+            <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-blue-300"></div>
           </motion.div>
         ) : error ? (
           <motion.div

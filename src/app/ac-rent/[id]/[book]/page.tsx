@@ -181,7 +181,7 @@ export default function SlotBookingScreen({ params }: Booking) {
         exit={{ opacity: 0 }}
         className="min-h-screen bg-[#fafafa] flex items-center justify-center"
       >
-        <div className="w-16 h-16 border-4 border-[#ffc300] border-t-[#010101] rounded-full animate-spin"></div>
+        <div className="w-16 h-16 border-4 border-blue-300 border-t-[#010101] rounded-full animate-spin"></div>
       </motion.div>
     );
   }
@@ -288,9 +288,9 @@ export default function SlotBookingScreen({ params }: Booking) {
           disabled={!selectedDate || !selectedTime}
           className={`w-full py-3 px-4 rounded-lg text-white font-semibold transition-colors duration-300 ${
             selectedDate && selectedTime
-              ? "bg-blue-300 hover:bg-[#e6b000]"
+              ? "bg-blue-300 hover:bg-blue-300"
               : "bg-gray-300 cursor-not-allowed"
-          } focus:outline-none focus:ring-4 focus:ring-yellow-300`}
+          } focus:outline-none focus:ring-4 focus:ring-blue-4000`}
         >
           Proceed
         </Button>
@@ -361,7 +361,7 @@ export default function SlotBookingScreen({ params }: Booking) {
                 </div>
                 <Button
                   type="submit"
-                  className="w-full bg-blue-300 text-[#010101] hover:bg-[#e6b000]"
+                  className="w-full bg-blue-300 text-[#010101] hover:bg-blue-300"
                   disabled={isLoading}
                 >
                   {isLoading ? "Processing..." : "Confirm Booking"}

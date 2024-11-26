@@ -198,7 +198,7 @@ export default function PaymentPage({ params }: PaymentDetail) {
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
                 onClick={() => handleCopy(scannerDetails?.phonePeNumber || "")}
-                className="text-[#ffc300] hover:text-[#e6b000] transition-colors"
+                className="text-blue-300 hover:text-blue-300 transition-colors"
                 aria-label="Copy PhonePe number"
               >
                 <Copy className="w-5 h-5" />
@@ -214,7 +214,7 @@ export default function PaymentPage({ params }: PaymentDetail) {
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
                 onClick={() => handleCopy(scannerDetails?.upiId || "")}
-                className="text-[#ffc300] hover:text-[#e6b000] transition-colors"
+                className="text-blue-300 hover:text-blue-300 transition-colors"
                 aria-label="Copy UPI ID"
               >
                 <Copy className="w-5 h-5" />
@@ -282,7 +282,7 @@ export default function PaymentPage({ params }: PaymentDetail) {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               href={`tel:${scannerDetails?.contactPhone}`}
-              className="flex items-center text-[#010101] hover:text-[#ffc300] transition-colors"
+              className="flex items-center text-[#010101] hover:text-blue-300 transition-colors"
             >
               <Phone className="w-5 h-5 mr-2" />
               <span>{scannerDetails?.contactPhone}</span>
@@ -293,7 +293,7 @@ export default function PaymentPage({ params }: PaymentDetail) {
               href={`https://wa.me/${scannerDetails?.contactPhone}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center text-[#010101] hover:text-[#ffc300] transition-colors"
+              className="flex items-center text-[#010101] hover:text-blue-300 transition-colors"
             >
               <MessageCircle className="w-5 h-5 mr-2" />
               <span>WhatsApp</span>
@@ -306,7 +306,7 @@ export default function PaymentPage({ params }: PaymentDetail) {
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
           onClick={handlePaymentConfirmation}
-          className="w-full py-3 px-4 bg-blue-300 text-[#010101] rounded-lg font-semibold hover:bg-[#e6b000] transition-colors focus:outline-none focus:ring-4 focus:ring-[#ffc300] focus:ring-opacity-50"
+          className="w-full py-3 px-4 bg-blue-300 text-[#010101] rounded-lg font-semibold hover:bg-blue-300 transition-colors focus:outline-none focus:ring-4 focus:ring-blue-300 focus:ring-opacity-50"
         >
           Confirm Payment
         </motion.button>
