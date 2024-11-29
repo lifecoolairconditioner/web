@@ -568,6 +568,7 @@ export default function ACRentalDashboard() {
                       <Label>Rental Rates</Label>
                       {rentalRates.map((rate, index) => (
                         <div key={index} className="flex space-x-2 mt-2">
+                          <Label>Enter Number of Months </Label>
                           <Input
                             type="number"
                             placeholder="Duration"
@@ -581,19 +582,7 @@ export default function ACRentalDashboard() {
                             }
                             required
                           />
-                          <Input
-                            type="number"
-                            placeholder="Offer Price"
-                            value={rate.offerPrice}
-                            onChange={(e) =>
-                              handleRentalRateChange(
-                                index,
-                                "offerPrice",
-                                parseFloat(e.target.value) || 0
-                              )
-                            }
-                            required
-                          />
+                          <Label>Actual Price </Label>
                           <Input
                             type="number"
                             placeholder="Actual Price"
@@ -602,6 +591,20 @@ export default function ACRentalDashboard() {
                               handleRentalRateChange(
                                 index,
                                 "actualPrice",
+                                parseFloat(e.target.value) || 0
+                              )
+                            }
+                            required
+                          />
+                          <Label>Offer Price </Label>
+                          <Input
+                            type="number"
+                            placeholder="Offer Price"
+                            value={rate.offerPrice}
+                            onChange={(e) =>
+                              handleRentalRateChange(
+                                index,
+                                "offerPrice",
                                 parseFloat(e.target.value) || 0
                               )
                             }
