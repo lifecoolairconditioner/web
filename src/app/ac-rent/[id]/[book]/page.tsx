@@ -10,11 +10,11 @@ import {
   DialogHeader,
   DialogTitle,
   DialogDescription,
-} from "../../../../components/ui/dialog";
-import { Input } from "../../../../components/ui/input";
-import { Label } from "../../../../components/ui/label";
-import { Button } from "../../../../components/ui/button";
-import { createOrder } from "../../../../apis/order";
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+import { createOrder } from "@/apis/order";
 import { motion, AnimatePresence } from "framer-motion";
 
 const generateTimeSlots = () => {
