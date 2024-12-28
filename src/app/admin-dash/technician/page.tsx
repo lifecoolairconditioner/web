@@ -334,14 +334,14 @@ export default function TechnicianManagement() {
 
       {/* Add Technician Dialog */}
       <Dialog open={isAddModalOpen} onOpenChange={setIsAddModalOpen}>
-        <DialogContent className="bg-white">
+        <DialogContent className="bg-white overflow-auto">
           <DialogHeader>
             <DialogTitle>Add New Technician</DialogTitle>
             <DialogDescription>
               Fill in the details to add a new technician.
             </DialogDescription>
           </DialogHeader>
-          <div className="grid gap-4">
+          <div className="grid gap-4 ">
             <div>
               <Label>Name</Label>
               <Input

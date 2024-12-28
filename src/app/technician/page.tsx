@@ -46,6 +46,8 @@ export default function Component() {
       setError(null);
       try {
         const accessToken = localStorage.getItem("accessToken");
+        console.log(accessToken);
+        
         if (accessToken) {
           const response = await getMyOrder();
           setOrders(response);
@@ -54,6 +56,8 @@ export default function Component() {
           window.location.href = "/auth/login";
         }
       } catch (err: unknown) {
+        console.log(err);
+
         // Typing error as 'unknown'
         if (err instanceof Error) {
           setError(err.message || "Failed to fetch orders");
