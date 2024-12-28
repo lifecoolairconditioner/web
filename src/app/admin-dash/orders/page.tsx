@@ -98,7 +98,8 @@ export default function OrderManagement() {
   const [sortConfig, setSortConfig] = useState<{
     key: keyof Order;
     direction: "ascending" | "descending";
-  }>({ key: "date", direction: "ascending" });
+  }>({ key: "date", direction: "descending" });
+
   const [filterStatus, setFilterStatus] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
   console.log(setSortConfig);

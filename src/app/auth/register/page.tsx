@@ -68,7 +68,7 @@ export default function Register() {
         }, 2000);
       }
     } catch (err) {
-      setError("Registration failed");
+      setError((err as Error).message);
       console.log(err);
     } finally {
       setIsLoading(false);

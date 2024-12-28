@@ -105,7 +105,7 @@ export default function Dashboard() {
                         {order.status}
                       </span>
                     </TableCell>
-                    <TableCell>${order.totalPrice}</TableCell>
+                    <TableCell>₹ {order.totalPrice}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
