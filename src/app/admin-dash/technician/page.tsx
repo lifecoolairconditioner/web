@@ -432,7 +432,7 @@ export default function TechnicianManagement() {
 
       {/* Edit Technician Dialog */}
       <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
-        <DialogContent className="bg-white">
+        <DialogContent className="overflow-auto max-h-[70vh]">
           <DialogHeader>
             <DialogTitle>Edit Technician</DialogTitle>
             <DialogDescription>
