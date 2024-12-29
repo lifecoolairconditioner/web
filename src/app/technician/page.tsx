@@ -170,7 +170,7 @@ export default function Component() {
         <AnimatePresence>
           {orders.map((order, index) => (
             <motion.div
-              key={order._id}
+              key={order?._id}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
@@ -178,28 +178,28 @@ export default function Component() {
             >
               <Card className="mb-6 overflow-hidden">
                 <CardHeader className="bg-yellow-500 uppercase text-black">
-                  Order ID: {order._id}
+                  Order ID: {order?._id}
                 </CardHeader>
                 <CardContent className="p-6">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <p><strong>Order ID:</strong> {order._id}</p>
-                      <p><strong>Rental ID:</strong> {order.rental}</p>
-                      <p><strong>Status:</strong> {order.status}</p>
-                      <p><strong>Payment Status:</strong> {order.paymentStatus}</p>
-                      <p><strong>Duration:</strong> {order.duration} Months</p>
-                      <p><strong>Quantity:</strong> {order.quantity}</p>
-                      <p><strong>Total Price:</strong> ₹{order.totalPrice.toFixed(2)}</p>
+                      <p><strong>Order ID:</strong> {order?._id}</p>
+                      <p><strong>Rental ID:</strong> {order?.rental}</p>
+                      <p><strong>Status:</strong> {order?.status}</p>
+                      <p><strong>Payment Status:</strong> {order?.paymentStatus}</p>
+                      <p><strong>Duration:</strong> {order?.duration} Months</p>
+                      <p><strong>Quantity:</strong> {order?.quantity}</p>
+                      <p><strong>Total Price:</strong> ₹{order?.totalPrice.toFixed(2)}</p>
                     </div>
                     <div>
                       <p><strong>Date:</strong> {new Date(order.date).toLocaleDateString()}</p>
                       <p><strong>Created At:</strong> {new Date(order.createdAt).toLocaleString()}</p>
                       <p><strong>Updated At:</strong> {new Date(order.updatedAt).toLocaleString()}</p>
-                      <p><strong>Technician ID:</strong> {order.technician}</p>
-                      <p><strong>Contact:</strong> {order.contact.name}, {order.contact.phone}</p>
-                      <p><strong>Email:</strong> {order.contact.email}</p>
-                      <p><strong>Address:</strong> {order.contact.address}</p>
-                      <p><strong>Location:</strong> Lat: {order.location.latitude}, Long: {order.location.longitude}</p>
+                      <p><strong>Technician ID:</strong> {order?.technician}</p>
+                      <p><strong>Contact:</strong> {order?.contact.name}, {order?.contact.phone}</p>
+                      <p><strong>Email:</strong> {order?.contact.email}</p>
+                      <p><strong>Address:</strong> {order?.contact.address}</p>
+                      <p><strong>Location:</strong> Lat: {order?.location.latitude}, Long: {order?.location.longitude}</p>
                     </div>
                   </div>
                   <div className="mt-4 flex items-center space-x-2">
