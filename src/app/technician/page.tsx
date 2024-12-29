@@ -12,7 +12,35 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { Loader2 } from 'lucide-react';
+import { Loader2 } from "lucide-react";
+
+interface Rental {
+  _id: string;
+  name: string;
+  description: string;
+  rentalRates: { duration: number; actualPrice: number; offerPrice: number }[];
+}
+
+interface Service {
+  _id: string;
+  name: string;
+  description: string;
+  category: string;
+  actualPrice: number;
+  offerPrice: number;
+}
+
+interface Contact {
+  name: string;
+  phone: string;
+  email: string;
+  address: string;
+}
+
+interface Location {
+  latitude: number;
+  longitude: number;
+}
 
 interface Order {
   _id: string;
@@ -23,19 +51,12 @@ interface Order {
   date: string;
   createdAt: string;
   updatedAt: string;
-  rental: string;
-  duration: string;
   technician: string;
-  contact: {
-    name: string;
-    phone: string;
-    email: string;
-    address: string;
-  };
-  location: {
-    latitude: number;
-    longitude: number;
-  };
+  contact: Contact;
+  location: Location;
+  rental?: Rental;
+  service?: Service;
+  duration: string;
 }
 
 export default function Component() {
@@ -51,7 +72,6 @@ export default function Component() {
       setError(null);
       try {
         const accessToken = localStorage.getItem("accessToken");
-        console.log(accessToken);
 
         if (accessToken) {
           const response = await getMyOrder();
@@ -61,9 +81,6 @@ export default function Component() {
           window.location.href = "/auth/login";
         }
       } catch (err: unknown) {
-        console.log(err);
-
-        // Typing error as 'unknown'
         if (err instanceof Error) {
           setError(err.message || "Failed to fetch orders");
         } else {
@@ -99,7 +116,6 @@ export default function Component() {
   const handleLogout = async () => {
     try {
       localStorage.removeItem("accessToken"); // Clear the token
-      // Optionally, redirect the user or update the state to reflect the logout
       window.location.href = "/login"; // Redirect to login page
     } catch (error) {
       console.error("Logout failed:", error);
@@ -170,7 +186,7 @@ export default function Component() {
         <AnimatePresence>
           {orders.map((order, index) => (
             <motion.div
-              key={order?._id}
+              key={order._id}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
@@ -178,30 +194,40 @@ export default function Component() {
             >
               <Card className="mb-6 overflow-hidden">
                 <CardHeader className="bg-yellow-500 uppercase text-black">
-                  Order ID: {order?._id}
+                  Order ID: {order._id}
                 </CardHeader>
                 <CardContent className="p-6">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <p><strong>Order ID:</strong> {order?._id}</p>
-                      <p><strong>Rental ID:</strong> {order?.rental}</p>
-                      <p><strong>Status:</strong> {order?.status}</p>
-                      <p><strong>Payment Status:</strong> {order?.paymentStatus}</p>
-                      <p><strong>Duration:</strong> {order?.duration} Months</p>
-                      <p><strong>Quantity:</strong> {order?.quantity}</p>
-                      <p><strong>Total Price:</strong> ₹{order?.totalPrice.toFixed(2)}</p>
+                      <p><strong>Order ID:</strong> {order._id}</p>
+                      {order.rental ? (
+                        <>
+                          <p><strong>Rental Name:</strong> {order.rental.name}</p>
+                          <p><strong>Description:</strong> {order.rental.description}</p>
+                          <p><strong>Rental Duration:</strong> {order.duration} Months</p>
+                          <p><strong>Total Price:</strong> ₹{order.totalPrice.toFixed(2)}</p>
+                        </>
+                      ) : order.service ? (
+                        <>
+                          <p><strong>Service Name:</strong> {order.service.name}</p>
+                          <p><strong>Service Description:</strong> {order.service.description}</p>
+                          <p><strong>Service Category:</strong> {order.service.category}</p>
+                          <p><strong>Service Price:</strong> ₹{order.totalPrice.toFixed(2)}</p>
+                        </>
+                      ) : null}
+                      <p><strong>Status:</strong> {order.status}</p>
+                      <p><strong>Payment Status:</strong> {order.paymentStatus}</p>
                     </div>
                     <div>
-                      <p><strong>Date:</strong> {new Date(order.date).toLocaleDateString()}</p>
+                      <p><strong>Contact:</strong> {order.contact.name}, {order.contact.phone}</p>
+                      <p><strong>Email:</strong> {order.contact.email}</p>
+                      <p><strong>Address:</strong> {order.contact.address}</p>
+                      <p><strong>Location:</strong> Lat: {order.location.latitude}, Long: {order.location.longitude}</p>
                       <p><strong>Created At:</strong> {new Date(order.createdAt).toLocaleString()}</p>
                       <p><strong>Updated At:</strong> {new Date(order.updatedAt).toLocaleString()}</p>
-                      <p><strong>Technician ID:</strong> {order?.technician}</p>
-                      <p><strong>Contact:</strong> {order?.contact.name}, {order?.contact.phone}</p>
-                      <p><strong>Email:</strong> {order?.contact.email}</p>
-                      <p><strong>Address:</strong> {order?.contact.address}</p>
-                      {/* <p><strong>Location:</strong> Lat: {order?.location?.latitude}, Long: {order?.location.longitude}</p> */}
                     </div>
                   </div>
+
                   <div className="mt-4 flex items-center space-x-2">
                     <Select onValueChange={setNewStatus}>
                       <SelectTrigger className="w-[180px]">
