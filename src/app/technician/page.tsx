@@ -222,7 +222,6 @@ export default function Component() {
                       <p><strong>Contact:</strong> {order.contact.name}, {order.contact.phone}</p>
                       <p><strong>Email:</strong> {order.contact.email}</p>
                       <p><strong>Address:</strong> {order.contact.address}</p>
-                      <p><strong>Location:</strong> Lat: {order.location.latitude}, Long: {order.location.longitude}</p>
                       <p><strong>Created At:</strong> {new Date(order.createdAt).toLocaleString()}</p>
                       <p><strong>Updated At:</strong> {new Date(order.updatedAt).toLocaleString()}</p>
                     </div>
