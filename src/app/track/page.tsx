@@ -182,7 +182,7 @@
 
       const lastOrder = orderDetails[orderDetails.length - 1];
 
-      if (lastOrder.service.toLowerCase() === "rental") {
+      if (lastOrder.service === "rental") {
         setShowRentalAlert(true);
         setIsUpdateModalOpen(false);
         return;
