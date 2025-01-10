@@ -334,7 +334,7 @@ export default function TechnicianManagement() {
 
       {/* Add Technician Dialog */}
       <Dialog open={isAddModalOpen} onOpenChange={setIsAddModalOpen}>
-        <DialogContent className="bg-white overflow-auto">
+        <DialogContent className="overflow-auto bg-white max-h-[70vh]">
           <DialogHeader>
             <DialogTitle>Add New Technician</DialogTitle>
             <DialogDescription>
@@ -432,7 +432,7 @@ export default function TechnicianManagement() {
 
       {/* Edit Technician Dialog */}
       <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
-        <DialogContent className="overflow-auto max-h-[70vh]">
+        <DialogContent className="overflow-auto bg-white  max-h-[70vh]">
           <DialogHeader>
             <DialogTitle>Edit Technician</DialogTitle>
             <DialogDescription>
